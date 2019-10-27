@@ -10,10 +10,10 @@ public:
     GLWindow(HINSTANCE instance = nullptr);
     virtual ~GLWindow();
 
-protected:
     bool AttachContext();
     void DetachContext();
 
+protected:
     LRESULT WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) override;
     bool OnCreated() override;
     void OnDestroy() override;

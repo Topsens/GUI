@@ -31,12 +31,8 @@ Cylinder::Cylinder(float radius, float height, int fragments)
     {
         auto n = i + 1;
 
-        auto fi = i * 2 / (float)(fragments + 1);
-        if (fi > 1.f)
-        {
-            fi -= 1.f;
-        }
-        auto fn = fi + 1.f / (fragments + 1);
+        auto fi = ((i * 2) % fragments) / (float)fragments;
+        auto fn = fi + 2.f / (fragments);
 
         vertices.push_back({ xy[i][0], xy[i][1], -0.5f * height });
         vertices.push_back({ xy[i][0], xy[i][1],  0.5f * height });
