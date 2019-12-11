@@ -186,36 +186,6 @@ wstring DialogItem::Text() const
     return wstring();
 }
 
-void DialogItem::Check() const
-{
-    SendMessageW(this->hwnd, BM_SETCHECK, BST_CHECKED, 0);
-}
-
-bool DialogItem::IsChecked() const
-{
-    return BST_CHECKED == SendMessageW(this->hwnd, BM_GETCHECK, 0, 0);
-}
-
-void DialogItem::Uncheck() const
-{
-    SendMessageW(this->hwnd, BM_SETCHECK, BST_UNCHECKED, 0);
-}
-
-bool DialogItem::IsUnchecked() const
-{
-    return BST_UNCHECKED == SendMessageW(this->hwnd, BM_GETCHECK, 0, 0);
-}
-
-void DialogItem::Indeterminate() const
-{
-    SendMessageW(this->hwnd, BM_SETCHECK, BST_INDETERMINATE, 0);
-}
-
-bool DialogItem::IsIndeterminate() const
-{
-    return BST_INDETERMINATE == SendMessageW(this->hwnd, BM_SETCHECK, BST_INDETERMINATE, 0);
-}
-
 UINT DialogItem::ID() const
 {
     return this->id;

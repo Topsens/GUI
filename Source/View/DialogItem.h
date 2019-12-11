@@ -37,13 +37,6 @@ public:
     void Text(const std::wstring& text) const;
     std::wstring Text() const;
 
-    void Check() const;
-    bool IsChecked() const;
-    void Uncheck() const;
-    bool IsUnchecked() const;
-    void Indeterminate() const;
-    bool IsIndeterminate() const;
-
     UINT ID() const;
     HWND Handle() const;
 
