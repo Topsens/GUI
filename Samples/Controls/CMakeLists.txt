@@ -9,8 +9,9 @@ include_directories(${View})
 add_executable(${PROJECT_NAME}
                Application.cpp
                Controls.rc
-               ${View}/CheckBox.cpp
                ${View}/ComboBox.cpp
-               ${View}/DialogItem.cpp
+               ${View}/CheckBox.cpp
                ${View}/Dialog.cpp
+               ${View}/DialogItem.cpp
+               ${View}/ProgressBar.cpp
                ${View}/View.cpp)

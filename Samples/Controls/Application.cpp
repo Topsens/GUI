@@ -1,6 +1,7 @@
 #include "Application.h"
 #include "CheckBox.h"
 #include "ComboBox.h"
+#include "ProgressBar.h"
 #include "resource.h"
 
 using namespace std;
@@ -25,6 +26,10 @@ bool Application::OnCreated()
     auto combo = (ComboBox&)this->Item(IDC_COMBO);
     combo.Add(L"Hello");
     combo.Add(L"World");
+
+    auto progress = (ProgressBar&)this->Item(IDC_PROGRESS);
+    progress.SetRange(-100, 100);
+    progress.Position(-50);
 
     return Dialog::OnCreated();
 }
