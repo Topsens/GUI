@@ -8,6 +8,8 @@ class DialogItem
 public:
     DialogItem(HWND parent, UINT id);
 
+    DialogItem(){}
+
     void Show() const;
     void Hide() const;
     bool Move(int x, int y, bool repaint = true) const;
@@ -42,7 +44,7 @@ public:
 
     operator bool();
 
-private:
+protected:
     HWND parent;
     HWND hwnd;
     UINT id;
