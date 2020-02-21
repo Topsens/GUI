@@ -78,6 +78,11 @@ bool Application::OnCommand()
             return true;
         }
 
+        case IDC_BUTTON:
+        {
+            echo.Text(L"Button clicked");
+        }
+
         default:
             break;
     }

@@ -4,14 +4,14 @@
 using namespace std;
 using namespace Gdiplus;
 
-int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
+int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR, int nCmdShow)
 {
     ULONG_PTR token;
     GdiplusStartupInput input;
     GdiplusStartupOutput output;
     GdiplusStartup(&token, &input, &output);
 
-    auto ret = Application().Run();
+    auto ret = Application().Run(nCmdShow);
 
     GdiplusShutdown(token);
 

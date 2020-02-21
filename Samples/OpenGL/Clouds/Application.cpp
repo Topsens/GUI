@@ -1,8 +1,8 @@
 #include "Application.h"
 
-int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
+int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR, int nCmdShow)
 {
-    return Application(hInstance).Run();
+    return Application(hInstance).Run(nCmdShow);
 }
 
 Application::Application(HINSTANCE instance) : MainWindow(instance)

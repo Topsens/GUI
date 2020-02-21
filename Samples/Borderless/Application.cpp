@@ -1,9 +1,9 @@
 #include "Application.h"
 #include "D2DRenderer.h"
 
-int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
+int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR, int nCmdShow)
 {
-    return Application(hInstance).Run();
+    return Application(hInstance).Run(nCmdShow);
 }
 
 Application::Application(HINSTANCE instance) : MainWindow(instance)
@@ -24,7 +24,7 @@ LRESULT Application::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
         {
             auto x = pos.x - this->pos.x;
             auto y = pos.y - this->pos.y;
-            this->Move(this->X() + x, this->Y() + y);
+            this->Move(x, y);
         }
 
         this->pos = pos;
