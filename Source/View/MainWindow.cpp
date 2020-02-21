@@ -5,14 +5,14 @@ MainWindow::MainWindow(HINSTANCE instance, UINT acceleratorID)
 {
 }
 
-int MainWindow::Run()
+int MainWindow::Run(int nCmdShow)
 {
     if (!this->Create())
     {
         return -1;
     }
 
-    this->Show();
+    ShowWindow(this->hwnd, nCmdShow);
 
     HACCEL haccel = nullptr;
     if (this->accelID)
