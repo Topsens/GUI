@@ -23,5 +23,5 @@ bool Application::OnCreated()
 void Application::OnSize()
 {
     this->scene.Resize(this->ClientWidth(), this->ClientHeight());
-    this->scene.Move(0, 0);
+    this->scene.MoveTo(0, 0);
 }

@@ -14,9 +14,6 @@ public:
     DWORD StyleEx() const;
     void  StyleEx(DWORD style);
 
-    COLORREF Background() const; 
-    void Background(COLORREF color);
-
 protected:
     virtual LRESULT WindowProc(HWND, UINT, WPARAM, LPARAM) override;
     virtual LRESULT DefaultProc(HWND, UINT, WPARAM, LPARAM) override;
@@ -31,6 +28,4 @@ private:
 
     DWORD style;
     DWORD styleEx;
-
-    COLORREF bkgColor;
 };

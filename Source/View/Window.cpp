@@ -5,7 +5,7 @@
 bool Window::registered = false;
 
 Window::Window(HINSTANCE instance)
-  : View(instance), style(0), styleEx(0), bkgColor(GetSysColor(COLOR_WINDOW))
+  : View(instance), style(0), styleEx(0)
 {
 }
 
@@ -102,28 +102,10 @@ DWORD Window::StyleEx() const
     return this->styleEx;
 }
 
-COLORREF Window::Background() const
-{
-    return this->bkgColor;
-}
-
-void Window::Background(COLORREF color)
-{
-    this->bkgColor = color;
-    this->Invalidate();
-}
-
 LRESULT Window::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg)
     {
-    case WM_ERASEBKGND:
-        HBRUSH brush;
-        brush = CreateSolidBrush(this->bkgColor);
-        FillRect((HDC)wParam, &this->ClientRect(), brush);
-        DeleteObject(brush);
-        return TRUE;
-
     case WM_NCCREATE:
         if (!this->OnNcCreate())
         {
