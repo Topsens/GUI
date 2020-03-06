@@ -24,34 +24,6 @@ void GLWindow::DetachContext()
     wglMakeCurrent(nullptr, nullptr);
 }
 
-LRESULT GLWindow::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-    LRESULT result = FALSE;
-
-    switch (uMsg)
-    {
-    case WM_PAINT:
-        if (this->AttachContext())
-        {
-            this->OnPaint();
-            this->DetachContext();
-        }
-        break;
-
-    case WM_DESTROY:
-        this->AttachContext();
-        result = Window::WindowProc(hWnd, uMsg, wParam, lParam);
-        this->DetachContext();
-        break;
-
-    default:
-        result = Window::WindowProc(hWnd, uMsg, wParam, lParam);
-        break;
-    }
-
-    return result;
-}
-
 bool GLWindow::OnCreated()
 {
     this->hdc = GetDC(this->Handle());
@@ -89,7 +61,6 @@ bool GLWindow::OnCreated()
         this->DetachContext();
         return false;
     }
-    this->DetachContext();
 
     return true;
 }

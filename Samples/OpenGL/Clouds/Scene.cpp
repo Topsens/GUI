@@ -6,11 +6,6 @@ using namespace std;
 
 Scene::Scene() : dragging(false)
 {
-    this->LoadCloud();
-
-    this->scene.Camera().Clip(0.01f, 100.f);
-    this->scene.Camera().LookAt(0.f, 0.f, 0.f);
-    this->scene.Camera().Position(0.f, 0.f, -2.f);
 }
 
 LRESULT Scene::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -68,6 +63,21 @@ LRESULT Scene::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     return GLWindow::WindowProc(hWnd, uMsg, wParam, lParam);
 }
 
+bool Scene::OnCreated()
+{
+    if (!GLWindow::OnCreated())
+    {
+        return false;
+    }
+    
+    this->scene.Camera().Clip(0.01f, 100.f);
+    this->scene.Camera().LookAt(0.f, 0.f, 0.f);
+    this->scene.Camera().Position(0.f, 0.f, -2.f);
+
+    this->LoadCloud();
+    return true;
+}
+
 void Scene::OnPaint()
 {
     this->scene.Begin(this->ClientWidth(), this->ClientHeight());
@@ -123,7 +133,7 @@ void Scene::LoadCloud()
                 v[i] = v[i] - center;
             }
 
-            this->cloud.Cloud(v.data(), (int)v.size());
+            this->cloud.Vertices(v.data(), (int)v.size());
         }
     }
 }

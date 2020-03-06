@@ -10,8 +10,11 @@ public:
     GLCloud();
     virtual ~GLCloud();
 
-    void Cloud(const Vertex* vertices, int count);
-    void TexCoords(const Coordinate* coordinates, int count);
+    bool Vertices(const Vertex* vertices, int count);
+    bool TexCoords(const Coordinate* coordinates, int count);
+    void ClearVertices();
+    void ClearTexCoords();
+    void Release();
 
     GLTexture& Texture();
 
@@ -22,15 +25,12 @@ public:
 
 protected:
     GLint ApplyCloud();
+    void  RevokeCloud();
     GLint ApplyCoordinates();
+    void  RevokeCoordinates();
 
 protected:
     float pointSize;
     GLuint vbo, cbo;
     GLTexture texture;
-    std::vector<Vertex> cloud;
-    std::vector<Coordinate> coordinates;
-
-    bool cloudDirty;
-    bool coordinateDirty;
 };

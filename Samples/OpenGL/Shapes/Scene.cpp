@@ -82,5 +82,5 @@ void Scene::OnDestroy()
 void Scene::LoadTexture(GLTexture& texture, const wchar_t* file)
 {
     Texture tex(file);
-    texture.Set((unsigned int*)tex.Pixels(), tex.Width(), tex.Height());
+    texture.Set(tex.Pixels(), tex.Width(), tex.Height(), tex.Width() * tex.Height() * 4, GL_BGRA);
 }

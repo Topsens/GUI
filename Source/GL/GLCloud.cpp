@@ -1,6 +1,6 @@
 #include "GLCloud.h"
 
-GLCloud::GLCloud() : vbo(0), cbo(0), pointSize(1.f), cloudDirty(false), coordinateDirty(false)
+GLCloud::GLCloud() : vbo(0), cbo(0), pointSize(1.f)
 {
     this->Position = { 0.f, 0.f, 0.f };
     this->Rotation = { 0.f, 0.f, 0.f };
@@ -9,32 +9,82 @@ GLCloud::GLCloud() : vbo(0), cbo(0), pointSize(1.f), cloudDirty(false), coordina
 
 GLCloud::~GLCloud()
 {
+    this->Release();
 }
 
-void GLCloud::Cloud(const Vertex* vertices, int count)
+bool GLCloud::Vertices(const Vertex* vertices, int count)
 {
-    this->cloud.clear();
-
-    if (vertices && count > 0)
+    if (!vertices || count <= 0)
     {
-        this->cloud.resize(count);
-        memcpy(&this->cloud[0], vertices, this->cloud.size() * sizeof(this->cloud[0]));
+        return false;
     }
 
-    this->cloudDirty = true;
+    if (this->vbo)
+    {
+        glDeleteBuffers(1, &this->vbo);
+    }
+
+    glGenBuffers(1, &this->vbo);
+    if (!this->vbo)
+    {
+        return false;
+    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
+    glBufferData(GL_ARRAY_BUFFER, count * sizeof(*vertices), vertices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    return true;
 }
 
-void GLCloud::TexCoords(const Coordinate* coordinates, int count)
+bool GLCloud::TexCoords(const Coordinate* coordinates, int count)
 {
-    this->coordinates.clear();
-
-    if (coordinates && count > 0)
+    if (!coordinates || count <= 0)
     {
-        this->coordinates.resize(count);
-        memcpy(&this->coordinates[0], coordinates, this->coordinates.size() * sizeof(this->coordinates[0]));
+        return false;
     }
 
-    this->coordinateDirty = true;
+    if (this->cbo)
+    {
+        glDeleteBuffers(1, &this->cbo);
+    }
+
+    glGenBuffers(1, &this->cbo);
+
+    if (!this->cbo)
+    {
+        return false;
+    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, this->cbo);
+    glBufferData(GL_ARRAY_BUFFER, count * sizeof(*coordinates), coordinates, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    return true;
+}
+
+void GLCloud::ClearVertices()
+{
+    if (this->vbo)
+    {
+        glDeleteBuffers(1, &this->vbo);
+        this->vbo = 0;
+    }
+}
+
+void GLCloud::ClearTexCoords()
+{
+    if (this->cbo)
+    {
+        glDeleteBuffers(1, &this->cbo);
+        this->cbo = 0;
+    }
+}
+
+void GLCloud::Release()
+{
+    this->ClearVertices();
+    this->ClearTexCoords();
 }
 
 GLTexture& GLCloud::Texture()
@@ -56,9 +106,6 @@ void GLCloud::Render()
 {
     auto count = this->ApplyCloud();
     this->ApplyCoordinates();
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
     this->texture.Apply();
 
     glPushMatrix();
@@ -75,61 +122,64 @@ void GLCloud::Render()
     glPopMatrix();
 
     this->texture.Revoke();
-
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    glDisableClientState(GL_VERTEX_ARRAY);
+    this->RevokeCoordinates();
+    this->RevokeCloud();
 }
 
 GLint GLCloud::ApplyCloud()
 {
-    if (!this->vbo)
+    if (this->vbo)
     {
-        glGenBuffers(1, &this->vbo);
-    }
-
-    glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
-    if (this->cloudDirty)
-    {
-        glBufferData(GL_ARRAY_BUFFER, sizeof(this->cloud[0]) * this->cloud.size(), this->cloud.size() ? this->cloud.data() : 0, GL_STATIC_DRAW);
-        this->cloud.clear();
-        this->cloudDirty = false;
-    }
-
-    GLint count;
-    glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &count);
-
-    if (count)
-    {
+        GLint count;
+        glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
+        glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &count);
         glVertexPointer(3, GL_FLOAT, 0, 0);
         glEnableClientState(GL_VERTEX_ARRAY);
-    }
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    return count;
+        return count;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+void GLCloud::RevokeCloud()
+{
+    if (this->vbo)
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
+        glDisableClientState(GL_VERTEX_ARRAY);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
 }
 
 GLint GLCloud::ApplyCoordinates()
 {
-    if (!this->cbo)
+    if (this->cbo)
     {
-        glGenBuffers(1, &this->cbo);
-    }
-
-    glBindBuffer(GL_ARRAY_BUFFER, this->cbo);
-    if (this->coordinateDirty)
-    {
-        glBufferData(GL_ARRAY_BUFFER, sizeof(this->coordinates[0]) * this->coordinates.size(), this->coordinates.size() ? this->coordinates.data() : 0, GL_STATIC_DRAW);
-        this->coordinates.clear();
-        this->coordinateDirty = false;
-    }
-
-    GLint count;
-    glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &count);
-
-    if (count)
-    {
+        GLint count;
+        glBindBuffer(GL_ARRAY_BUFFER, this->cbo);
+        glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &count);
         glTexCoordPointer(2, GL_FLOAT, 0, 0);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    }
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    return count;
+        return count;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+void GLCloud::RevokeCoordinates()
+{
+    if (this->cbo)
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, this->cbo);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
 }

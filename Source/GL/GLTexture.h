@@ -10,13 +10,13 @@ public:
    ~GLTexture();
 
     void Params(int textureMode, int filterModeMag, int filterModeMin, int wrapModeS, int wrapModeT);
-    void Set(const unsigned int* pixels, int width, int height);
+    bool Set(const unsigned char* pixels, int width, int height, int size, GLenum format);
     void Clear();
     void Apply();
     void Revoke();
+    void Release();
 
-    int  Width() const;
-    int  Height() const;
+    operator bool() const;
 
 private:
     int textureMode;
@@ -24,9 +24,6 @@ private:
     int filterModeMin;
     int wrapModeS;
     int wrapModeT;
-    int width, height;
 
     GLuint tex;
-
-    std::vector<unsigned char> pixels;
 };
