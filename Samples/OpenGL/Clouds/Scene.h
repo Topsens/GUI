@@ -10,6 +10,7 @@ public:
 protected:
     LRESULT WindowProc(HWND, UINT, WPARAM, LPARAM) override;
     bool OnCreated() override;
+    void OnDestroy() override;
     void OnPaint() override;
 
 private:

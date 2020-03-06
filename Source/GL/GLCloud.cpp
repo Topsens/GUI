@@ -85,6 +85,7 @@ void GLCloud::Release()
 {
     this->ClearVertices();
     this->ClearTexCoords();
+    this->texture.Release();
 }
 
 GLTexture& GLCloud::Texture()

@@ -78,6 +78,11 @@ bool Scene::OnCreated()
     return true;
 }
 
+void Scene::OnDestroy()
+{
+    this->cloud.Release();
+}
+
 void Scene::OnPaint()
 {
     this->scene.Begin(this->ClientWidth(), this->ClientHeight());
