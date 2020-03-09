@@ -325,7 +325,7 @@ inline Vector3<Scalar>& operator+=(Vector3<Scalar>& first, const Vector3<Scalar>
 template<typename Scalar>
 inline Vector3<Scalar>& operator-=(Vector3<Scalar>& first, const Vector3<Scalar>& second)
 {
-    return (Vecotr3<Scalar>&)((Vector<Scalar, 3>&)first -= (Vector<Scalar, 3>&)second);
+    return (Vector3<Scalar>&)((Vector<Scalar, 3>&)first -= (Vector<Scalar, 3>&)second);
 }
 
 template<typename Scalar>
