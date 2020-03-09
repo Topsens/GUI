@@ -1,14 +1,14 @@
-#include "Scene.h"
+#include "ViewPort.h"
 #include <fstream>
 #include <vector>
 
 using namespace std;
 
-Scene::Scene() : dragging(false)
+ViewPort::ViewPort() : dragging(false)
 {
 }
 
-LRESULT Scene::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT ViewPort::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg)
     {
@@ -63,7 +63,7 @@ LRESULT Scene::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     return GLWindow::WindowProc(hWnd, uMsg, wParam, lParam);
 }
 
-bool Scene::OnCreated()
+bool ViewPort::OnCreated()
 {
     if (!GLWindow::OnCreated())
     {
@@ -78,21 +78,26 @@ bool Scene::OnCreated()
     return true;
 }
 
-void Scene::OnDestroy()
+void ViewPort::OnDestroy()
 {
+    this->AttachContext();
     this->cloud.Release();
+    this->DetachContext();
+    GLWindow::OnDestroy();
 }
 
-void Scene::OnPaint()
+void ViewPort::OnPaint()
 {
+    this->AttachContext();
     this->scene.Begin(this->ClientWidth(), this->ClientHeight());
     this->cloud.Render();
     this->scene.End();
+    this->DetachContext();
 
     GLWindow::OnPaint();
 }
 
-void Scene::LoadCloud()
+void ViewPort::LoadCloud()
 {
     ifstream ifs("cloud.txt");
 
@@ -138,7 +143,9 @@ void Scene::LoadCloud()
                 v[i] = v[i] - center;
             }
 
+            this->AttachContext();
             this->cloud.Vertices(v.data(), (int)v.size());
+            this->DetachContext();
         }
     }
 }

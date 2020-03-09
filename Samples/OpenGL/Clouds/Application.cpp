@@ -11,17 +11,17 @@ Application::Application(HINSTANCE instance) : MainWindow(instance)
 
 bool Application::OnCreated()
 {
-    if (!this->scene.Create(this))
+    if (!this->vport.Create(this))
     {
         return false;
     }
-    this->scene.Show();
+    this->vport.Show();
 
     return MainWindow::OnCreated();
 }
 
 void Application::OnSize()
 {
-    this->scene.Resize(this->ClientWidth(), this->ClientHeight());
-    this->scene.MoveTo(0, 0);
+    this->vport.Resize(this->ClientWidth(), this->ClientHeight());
+    this->vport.MoveTo(0, 0);
 }

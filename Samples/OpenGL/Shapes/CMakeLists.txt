@@ -15,11 +15,16 @@ add_link_options(/DYNAMICBASE "opengl32.lib" "glu32.lib" "glew32.lib" "gdiplus.l
 
 add_executable(${PROJECT_NAME}
                Application.cpp
+               ViewPort.cpp
+               Panel.cpp
+               Texture.cpp
+               Triangle.cpp
+               Square.cpp
+               Circle.cpp
                Cube.cpp
                Cylinder.cpp
-               Scene.cpp
-               Shpere.cpp
-               Texture.cpp
+               Sphere.cpp
+               Shapes.rc
 
                ${View}/Dialog.cpp
                ${View}/DialogItem.cpp

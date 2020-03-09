@@ -1,5 +1,5 @@
 #include "MainWindow.h"
-#include "Scene.h"
+#include "ViewPort.h"
 
 class Application : public MainWindow
 {
@@ -11,5 +11,5 @@ protected:
     void OnSize() override;
 
 private:
-    Scene scene;
+    ViewPort vport;
 };

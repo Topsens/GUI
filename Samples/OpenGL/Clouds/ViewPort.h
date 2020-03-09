@@ -2,10 +2,10 @@
 #include "GLScene.h"
 #include "GLCloud.h"
 
-class Scene : public GLWindow
+class ViewPort : public GLWindow
 {
 public:
-    Scene();
+    ViewPort();
 
 protected:
     LRESULT WindowProc(HWND, UINT, WPARAM, LPARAM) override;
@@ -19,5 +19,6 @@ private:
 private:
     bool dragging;
     POINT cursor;
+    GLScene scene;
     GLCloud cloud;
 };

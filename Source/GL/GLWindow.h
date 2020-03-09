@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Window.h"
-#include "GLScene.h"
 #include <gl/glew.h>
 
 class GLWindow : public Window
@@ -22,5 +21,4 @@ protected:
 protected:
     HDC   hdc;
     HGLRC hrc;
-    GLScene scene;
 };

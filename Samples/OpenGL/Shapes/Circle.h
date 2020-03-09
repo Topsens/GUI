@@ -2,8 +2,8 @@
 
 #include "GLShape.h"
 
-class Cube : public GLShape
+class Circle : public GLShape
 {
 public:
-    Cube();
+    Circle();
 };

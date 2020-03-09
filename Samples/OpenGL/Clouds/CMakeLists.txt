@@ -15,7 +15,7 @@ add_link_options(/DYNAMICBASE "opengl32.lib" "glu32.lib" "glew32.lib" "gdiplus.l
 
 add_executable(${PROJECT_NAME}
                Application.cpp
-               Scene.cpp
+               ViewPort.cpp
 
                ${View}/Dialog.cpp
                ${View}/DialogItem.cpp

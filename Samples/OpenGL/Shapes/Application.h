@@ -1,21 +1,20 @@
 #pragma once
 
 #include "MainWindow.h"
-#include "Scene.h"
+#include "ViewPort.h"
+#include "Panel.h"
 
 class Application : public MainWindow
 {
 public:
-    Application();
+    Application(HINSTANCE instance);
 
 protected:
     bool OnCreated() override;
-    void OnDestroy() override;
-    void OnTimer() override;
+    bool OnCommand() override;
     void OnSize() override;
 
 private:
-    Scene scenes[2];
-
-    float spin;
+    ViewPort vport;
+    Panel    panel;
 };

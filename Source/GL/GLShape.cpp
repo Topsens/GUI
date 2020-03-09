@@ -4,8 +4,7 @@
 
 using namespace std;
 
-GLShape::GLShape()
-    : vbo(0), cbo(0), nbo(0), vertexDirty(false), normalDirty(false), coordinateDirty(false)
+GLShape::GLShape() : vbo(0), cbo(0), nbo(0)
 {
     this->Position = { 0.f, 0.f, 0.f };
     this->Rotation = { 0.f, 0.f, 0.f };
@@ -17,94 +16,84 @@ GLShape::~GLShape()
     this->Release();
 }
 
-void GLShape::Vertices(const Vertex* vertices, int count)
+bool GLShape::Vertices(const Vertex* vertices, int count)
 {
-    this->vertices.clear();
-
-    if (vertices && count > 0)
+    if (!vertices || count <= 0)
     {
-        this->vertices.resize(count);
-        memcpy(&this->vertices[0], vertices, count * sizeof(vertices[0]));
+        return false;
     }
 
-    this->vertexDirty = true;
+    if (this->vbo)
+    {
+        glDeleteBuffers(1, &this->vbo);
+    }
+
+    if (!glGenBuffers)
+    {
+        int a = 0;
+    }
+
+    glGenBuffers(1, &this->vbo);
+    if (!this->vbo)
+    {
+        return false;
+    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
+    glBufferData(GL_ARRAY_BUFFER, count * sizeof(*vertices), vertices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    return true;
 }
 
-void GLShape::Vertices(const Vertex* vertices, const GLuint* indices, int indexCount)
+bool GLShape::Normals(const Normal* normals, int count)
 {
-    this->vertices.clear();
-
-    if (vertices && indices && indexCount > 0)
+    if (!normals || count <= 0)
     {
-        this->vertices.reserve(indexCount);
-
-        for (auto i = 0; i < indexCount; i++)
-        {
-            this->vertices.push_back(vertices[indices[i]]);
-        }
+        return false;
     }
 
-    this->vertexDirty = true;
+    if (this->nbo)
+    {
+        glDeleteBuffers(1, &this->nbo);
+    }
+
+    glGenBuffers(1, &this->nbo);
+    if (!this->nbo)
+    {
+        return false;
+    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, this->nbo);
+    glBufferData(GL_ARRAY_BUFFER, count * sizeof(*normals), normals, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    return true;
 }
 
-void GLShape::Normals(const Normal* normals, int count)
+bool GLShape::TexCoords(const Coordinate* coords, int count)
 {
-    this->normals.clear();
-
-    if (normals && count > 0)
+    if (!coords || count <= 0)
     {
-        this->normals.resize(count);
-        memcpy(&this->normals[0], normals, count * sizeof(normals[0]));
+        return false;
     }
 
-    this->normalDirty = true;
-}
-
-void GLShape::Normals(const Normal* normals, const GLuint* indices, int indexCount)
-{
-    this->normals.clear();
-
-    if (normals && indices && indexCount > 0)
+    if (this->cbo)
     {
-        this->normals.reserve(indexCount);
-
-        for (auto i = 0; i < indexCount; i++)
-        {
-            this->normals.push_back(normals[indices[i]]);
-        }
+        glDeleteBuffers(1, &this->cbo);
     }
 
-    this->normalDirty = true;
-}
-
-void GLShape::TexCoords(const Coordinate* coords, int count)
-{
-    this->coordinates.clear();
-
-    if (coords && count > 0)
+    glGenBuffers(1, &this->cbo);
+    if (!this->cbo)
     {
-        this->coordinates.resize(count);
-        memcpy(&this->coordinates[0], coords, count * sizeof(coords));
+        return false;
     }
 
-    this->coordinateDirty = true;
-}
+    glBindBuffer(GL_ARRAY_BUFFER, this->cbo);
+    glBufferData(GL_ARRAY_BUFFER, count * sizeof(*coords), coords, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-void GLShape::TexCoords(const Coordinate* coords, const GLuint* indices, int indexCount)
-{
-    this->coordinates.clear();
-
-    if (coords && indices && indexCount > 0)
-    {
-        this->coordinates.reserve(indexCount);
-
-        for (auto i = 0; i < indexCount; i++)
-        {
-            this->coordinates.push_back(coords[indices[i]]);
-        }
-    }
-
-    this->coordinateDirty = true;
+    return true;
 }
 
 GLTexture& GLShape::Texture()
@@ -170,81 +159,48 @@ void GLShape::Release()
 
 GLint GLShape::ApplyVertices()
 {
-    if (!this->vbo)
+    if (this->vbo)
     {
-        glGenBuffers(1, &this->vbo);
-    }
-
-    glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
-    if (this->vertexDirty)
-    {
-        glBufferData(GL_ARRAY_BUFFER, sizeof(this->vertices[0]) * this->vertices.size(), this->vertices.size() ? this->vertices.data() : 0, GL_STATIC_DRAW);
-        this->vertices.clear();
-        this->vertexDirty = false;
-    }
-
-    GLint count;
-    glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &count);
-
-    if (count)
-    {
+        GLint count;
+        glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
+        glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &count);
         glVertexPointer(3, GL_FLOAT, 0, 0);
         glEnableClientState(GL_VERTEX_ARRAY);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        return count;
     }
 
-    return count;
+    return 0;
 }
 
 GLint GLShape::ApplyNormals()
 {
-    if (!this->nbo)
+    if (this->nbo)
     {
-        glGenBuffers(1, &this->nbo);
-    }
-
-    glBindBuffer(GL_ARRAY_BUFFER, this->nbo);
-    if (this->normalDirty)
-    {
-        glBufferData(GL_ARRAY_BUFFER, sizeof(this->normals[0]) * this->normals.size(), this->normals.size() ? this->normals.data() : 0, GL_STATIC_DRAW);
-        this->normals.clear();
-        this->normalDirty = false;
-    }
-
-    GLint count;
-    glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &count);
-
-    if (count)
-    {
+        GLint count;
+        glBindBuffer(GL_ARRAY_BUFFER, this->nbo);
+        glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &count);
         glNormalPointer(GL_FLOAT, 0, 0);
         glEnableClientState(GL_NORMAL_ARRAY);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        return count;
     }
 
-    return count;
+    return 0;
 }
 
 GLint GLShape::ApplyCoordinates()
 {
-    if (!this->cbo)
+    if (this->cbo)
     {
-        glGenBuffers(1, &this->cbo);
-    }
-
-    glBindBuffer(GL_ARRAY_BUFFER, this->cbo);
-    if (this->coordinateDirty)
-    {
-        glBufferData(GL_ARRAY_BUFFER, sizeof(this->coordinates[0]) * this->coordinates.size(), this->coordinates.size() ? this->coordinates.data() : 0, GL_STATIC_DRAW);
-        this->coordinates.clear();
-        this->coordinateDirty = false;
-    }
-
-    GLint count;
-    glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &count);
-
-    if (count)
-    {
+        GLint count;
+        glBindBuffer(GL_ARRAY_BUFFER, this->cbo);
+        glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &count);
         glTexCoordPointer(2, GL_FLOAT, 0, 0);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        return count;
     }
 
-    return count;
+    return 0;
 }

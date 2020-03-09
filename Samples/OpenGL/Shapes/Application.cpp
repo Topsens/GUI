@@ -1,7 +1,6 @@
 #include "Application.h"
 #include <gdiplus.h>
 
-using namespace std;
 using namespace Gdiplus;
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR, int nCmdShow)
@@ -11,68 +10,50 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR, int nCmdShow)
     GdiplusStartupOutput output;
     GdiplusStartup(&token, &input, &output);
 
-    auto ret = Application().Run(nCmdShow);
+    auto ret = Application(hInstance).Run(nCmdShow);
 
     GdiplusShutdown(token);
 
     return ret;
 }
 
-Application::Application()
-  : spin(0.f)
+Application::Application(HINSTANCE instance) : MainWindow(instance)
 {
-    this->scenes[0].Perspective(true);
-    this->scenes[1].Perspective(false);
 }
 
 bool Application::OnCreated()
 {
-    for (auto i = 0; i < COUNTOF(this->scenes); i++)
+    if (!MainWindow::OnCreated())
     {
-        if (!this->scenes[i].Create(this))
-        {
-            return false;
-        }
-        this->scenes[i].Show();
+        return false;
     }
 
-    SetTimer(0, 15);
+    if (!this->vport.Create(this))
+    {
+        return false;
+    }
+    this->vport.Show();
 
-    return MainWindow::OnCreated();
+    if (!this->panel.Create(this))
+    {
+        return false;
+    }
+    this->panel.Show();
+
+    return true;
 }
 
-void Application::OnDestroy()
+bool Application::OnCommand()
 {
-    KillTimer(0);
-    MainWindow::OnDestroy();
-}
-
-void Application::OnTimer()
-{
-    this->spin += .5f;
-    if (this->spin > 360.f)
-    {
-        this->spin -= 360.f;
-    }
-
-    Quaternion<float> q;
-    q = Quaternion<float>::FromAxisAngle(Vector3<float>::YAxis, this->spin);
-
-    for (auto i = 0; i < COUNTOF(this->scenes); i++)
-    {
-        this->scenes[i].SetCamera(q.Rotate({ 0.f, 2.f, 2.f }), { 0.f, 0.f, 0.f });
-        this->scenes[i].Invalidate();
-    }
+    this->vport.CreateShape(this->command);
+    return true;
 }
 
 void Application::OnSize()
 {
-    auto w = this->ClientWidth() / (long)COUNTOF(this->scenes);
-    auto h = this->ClientHeight();
+    this->vport.MoveTo(0, 0);
+    this->vport.Resize(this->ClientWidth(), this->ClientHeight() - this->panel.Height());
 
-    for (auto i = 0; i < COUNTOF(this->scenes); i++)
-    {
-        this->scenes[i].MoveTo(w * i, 0);
-        this->scenes[i].Resize(w, h);
-    }
+    this->panel.MoveTo(0, this->vport.Height());
+    this->panel.Resize(this->ClientWidth(), this->panel.Height());
 }

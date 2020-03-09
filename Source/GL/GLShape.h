@@ -10,12 +10,12 @@ public:
     GLShape();
    ~GLShape();
 
-    void Vertices(const Vertex* vertices, int count);
-    void Vertices(const Vertex* vertices, const GLuint* indices, int indexCount);
-    void Normals(const Normal* normals, int count);
-    void Normals(const Normal* normals, const GLuint* indices, int indexCount);
-    void TexCoords(const Coordinate* coords, int count);
-    void TexCoords(const Coordinate* coords, const GLuint* indices, int indexCount);
+    bool Vertices(const Vertex* vertices, int count);
+    //bool Vertices(const Vertex* vertices, const GLuint* indices, int indexCount);
+    bool Normals(const Normal* normals, int count);
+    //bool Normals(const Normal* normals, const GLuint* indices, int indexCount);
+    bool TexCoords(const Coordinate* coords, int count);
+    //void TexCoords(const Coordinate* coords, const GLuint* indices, int indexCount);
 
     GLTexture&  Texture();
     GLMaterial& Material();
@@ -32,12 +32,4 @@ protected:
     GLuint vbo, cbo, nbo;
     GLTexture  texture;
     GLMaterial material;
-
-    std::vector<Vertex>     vertices;
-    std::vector<Normal>     normals;
-    std::vector<Coordinate> coordinates;
-
-    bool vertexDirty;
-    bool normalDirty;
-    bool coordinateDirty;
 };

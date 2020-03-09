@@ -2,8 +2,8 @@
 
 #include "GLShape.h"
 
-class Cube : public GLShape
+class Triangle : public GLShape
 {
 public:
-    Cube();
+    Triangle();
 };

@@ -61,6 +61,7 @@ bool GLWindow::OnCreated()
         this->DetachContext();
         return false;
     }
+    this->DetachContext();
 
     return true;
 }
@@ -71,7 +72,6 @@ void GLWindow::OnDestroy()
     {
         if (this->hrc)
         {
-            this->DetachContext();
             wglDeleteContext(this->hrc);
             this->hrc = nullptr;
         }
