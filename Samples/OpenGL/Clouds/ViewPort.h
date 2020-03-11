@@ -17,8 +17,7 @@ private:
     void LoadCloud();
 
 private:
-    bool dragging;
-    POINT cursor;
+    POINT   cursor;
     GLScene scene;
     GLCloud cloud;
 };

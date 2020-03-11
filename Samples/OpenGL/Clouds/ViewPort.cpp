@@ -4,7 +4,7 @@
 
 using namespace std;
 
-ViewPort::ViewPort() : dragging(false)
+ViewPort::ViewPort()
 {
 }
 
@@ -13,7 +13,7 @@ LRESULT ViewPort::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     switch (uMsg)
     {
     case WM_MOUSEMOVE:
-        if (this->dragging)
+        if (MK_LBUTTON & wParam)
         {
             POINT cursor;
             if (GetCursorPos(&cursor))
@@ -22,29 +22,28 @@ LRESULT ViewPort::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 auto y = cursor.y - this->cursor.y;
                 this->cursor = cursor;
 
-                auto& r0 = this->cloud.Rotation[0];
-                auto& r1 = this->cloud.Rotation[1];
+                auto qx = Quaternion<float>::FromAxisAngle(Vertex::XAxis, ToRadian(y * .5f));
+                auto qy = Quaternion<float>::FromAxisAngle(Vertex::YAxis, ToRadian(x * .5f));
+                auto qr = Quaternion<float>::FromRotation(this->cloud.Rotation);
 
-                r0 += -y * 0.1f;
-                r1 +=  x * 0.1f;
-
-                r0 += r0 > 180.f ? -360.f : (r0 < -180.f ? 360.f : 0.f);
-                r1 += r1 > 180.f ? -360.f : (r1 < -180.f ? 360.f : 0.f);
+                this->cloud.Rotation = (qx * qy * qr).ToRotation();
+                this->Invalidate();
             }
-
-            this->Invalidate();
         }
         break;
 
     case WM_LBUTTONDOWN:
-        this->dragging = true;
         SetCapture(this->Handle());
         GetCursorPos(&this->cursor);
         break;
 
     case WM_LBUTTONUP:
-        this->dragging = false;
         ReleaseCapture();
+        break;
+
+    case WM_LBUTTONDBLCLK:
+        this->cloud.Rotation = { 0.f, 0.f, 0.f, 0.f };
+        this->Invalidate();
         break;
 
     case WM_MOUSEWHEEL:

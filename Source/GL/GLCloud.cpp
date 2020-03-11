@@ -112,9 +112,7 @@ void GLCloud::Render()
     glPushMatrix();
 
     glTranslatef(this->Position[0], this->Position[1], this->Position[2]);
-    glRotatef(this->Rotation[0], 1.f, 0.f, 0.f);
-    glRotatef(this->Rotation[1], 0.f, 1.f, 0.f);
-    glRotatef(this->Rotation[2], 0.f, 0.f, 1.f);
+    glRotatef(this->Rotation[0], this->Rotation[1], this->Rotation[2], this->Rotation[3]);
     glScalef(this->Scaling[0], this->Scaling[1], this->Scaling[2]);
 
     glPointSize(this->pointSize);

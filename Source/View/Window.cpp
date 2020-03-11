@@ -152,7 +152,7 @@ bool Window::Register()
 
     WNDCLASSEXW wcex   = {0};
     wcex.cbSize        = sizeof(wcex);
-    wcex.style         = CS_HREDRAW | CS_VREDRAW;
+    wcex.style         = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
     wcex.lpfnWndProc   = (WNDPROC)View::MessageRouter;
     wcex.hInstance     = GetModuleHandleW(nullptr);
     wcex.hIcon         = nullptr;

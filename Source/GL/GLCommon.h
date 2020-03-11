@@ -381,6 +381,32 @@ struct Quaternion : public Vector<Scalar, 4>
         return Quaternion<Scalar>{ p.v[0], p.v[1], p.v[2], w };
     }
 
+    inline Vector<Scalar, 4> ToRotation()
+    {
+        auto a = acos(this->v[3]);
+        auto s = sin(a);
+
+        if (abs(s) < FLT_EPSILON)
+        {
+            return Vector<Scalar, 4>{ 0, 0, 0, 0 };
+        }
+
+        return Vector<Scalar, 4>{ ToDegree(a * 2), this->v[0] / s, this->v[1] / s, this->v[2] / s };
+    }
+
+    inline static Quaternion<Scalar> FromRotation(const Vector<Scalar, 4>& rotation)
+    {
+        auto& axis = *(Vector<Scalar, 3>*)&rotation.v[1];
+        auto angle = rotation.v[0];
+
+        if (Dot(axis, axis) < FLT_EPSILON)
+        {
+            return Identity;
+        }
+
+        return FromAxisAngle(axis, ToRadian(angle));
+    }
+
     inline static Quaternion<Scalar> From2Vectors(const Vector<Scalar, 3>& v0, const Vector<Scalar, 3>& v1)
     {
         auto n0 = Normalize(v0);
@@ -396,9 +422,10 @@ struct Quaternion : public Vector<Scalar, 4>
 
         return Quaternion<Scalar>{ q.v[0], q.v[1], q.v[2], Dot(n0, h) };
     }
-    inline static Quaternion<Scalar> FromAxisAngle(const Vector<Scalar, 3>& axis, float degree)
+
+    inline static Quaternion<Scalar> FromAxisAngle(const Vector<Scalar, 3>& axis, float radian)
     {
-        auto a = ToRadian(degree) / 2;
+        auto a = radian / 2;
         auto c = cos(a);
         auto s = sin(a);
         auto n = Normalize(axis);

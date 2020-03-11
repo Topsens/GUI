@@ -7,6 +7,7 @@
 #include "Cylinder.h"
 #include "Sphere.h"
 #include "resource.h"
+#include <iostream>
 
 ViewPort::ViewPort() : shape(nullptr)
 {
@@ -97,15 +98,11 @@ LRESULT ViewPort::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
                     if (this->shape)
                     {
-                        auto& r0 = this->shape->Rotation[0];
-                        auto& r1 = this->shape->Rotation[1];
+                        auto qx = Quaternion<float>::FromAxisAngle(Vertex::XAxis, ToRadian(y * .5f));
+                        auto qy = Quaternion<float>::FromAxisAngle(Vertex::YAxis, ToRadian(x * .5f));
+                        auto qr = Quaternion<float>::FromRotation(this->shape->Rotation);
 
-                        r0 +=  y * 0.1f;
-                        r1 +=  x * 0.1f;
-
-                        r0 += r0 > 180.f ? -360.f : (r0 < -180.f ? 360.f : 0.f);
-                        r1 += r1 > 180.f ? -360.f : (r1 < -180.f ? 360.f : 0.f);
-
+                        this->shape->Rotation = (qx * qy * qr).ToRotation();
                         this->Invalidate();
                     }
                 }
@@ -124,6 +121,14 @@ LRESULT ViewPort::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
             ReleaseCapture();
             break;
+        }
+
+        case WM_LBUTTONDBLCLK:
+        {
+            if (this->shape)
+            {
+                this->shape->Rotation = { 0.f, 0.f, 0.f, 0.f };
+            }
         }
 
         case WM_MOUSEWHEEL:
