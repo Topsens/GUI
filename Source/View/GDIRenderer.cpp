@@ -640,7 +640,7 @@ bool GDIRenderer::Clear(COLORREF color)
     if (this->hdc)
     {
         RECT client;
-        if (GetClientRect(this->hWnd, &client) && this->SolidBrush(color))
+        if (GetClientRect(this->hWnd, &client) && this->SolidBrush(color) && this->Pen(PS_SOLID, 1, color))
         {
             return this->Rectangle(client.left, client.top, client.right, client.bottom);
         }
