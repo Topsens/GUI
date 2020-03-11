@@ -3,7 +3,7 @@
 GLCloud::GLCloud() : vbo(0), cbo(0), pointSize(1.f)
 {
     this->Position = { 0.f, 0.f, 0.f };
-    this->Rotation = { 0.f, 0.f, 0.f };
+    this->Rotation = { 0.f, 0.f, 0.f, 0.f };
     this->Scaling  = { 1.f, 1.f, 1.f };
 }
 
