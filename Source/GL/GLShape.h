@@ -15,6 +15,9 @@ public:
     bool Normals(const Normal* normals, int count);
     bool TexCoords(const Coordinate* coords, int count);
 
+    GLenum Mode();
+    void Mode(GLenum);
+
     GLTexture&  Texture();
     GLMaterial& Material();
 
@@ -32,7 +35,7 @@ protected:
     void RevokeNormals();
     void RevokeTexCoords();
 
-    int textureMode;
+    GLenum mode;
     GLuint ibo, vbo, nbo, cbo;
     GLTexture  texture;
     GLMaterial material;

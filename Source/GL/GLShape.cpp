@@ -4,7 +4,7 @@
 
 using namespace std;
 
-GLShape::GLShape() : ibo(0), vbo(0), nbo(0), cbo(0)
+GLShape::GLShape() : ibo(0), vbo(0), nbo(0), cbo(0), mode(GL_TRIANGLES)
 {
     this->Position = { 0.f, 0.f, 0.f };
     this->Rotation = { 0.f, 0.f, 0.f, 0.f };
@@ -116,6 +116,24 @@ bool GLShape::TexCoords(const Coordinate* coords, int count)
     return true;
 }
 
+GLenum GLShape::Mode()
+{
+    return this->mode;
+}
+
+void GLShape::Mode(GLenum mode)
+{
+    switch (mode)
+    {
+        case GL_TRIANGLES:
+        case GL_TRIANGLE_STRIP:
+        case GL_TRIANGLE_FAN:
+            this->mode = mode;
+        default:
+            break;
+    }
+}
+
 GLTexture& GLShape::Texture()
 {
     return this->texture;
@@ -144,11 +162,11 @@ void GLShape::Render()
 
     if (ic)
     {
-        glDrawElements(GL_TRIANGLES, ic, GL_UNSIGNED_INT, 0);
+        glDrawElements(this->mode, ic, GL_UNSIGNED_INT, 0);
     }
     else
     {
-        glDrawArrays(GL_TRIANGLES, 0, vc);
+        glDrawArrays(this->mode, 0, vc);
     }
 
     glPopMatrix();
