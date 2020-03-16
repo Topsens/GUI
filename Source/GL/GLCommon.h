@@ -2,6 +2,7 @@
 
 #include <gl/glew.h>
 #include <initializer_list>
+#include <cfloat>
 #include <cmath>
 
 template<typename Scalar>
@@ -386,7 +387,7 @@ struct Quaternion : public Vector<Scalar, 4>
         auto a = acos(this->v[3]);
         auto s = sin(a);
 
-        if (abs(s) < FLT_EPSILON)
+        if (abs(s) < FLT_MIN)
         {
             return Vector<Scalar, 4>{ 0, 0, 0, 0 };
         }
@@ -399,7 +400,7 @@ struct Quaternion : public Vector<Scalar, 4>
         auto& axis = *(Vector<Scalar, 3>*)&rotation.v[1];
         auto angle = rotation.v[0];
 
-        if (Dot(axis, axis) < FLT_EPSILON)
+        if (Dot(axis, axis) < FLT_MIN)
         {
             return Identity;
         }

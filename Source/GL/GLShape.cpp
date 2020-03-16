@@ -4,7 +4,7 @@
 
 using namespace std;
 
-GLShape::GLShape() : ibo(0), vbo(0), nbo(0), cbo(0), mode(GL_TRIANGLES)
+GLShape::GLShape() : ibo(0), vbo(0), nbo(0), cbo(0), mode(GL_TRIANGLES), parent(nullptr)
 {
     this->Position = { 0.f, 0.f, 0.f };
     this->Rotation = { 0.f, 0.f, 0.f, 0.f };
@@ -146,42 +146,55 @@ GLMaterial& GLShape::Material()
 
 void GLShape::Render()
 {
-    auto ic = this->ApplyIndices();
-    auto vc = this->ApplyVertices();
-    this->ApplyNormals();
-    this->ApplyTexCoords();
-
-    this->texture.Apply();
-    this->material.Apply();
-
     glPushMatrix();
 
     glTranslatef(this->Position[0], this->Position[1], this->Position[2]);
     glRotatef(this->Rotation[0], this->Rotation[1], this->Rotation[2], this->Rotation[3]);
     glScalef(this->Scaling[0], this->Scaling[1], this->Scaling[2]);
 
-    if (ic)
+    auto vc = this->ApplyVertices();
+    if (vc)
     {
-        glDrawElements(this->mode, ic, GL_UNSIGNED_INT, 0);
+        this->ApplyNormals();
+        this->ApplyTexCoords();
+        this->ApplyTexture();
+
+        this->material.Apply();
+
+        auto ic = this->ApplyIndices();
+        if (ic)
+        {
+            glDrawElements(this->mode, ic, GL_UNSIGNED_INT, 0);
+        }
+        else
+        {
+            glDrawArrays(this->mode, 0, vc);
+        }
+
+        this->material.Revoke();
+    
+        this->RevokeIndices();
+        this->RevokeTexture();
+        this->RevokeTexCoords();
+        this->RevokeNormals();
+        this->RevokeVertices();
     }
-    else
+
+    for (auto child : this->children)
     {
-        glDrawArrays(this->mode, 0, vc);
+        child->Render();
     }
 
     glPopMatrix();
-
-    this->material.Revoke();
-    this->texture.Revoke();
-    
-    this->RevokeTexCoords();
-    this->RevokeNormals();
-    this->RevokeVertices();
-    this->RevokeIndices();
 }
 
 void GLShape::Release()
 {
+    for (auto& child : this->children)
+    {
+        child->Release();
+    }
+
     if (this->nbo)
     {
         glDeleteBuffers(1, &this->nbo);
@@ -268,6 +281,18 @@ GLint GLShape::ApplyTexCoords()
     return 0;
 }
 
+void GLShape::ApplyTexture()
+{
+    if (this->texture)
+    {
+        this->texture.Apply();
+    }
+    else if (this->parent)
+    {
+        this->parent->ApplyTexture();
+    }
+}
+
 void GLShape::RevokeIndices()
 {
     if (this->ibo)
@@ -303,5 +328,26 @@ void GLShape::RevokeTexCoords()
         glBindBuffer(GL_ARRAY_BUFFER, this->cbo);
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+}
+
+void GLShape::RevokeTexture()
+{
+    if (this->texture)
+    {
+        this->texture.Revoke();
+    }
+    else if (this->parent)
+    {
+        this->parent->RevokeTexture();
+    }
+}
+
+void GLShape::AddChild(GLShape* child)
+{
+    if (child)
+    {
+        child->parent = this;
+        this->children.push_back(child);
     }
 }

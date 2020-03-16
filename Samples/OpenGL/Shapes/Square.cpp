@@ -20,6 +20,5 @@ Square::Square()
     Coordinate texCoords[] = { cUpperL, cUpperR, cLowerL, cLowerR };
     this->TexCoords(texCoords, sizeof(texCoords) / sizeof(texCoords[0]));
 
-    GLuint indices[] = { 0, 1, 2, 1, 2, 3 };
-    this->Indices(indices, sizeof(indices) / sizeof(indices[0]));
+    this->Mode(GL_TRIANGLE_STRIP);
 }

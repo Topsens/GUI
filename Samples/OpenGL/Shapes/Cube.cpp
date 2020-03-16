@@ -1,49 +1,32 @@
 #include "Cube.h"
+#include "Square.h"
 
 Cube::Cube()
 {
-    Vertex ful = { -.5f,  .5f, .5f };
-    Vertex fur = {  .5f,  .5f, .5f };
-    Vertex fll = { -.5f, -.5f, .5f };
-    Vertex flr = {  .5f, -.5f, .5f };
-    Vertex bul = { ful[0], ful[1], -.5f };
-    Vertex bur = { fur[0], fur[1], -.5f };
-    Vertex bll = { fll[0], fll[1], -.5f };
-    Vertex blr = { flr[0], flr[1], -.5f };
+    for (int i = 0; i < 6; i++)
+    {
+        this->AddChild(new Square());
+    }
 
-    Vertex vertices[][3] = {{ ful, fll, flr }, { ful, flr, fur },   // front
-                            { bur, blr, bll }, { bur, bll, bul },   // back
-                            { bul, bll, fll }, { bul, fll, ful },   // left
-                            { fur, flr, blr }, { fur, blr, bur },   // right
-                            { bul, ful, fur }, { bul, fur, bur },   // top
-                            { fll, bll, blr }, { fll, blr, flr }};  // bottom
-    this->Vertices(vertices[0], sizeof(vertices) / sizeof(vertices[0][0]));
+    this->children[0]->Position[2] =  .5f;  // front
+    this->children[1]->Position[2] = -.5f;  // back
+    this->children[2]->Position[0] = -.5f;  // left
+    this->children[3]->Position[0] =  .5f;  // right
+    this->children[4]->Position[1] =  .5f;  // top
+    this->children[5]->Position[1] = -.5f;  // bottom
 
-    Vertex frt = {  0.f,  0.f,  1.f };
-    Vertex bck = {  0.f,  0.f, -1.f };
-    Vertex lft = { -1.f,  0.f,  0.f };
-    Vertex rgt = {  1.f,  0.f,  0.f };
-    Vertex top = {  0.f,  1.f,  0.f };
-    Vertex btm = {  0.f, -1.f,  0.f };
+    this->children[1]->Rotation = Quaternion<float>::FromAxisAngle(Vertex::YAxis, ToRadian(180.f)).ToRotation();    // back
+    this->children[2]->Rotation = Quaternion<float>::FromAxisAngle(Vertex::YAxis, ToRadian(-90.f)).ToRotation();    // left
+    this->children[3]->Rotation = Quaternion<float>::FromAxisAngle(Vertex::YAxis, ToRadian( 90.f)).ToRotation();    // right
+    this->children[4]->Rotation = Quaternion<float>::FromAxisAngle(Vertex::XAxis, ToRadian(-90.f)).ToRotation();    // top
+    this->children[5]->Rotation = Quaternion<float>::FromAxisAngle(Vertex::XAxis, ToRadian( 90.f)).ToRotation();    // bottom
+}
 
-    Normal normals[][3] = {{ frt, frt, frt }, { frt, frt, frt},
-                           { bck, bck, bck }, { bck, bck, bck },
-                           { lft, lft, lft }, { lft, lft, lft },
-                           { rgt, rgt, rgt }, { rgt, rgt, rgt },
-                           { top, top, top }, { top, top, top },
-                           { btm, btm, btm }, { btm, btm, btm }};
-    this->Normals(normals[0], sizeof(normals) / sizeof(normals[0][0]));
-
-    Coordinate ul = { 0.f, 0.f };
-    Coordinate ur = { 1.f, 0.f };
-    Coordinate ll = { 0.f, 1.f };
-    Coordinate lr = { 1.f, 1.f };
-
-    Coordinate texCoords[][3] = {{ ul, ll, lr }, { ul, lr, ur }, // front
-                                 { ul, ll, lr }, { ul, lr, ur }, // back
-                                 { ul, ll, lr }, { ul, lr, ur }, // left
-                                 { ul, ll, lr }, { ul, lr, ur }, // right
-                                 { ul, ll, lr }, { ul, lr, ur }, // top
-                                 { ul, ll, lr }, { ul, lr, ur }};// bottom
-    this->TexCoords(texCoords[0], sizeof(texCoords) / sizeof(texCoords[0][0]));
+Cube::~Cube()
+{
+    for (auto child : this->children)
+    {
+        delete child;
+    }
+    this->children.clear();
 }

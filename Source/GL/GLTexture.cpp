@@ -10,6 +10,11 @@ GLTexture::~GLTexture()
     this->Release();
 }
 
+GLTexture::operator bool() const
+{
+    return this->tex ? true : false;
+}
+
 void GLTexture::Params(int textureMode, int filterModeMag, int filterModeMin, int wrapModeS, int wrapModeT)
 {
     this->textureMode = textureMode;
@@ -79,9 +84,4 @@ void GLTexture::Revoke()
 void GLTexture::Release()
 {
     this->Clear();
-}
-
-GLTexture::operator bool() const
-{
-    return this->tex ? true : false;
 }
