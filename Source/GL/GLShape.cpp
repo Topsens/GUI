@@ -4,7 +4,7 @@
 
 using namespace std;
 
-GLShape::GLShape() : vbo(0), cbo(0), nbo(0)
+GLShape::GLShape() : ibo(0), vbo(0), nbo(0), cbo(0)
 {
     this->Position = { 0.f, 0.f, 0.f };
     this->Rotation = { 0.f, 0.f, 0.f, 0.f };
@@ -14,6 +14,31 @@ GLShape::GLShape() : vbo(0), cbo(0), nbo(0)
 GLShape::~GLShape()
 {
     this->Release();
+}
+
+bool GLShape::Indices(const GLuint* indices, int count)
+{
+    if (!indices || count <= 0)
+    {
+        return false;
+    }
+
+    if (this->ibo)
+    {
+        glDeleteBuffers(1, &this->ibo);
+    }
+
+    glGenBuffers(1, &this->ibo);
+    if (!this->ibo)
+    {
+        return false;
+    }
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ibo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(*indices), indices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    return true;
 }
 
 bool GLShape::Vertices(const Vertex* vertices, int count)
@@ -26,11 +51,6 @@ bool GLShape::Vertices(const Vertex* vertices, int count)
     if (this->vbo)
     {
         glDeleteBuffers(1, &this->vbo);
-    }
-
-    if (!glGenBuffers)
-    {
-        int a = 0;
     }
 
     glGenBuffers(1, &this->vbo);
@@ -108,10 +128,10 @@ GLMaterial& GLShape::Material()
 
 void GLShape::Render()
 {
-    auto count = this->ApplyVertices() / 3;
+    auto ic = this->ApplyIndices();
+    auto vc = this->ApplyVertices();
     this->ApplyNormals();
-    this->ApplyCoordinates();
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    this->ApplyTexCoords();
 
     this->texture.Apply();
     this->material.Apply();
@@ -122,16 +142,24 @@ void GLShape::Render()
     glRotatef(this->Rotation[0], this->Rotation[1], this->Rotation[2], this->Rotation[3]);
     glScalef(this->Scaling[0], this->Scaling[1], this->Scaling[2]);
 
-    glDrawArrays(GL_TRIANGLES, 0, count);
+    if (ic)
+    {
+        glDrawElements(GL_TRIANGLES, ic, GL_UNSIGNED_INT, 0);
+    }
+    else
+    {
+        glDrawArrays(GL_TRIANGLES, 0, vc);
+    }
 
     glPopMatrix();
 
     this->material.Revoke();
     this->texture.Revoke();
-
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    glDisableClientState(GL_NORMAL_ARRAY);
-    glDisableClientState(GL_VERTEX_ARRAY);
+    
+    this->RevokeTexCoords();
+    this->RevokeNormals();
+    this->RevokeVertices();
+    this->RevokeIndices();
 }
 
 void GLShape::Release()
@@ -153,19 +181,38 @@ void GLShape::Release()
         glDeleteBuffers(1, &this->vbo);
         this->vbo = 0;
     }
+
+    if (this->ibo)
+    {
+        glDeleteBuffers(1, &this->ibo);
+        this->ibo = 0;
+    }
+}
+
+GLint GLShape::ApplyIndices()
+{
+    if (this->ibo)
+    {
+        GLint size;
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ibo);
+        glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+        return size / sizeof(GLuint);
+    }
+
+    return 0;
 }
 
 GLint GLShape::ApplyVertices()
 {
     if (this->vbo)
     {
-        GLint count;
+        GLint size;
         glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
-        glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &count);
+        glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
         glVertexPointer(3, GL_FLOAT, 0, 0);
         glEnableClientState(GL_VERTEX_ARRAY);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-        return count;
+        return size / sizeof(Vertex);
     }
 
     return 0;
@@ -175,30 +222,68 @@ GLint GLShape::ApplyNormals()
 {
     if (this->nbo)
     {
-        GLint count;
+        GLint size;
         glBindBuffer(GL_ARRAY_BUFFER, this->nbo);
-        glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &count);
+        glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
         glNormalPointer(GL_FLOAT, 0, 0);
         glEnableClientState(GL_NORMAL_ARRAY);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-        return count;
+        return size / sizeof(Normal);
     }
 
     return 0;
 }
 
-GLint GLShape::ApplyCoordinates()
+GLint GLShape::ApplyTexCoords()
 {
     if (this->cbo)
     {
-        GLint count;
+        GLint size;
         glBindBuffer(GL_ARRAY_BUFFER, this->cbo);
-        glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &count);
+        glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
         glTexCoordPointer(2, GL_FLOAT, 0, 0);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-        return count;
+        return size / sizeof(Coordinate);
     }
 
     return 0;
+}
+
+void GLShape::RevokeIndices()
+{
+    if (this->ibo)
+    {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    }
+}
+
+void GLShape::RevokeVertices()
+{
+    if (this->vbo)
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
+        glDisableClientState(GL_VERTEX_ARRAY);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+}
+
+void GLShape::RevokeNormals()
+{
+    if (this->nbo)
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, this->nbo);
+        glDisableClientState(GL_NORMAL_ARRAY);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+}
+
+void GLShape::RevokeTexCoords()
+{
+    if (this->cbo)
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, this->cbo);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
 }

@@ -10,12 +10,10 @@ public:
     GLShape();
    ~GLShape();
 
+    bool Indices(const GLuint* indices, int count);
     bool Vertices(const Vertex* vertices, int count);
-    //bool Vertices(const Vertex* vertices, const GLuint* indices, int indexCount);
     bool Normals(const Normal* normals, int count);
-    //bool Normals(const Normal* normals, const GLuint* indices, int indexCount);
     bool TexCoords(const Coordinate* coords, int count);
-    //void TexCoords(const Coordinate* coords, const GLuint* indices, int indexCount);
 
     GLTexture&  Texture();
     GLMaterial& Material();
@@ -24,12 +22,18 @@ public:
     virtual void Release();
 
 protected:
+    GLint ApplyIndices();
     GLint ApplyVertices();
     GLint ApplyNormals();
-    GLint ApplyCoordinates();
+    GLint ApplyTexCoords();
+
+    void RevokeIndices();
+    void RevokeVertices();
+    void RevokeNormals();
+    void RevokeTexCoords();
 
     int textureMode;
-    GLuint vbo, cbo, nbo;
+    GLuint ibo, vbo, nbo, cbo;
     GLTexture  texture;
     GLMaterial material;
 };

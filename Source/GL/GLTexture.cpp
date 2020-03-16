@@ -64,7 +64,6 @@ void GLTexture::Apply()
     {
         glBindTexture(GL_TEXTURE_2D, this->tex);
         glEnable(GL_TEXTURE_2D);
-        //glBindTexture(GL_TEXTURE_2D, 0);
     }
 }
 
@@ -72,7 +71,6 @@ void GLTexture::Revoke()
 {
     if (this->tex)
     {
-        //glBindTexture(GL_TEXTURE_2D, this->tex);
         glDisable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
