@@ -3,79 +3,43 @@
 
 using namespace std;
 
-Cylinder::Cylinder(float radius, float height, int fragments)
+const int   Pieces = 36;
+const float Radius = 0.5f;
+const float Height = 1.0f;
+
+Cylinder::Cylinder()
 {
-    vector<Vector<float, 2>> xy;
-    vector<Vector<float, 2>> uv;
-
-    float angle = 360.0f / (float)fragments;
-
-    for (auto i = 0; i < fragments; i++)
-    {
-        auto a = angle * i;
-
-        uv.push_back({ (cosf(ToRadian(a)) + 1.f) / 2.f, (1.f - sinf(ToRadian(a))) / 2.f });
-        xy.push_back({ cosf(ToRadian(a)) * radius, sinf(ToRadian(a)) * radius });
-    }
-    uv.push_back(uv[0]);
-    xy.push_back(xy[0]);
-
     vector<Vertex> vertices;
+    vertices.reserve(Pieces * 2 + 2);
+
     vector<Normal> normals;
-    vector<Coordinate> coords;
+    normals.reserve(Pieces * 2 + 2);
 
-    vertices.reserve(4 * 3 * fragments);
-    normals.reserve(vertices.capacity());
+    vector<Coordinate> texCoords;
+    texCoords.reserve(Pieces * 2 + 2);
 
-    for (auto i = 0; i < fragments; i++)
+    float y = Height * .5f;
+    float step = 2.f * 3.14159265358979323846f / Pieces;
+    for (int i = 0; i <= Pieces; i++)
     {
-        auto n = i + 1;
+        auto a = i * step;
+        auto x = Radius * cosf(a);
+        auto z = Radius * sinf(a);
 
-        auto fi = ((i * 2) % fragments) / (float)fragments;
-        auto fn = fi + 2.f / (fragments);
+        vertices.push_back(Vertex{ x,  y, z });
+        vertices.push_back(Vertex{ x, -y, z });
 
-        vertices.push_back({ xy[i][0], xy[i][1], -0.5f * height });
-        vertices.push_back({ xy[i][0], xy[i][1],  0.5f * height });
-        vertices.push_back({ xy[n][0], xy[n][1], -0.5f * height });
-        normals.push_back({ xy[i][0], xy[i][1], 0.f });
-        normals.push_back({ xy[i][0], xy[i][1], 0.f });
-        normals.push_back({ xy[n][0], xy[n][1], 0.f });
-        coords.push_back({ fi, 0.f });
-        coords.push_back({ fi, 1.f });
-        coords.push_back({ fn, 0.f });
+        normals.push_back(Normal{ x, 0.f, z });
+        normals.push_back(Normal{ x, 0.f, z });
 
-        vertices.push_back({ xy[i][0], xy[i][1],  0.5f * height });
-        vertices.push_back({ xy[n][0], xy[n][1],  0.5f * height });
-        vertices.push_back({ xy[n][0], xy[n][1], -0.5f * height });
-        normals.push_back({ xy[i][0], xy[i][1], 0.f });
-        normals.push_back({ xy[n][0], xy[n][1], 0.f });
-        normals.push_back({ xy[n][0], xy[n][1], 0.f });
-        coords.push_back({ fi, 1.f });
-        coords.push_back({ fn, 1.f });
-        coords.push_back({ fn, 0.f });
-
-        vertices.push_back({ 0.f, 0.f, -0.5f * height });
-        vertices.push_back({ xy[i][0], xy[i][1], -0.5f * height });
-        vertices.push_back({ xy[n][0], xy[n][1], -0.5f * height });
-        normals.push_back({ 0.f, 0.f, -1.f });
-        normals.push_back({ 0.f, 0.f, -1.f });
-        normals.push_back({ 0.f, 0.f, -1.f });
-        coords.push_back({ .5f, .5f });
-        coords.push_back({ uv[i][0], uv[i][1] });
-        coords.push_back({ uv[n][0], uv[n][1] });
-
-        vertices.push_back({ 0.f, 0.f, 0.5f * height });
-        vertices.push_back({ xy[i][0], xy[i][1], 0.5f * height });
-        vertices.push_back({ xy[n][0], xy[n][1], 0.5f * height });
-        normals.push_back({ 0.f, 0.f, 1.f });
-        normals.push_back({ 0.f, 0.f, 1.f });
-        normals.push_back({ 0.f, 0.f, 1.f });
-        coords.push_back({ .5f, .5f });
-        coords.push_back({ uv[i][0], uv[i][1] });
-        coords.push_back({ uv[n][0], uv[n][1] });
+        x = i / (float)Pieces;
+        texCoords.push_back(Coordinate{ x, 0.f });
+        texCoords.push_back(Coordinate{ x, 1.f });
     }
 
     this->Vertices(vertices.data(), (int)vertices.size());
     this->Normals(normals.data(), (int)normals.size());
-    this->TexCoords(coords.data(), (int)coords.size());
+    this->TexCoords(texCoords.data(), (int)texCoords.size());
+
+    this->Mode(GL_TRIANGLE_STRIP);
 }
