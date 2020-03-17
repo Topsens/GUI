@@ -24,8 +24,8 @@ public:
     virtual void Render();
 
 protected:
-    GLint ApplyCloud();
-    void  RevokeCloud();
+    GLint ApplyVertices();
+    void  RevokeVertices();
     GLint ApplyCoordinates();
     void  RevokeCoordinates();
 

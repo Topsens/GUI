@@ -29,7 +29,6 @@ add_executable(${PROJECT_NAME}
                ${GL}/GLLight.cpp
                ${GL}/GLMaterial.cpp
                ${GL}/GLScene.cpp
-               ${GL}/GLShape.cpp
                ${GL}/GLTexture.cpp
                ${GL}/GLWindow.cpp)
 

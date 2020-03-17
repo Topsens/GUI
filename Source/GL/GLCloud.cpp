@@ -105,7 +105,7 @@ void GLCloud::PointSize(float size)
 
 void GLCloud::Render()
 {
-    auto count = this->ApplyCloud();
+    auto count = this->ApplyVertices();
     this->ApplyCoordinates();
     this->texture.Apply();
 
@@ -122,10 +122,10 @@ void GLCloud::Render()
 
     this->texture.Revoke();
     this->RevokeCoordinates();
-    this->RevokeCloud();
+    this->RevokeVertices();
 }
 
-GLint GLCloud::ApplyCloud()
+GLint GLCloud::ApplyVertices()
 {
     if (this->vbo)
     {
@@ -144,7 +144,7 @@ GLint GLCloud::ApplyCloud()
     }
 }
 
-void GLCloud::RevokeCloud()
+void GLCloud::RevokeVertices()
 {
     if (this->vbo)
     {
