@@ -24,6 +24,7 @@ add_executable(${PROJECT_NAME}
                Cube.cpp
                Cylinder.cpp
                Sphere.cpp
+               Donut.cpp
                Shapes.rc
 
                ${View}/Dialog.cpp

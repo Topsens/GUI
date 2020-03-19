@@ -6,6 +6,7 @@
 #include "Cube.h"
 #include "Cylinder.h"
 #include "Sphere.h"
+#include "Donut.h"
 #include "resource.h"
 #include <iostream>
 
@@ -57,6 +58,12 @@ void ViewPort::CreateShape(int shape)
             break;
         }
 
+        case IDC_DONUT:
+        {
+            s = new Donut();
+            break;
+        }
+
         default:
             break;
     }
@@ -75,7 +82,7 @@ void ViewPort::CreateShape(int shape)
         this->scene.Camera().Position(0.f, 0.f, 5.f);
         this->scene.Camera().LookAt(this->shape->Position);
 
-        this->Invalidate();
+        this->Render();
     }
 
     this->DetachContext();
@@ -103,7 +110,7 @@ LRESULT ViewPort::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                         auto qr = Quaternion<float>::FromRotation(this->shape->Rotation);
 
                         this->shape->Rotation = (qx * qy * qr).ToRotation();
-                        this->Invalidate();
+                        this->Render();
                     }
                 }
             }
@@ -138,7 +145,7 @@ LRESULT ViewPort::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             auto position = this->scene.Camera().Position();
             auto lookAt   = this->scene.Camera().LookAt();
             this->scene.Camera().Position((position - lookAt) * delta + lookAt);
-            this->Invalidate();
+            this->Render();
 
             break;
         }
@@ -185,6 +192,12 @@ void ViewPort::OnDestroy()
 
 void ViewPort::OnPaint()
 {
+    this->Render();
+    GLWindow::OnPaint();
+}
+
+void ViewPort::Render()
+{
     this->AttachContext();
     this->scene.Begin(this->ClientWidth(), this->ClientHeight());
     if (this->shape)
@@ -193,5 +206,4 @@ void ViewPort::OnPaint()
     }
     this->scene.End();
     this->DetachContext();
-    GLWindow::OnPaint();
 }

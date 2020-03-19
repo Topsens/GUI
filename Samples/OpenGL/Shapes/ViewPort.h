@@ -18,6 +18,9 @@ protected:
     void OnPaint() override;
 
 private:
+    void Render();
+
+private:
     POINT    cursor;
     GLScene  scene;
     GLShape* shape;
