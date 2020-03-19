@@ -1,7 +1,7 @@
 #include "GLTexture.h"
 
 GLTexture::GLTexture()
-  : tex(0), textureMode(GL_MODULATE), filterModeMag(GL_LINEAR), filterModeMin(GL_LINEAR), wrapModeS(GL_CLAMP), wrapModeT(GL_CLAMP)
+  : tex(0), envMode(GL_MODULATE), minFilter(GL_LINEAR), magFilter(GL_LINEAR), wrapS(GL_REPEAT), wrapT(GL_REPEAT)
 {
 }
 
@@ -15,14 +15,23 @@ GLTexture::operator bool() const
     return this->tex ? true : false;
 }
 
-void GLTexture::Params(int textureMode, int filterModeMag, int filterModeMin, int wrapModeS, int wrapModeT)
+void GLTexture::Mode(GLuint envMode)
 {
-    this->textureMode = textureMode;
-    this->filterModeMag = filterModeMag;
-    this->filterModeMin = filterModeMin;
-    this->wrapModeS = wrapModeS;
-    this->wrapModeT = wrapModeT;
+    this->envMode = envMode;
 }
+
+void GLTexture::Filter(GLuint minFilter, GLuint magFilter)
+{
+    this->minFilter = minFilter;
+    this->magFilter = magFilter;
+}
+
+void GLTexture::Wrap(GLuint wrapS, GLuint wrapT)
+{
+    this->wrapS = wrapS;
+    this->wrapT = wrapT;
+}
+
 
 bool GLTexture::Set(const unsigned char* pixels, int width, int height, int size, GLenum format)
 {
@@ -42,11 +51,11 @@ bool GLTexture::Set(const unsigned char* pixels, int width, int height, int size
     }
 
     glBindTexture(GL_TEXTURE_2D, this->tex);
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, this->textureMode);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, this->wrapModeS);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, this->wrapModeT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, this->filterModeMag);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, this->filterModeMin);
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, this->envMode);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, this->wrapS);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, this->wrapT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, this->minFilter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, this->magFilter);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, pixels);
     glBindTexture(GL_TEXTURE_2D, 0);

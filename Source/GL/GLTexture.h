@@ -11,7 +11,9 @@ public:
 
     operator bool() const;
 
-    void Params(int textureMode, int filterModeMag, int filterModeMin, int wrapModeS, int wrapModeT);
+    void Mode(GLuint envMode);
+    void Filter(GLuint minFilter, GLuint magFilter);
+    void Wrap(GLuint wrapS, GLuint wrapT);
     bool Set(const unsigned char* pixels, int width, int height, int size, GLenum format);
     void Clear();
     void Apply();
@@ -19,11 +21,11 @@ public:
     void Release();
 
 private:
-    int textureMode;
-    int filterModeMag;
-    int filterModeMin;
-    int wrapModeS;
-    int wrapModeT;
+    GLuint envMode;
+    GLuint minFilter;
+    GLuint magFilter;
+    GLuint wrapS;
+    GLuint wrapT;
 
     GLuint tex;
 };
