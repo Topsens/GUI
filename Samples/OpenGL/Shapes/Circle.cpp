@@ -29,10 +29,10 @@ Circle::Circle()
     float step = 2.f * 3.14159265358979323846f / Pieces;
     for (int i = 0; i <= Pieces; i++)
     {
-        v[0] = Radius * cosf(i * step);
-        v[1] = Radius * sinf(i * step);
-        c[0] = v[0] + .5f;
-        c[1] = .5f - v[1];
+        v.X = Radius * cosf(i * step);
+        v.Y = Radius * sinf(i * step);
+        c.X = v.X + .5f;
+        c.Y = .5f - v.Y;
 
         vertices.push_back(v);
         texCoords.push_back(c);

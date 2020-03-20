@@ -8,12 +8,12 @@ Cube::Cube()
         this->AddChild(new Square());
     }
 
-    this->children[0]->Position[2] =  .5f;  // front
-    this->children[1]->Position[2] = -.5f;  // back
-    this->children[2]->Position[0] = -.5f;  // left
-    this->children[3]->Position[0] =  .5f;  // right
-    this->children[4]->Position[1] =  .5f;  // top
-    this->children[5]->Position[1] = -.5f;  // bottom
+    this->children[0]->Position.Z =  .5f;  // front
+    this->children[1]->Position.Z = -.5f;  // back
+    this->children[2]->Position.X = -.5f;  // left
+    this->children[3]->Position.X =  .5f;  // right
+    this->children[4]->Position.Y =  .5f;  // top
+    this->children[5]->Position.Y = -.5f;  // bottom
 
     this->children[1]->Rotation = Quaternion<float>::FromAxisAngle(Vertex::YAxis, ToRadian(180.f)).ToRotation();    // back
     this->children[2]->Rotation = Quaternion<float>::FromAxisAngle(Vertex::YAxis, ToRadian(-90.f)).ToRotation();    // left

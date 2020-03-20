@@ -15,13 +15,13 @@ Donut::Donut()
     for (int i = 0; i < COUNTOF(baseVertices); i++)
     {
         Vertex v;
-        v[0] = cosf(ToRadian(i * step));
-        v[1] = sinf(ToRadian(i * step));
-        v[2] = 0.f;
+        v.X = cosf(ToRadian(i * step));
+        v.Y = sinf(ToRadian(i * step));
+        v.Z = 0.f;
         baseNormals[i] = v;
 
-        v[0] = R1 * v[0] + R0;
-        v[1] = R1 * v[1];
+        v.X = R1 * v.X + R0;
+        v.Y = R1 * v.Y;
         baseVertices[i] = v;
     }
 
@@ -37,12 +37,12 @@ Donut::Donut()
     Coordinate c;
     for (int i = 0; i < Pieces + 1; i++)
     {
-        c[1] = (float)i / Pieces;
+        c.Y = (float)i / Pieces;
         auto q = Quaternion<float>::FromAxisAngle(Vertex::YAxis, ToRadian(i * step));
 
         for (int j = 0; j < COUNTOF(baseVertices); j++)
         {
-            c[0] = (float)j / (COUNTOF(baseVertices) - 1);
+            c.X = (float)j / (COUNTOF(baseVertices) - 1);
 
             vertices.push_back((Vertex&)q.Rotate(baseVertices[j]));
             normals.push_back((Normal&)q.Rotate(baseNormals[j]));
