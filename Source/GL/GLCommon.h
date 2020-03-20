@@ -204,6 +204,35 @@ inline Vector<Scalar, Dimensions>& operator/=(Vector<Scalar, Dimensions>& vector
     return vector;
 }
 
+template<typename Scalar, int Dimensions>
+inline Scalar Dot(const Vector<Scalar, Dimensions>& v0, const Vector<Scalar, Dimensions>& v1)
+{
+    Scalar product = 0;
+    for (int i = 0; i < Dimensions; i++)
+    {
+        product += v0.v[i] * v1.v[i];
+    }
+    return product;
+}
+
+template<typename Scalar, int Dimensions>
+inline Scalar Length(const Vector<Scalar, Dimensions>& v)
+{
+    return sqrtx(Dot(v, v));
+}
+
+template<typename Scalar, int Dimensions>
+inline Vector<Scalar, Dimensions> Normalize(const Vector<Scalar, Dimensions>& v)
+{
+    return v / Length(v);
+}
+
+template<typename Scalar>
+inline Scalar Dot(const Vector<Scalar, 2>& v0, const Vector<Scalar, 2>& v1)
+{
+    return v0.v[0] * v1.v[0] + v0.v[1] * v1.v[1];
+}
+
 template<typename Scalar>
 inline Scalar Dot(const Vector<Scalar, 3>& v0, const Vector<Scalar, 3>& v1)
 {
@@ -219,22 +248,86 @@ inline Vector<Scalar, 3> Cross(const Vector<Scalar, 3>& v0, const Vector<Scalar,
 }
 
 template<typename Scalar>
-inline Vector<Scalar, 3> Normalize(const Vector<Scalar, 3>& v)
-{
-    return v / sqrtx(Dot(v, v));
-}
-
-template<typename Scalar>
-inline Scalar Length(const Vector<Scalar, 3>& v)
-{
-    return sqrtx(Dot(v, v));
-}
-
-template<typename Scalar>
 inline Scalar CosOfVectors(const Vector<Scalar, 3>& v0, const Vector<Scalar, 3>& v1)
 {
     return Dot(Normalize(v0), Normalize(v1));
 }
+
+template<typename Scalar>
+struct Vector<Scalar, 2>
+{
+    union
+    {
+        Scalar v[2];
+        struct
+        {
+            Scalar X;
+            Scalar Y;
+        };
+    };
+
+    Vector() = default;
+    Vector(const Scalar* v)
+    {
+        for (auto i = 0; i < 2; i++)
+        {
+            this->v[i] = v[i];
+        }
+    }
+    Vector(const std::initializer_list<Scalar>& v)
+    {
+        int i = 0;
+        for (auto& val : v)
+        {
+            this->v[i++] = val;
+
+            if (i == 2)
+            {
+                break;
+            }
+        }
+    }
+
+    inline Scalar& operator[](int index)
+    {
+        return this->v[index];
+    }
+    inline const Scalar& operator[](int index) const
+    {
+        return this->v[index];
+    }
+    inline operator Scalar*()
+    {
+        return this->v;
+    }
+    inline operator const Scalar*() const
+    {
+        return this->v;
+    }
+
+    inline Scalar Dot() const
+    {
+        return ::Dot(*this, *this);
+    }
+    inline Scalar Dot(const Vector<Scalar, 3>& other) const
+    {
+        return ::Dot(*this, other);
+    }
+    inline Scalar Length() const
+    {
+        return ::Length(*this);
+    }
+    inline Vector<Scalar, 2> Normalize() const
+    {
+        return ::Normalize(*this);
+    }
+
+    static Vector<Scalar, 2> XAxis, YAxis;
+};
+template<typename Scalar>
+Vector<Scalar, 2> Vector<Scalar, 2>::XAxis = { 1, 0 };
+template<typename Scalar>
+Vector<Scalar, 2> Vector<Scalar, 2>::YAxis = { 0, 1 };
 
 template<typename Scalar>
 struct Vector<Scalar, 3>
@@ -299,20 +392,19 @@ struct Vector<Scalar, 3>
     }
     inline Scalar Length() const
     {
-        return sqrtx(this->Dot());
+        return ::Length(*this);
     }
     inline Vector<Scalar, 3> Cross(const Vector<Scalar, 3>& other) const
     {
-        return (Vector<Scalar, 3>&)::Cross(*this, other);
+        return ::Cross(*this, other);
     }
     inline Vector<Scalar, 3> Normalize() const
     {
-        return (Vector<Scalar, 3>&)::Normalize(*this);
+        return ::Normalize(*this);
     }
 
     static Vector<Scalar, 3> XAxis, YAxis, ZAxis;
 };
-
 template<typename Scalar>
 Vector<Scalar, 3> Vector<Scalar, 3>::XAxis = { 1, 0, 0 };
 template<typename Scalar>
@@ -403,7 +495,6 @@ struct Quaternion : public Vector<Scalar, 4>
 
     static Quaternion<Scalar> Identity;
 };
-
 template<typename Scalar>
 Quaternion<Scalar> Quaternion<Scalar>::Identity = { 0, 0, 0, 1 };
 
@@ -411,6 +502,6 @@ typedef Vector<float, 3> Vertex;
 typedef Vector<float, 3> Normal;
 typedef Vector<float, 2> Coordinate;
 
-template <typename T, size_t N>
+template<typename T, size_t N>
 char(&_ArraySizeHelper(T(&array)[N]))[N];
 #define COUNTOF(array)(sizeof( _ArraySizeHelper(array)))
