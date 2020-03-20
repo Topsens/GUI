@@ -114,18 +114,18 @@ void GLCamera::SetLookAt()
 
         if (0.f != v[0] || 0.f != v[2])
         {
-            q = Quaternion<float>::From2Vectors(Vector3<float>::ZAxis, { v[0], 0.f, v[2] });
+            q = Quaternion<float>::From2Vectors(Vector<float, 3>::ZAxis, { v[0], 0.f, v[2] });
             q = Quaternion<float>::From2Vectors({ v[0], 0.f, v[2] }, v) * q;
         }
         else
         {
-            q = Quaternion<float>::From2Vectors(Vector3<float>::ZAxis, v);
+            q = Quaternion<float>::From2Vectors(Vector<float, 3>::ZAxis, v);
         }
 
         q = Quaternion<float>::FromAxisAngle(v, this->rotate);
 
         Vector<float, 3> yAxis;
-        yAxis = q.Rotate(Vector3<float>::YAxis);
+        yAxis = q.Rotate(Vector<float, 3>::YAxis);
 
         gluLookAt(this->position[0], this->position[1], this->position[2], this->lookAt[0], this->lookAt[1], this->lookAt[2], yAxis[0], yAxis[1], yAxis[2]);
     }
@@ -136,7 +136,7 @@ void GLCamera::SetLookAt()
             float a = ToDegree(acosf(CosOfVectors<float>(v, { v[0], 0.f, v[2] }))) * (v[1] > 0.f ? 1.f : -1.f);
             glRotatef(a, 1.f, 0.f, 0.f);
 
-            a = ToDegree(acosf(CosOfVectors<float>({ v[0], 0.f, v[2] }, Vector3<float>::ZAxis))) * (v[0] > 0.f ? -1.f : 1.f);
+            a = ToDegree(acosf(CosOfVectors<float>({ v[0], 0.f, v[2] }, Vector<float, 3>::ZAxis))) * (v[0] > 0.f ? -1.f : 1.f);
             glRotatef(a, 0.f, 1.f, 0.f);
         }
         else

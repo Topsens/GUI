@@ -237,21 +237,63 @@ inline Scalar CosOfVectors(const Vector<Scalar, 3>& v0, const Vector<Scalar, 3>&
 }
 
 template<typename Scalar>
-struct Vector3 : public Vector<Scalar, 3>
+struct Vector<Scalar, 3>
 {
-    Vector3() = default;
-    Vector3(const Scalar* v) : Vector<Scalar, 3>(v)
+    union
     {
+        Scalar v[3];
+        struct
+        {
+            Scalar X;
+            Scalar Y;
+            Scalar Z;
+        };
+    };
+
+    Vector() = default;
+    Vector(const Scalar* v)
+    {
+        for (auto i = 0; i < 3; i++)
+        {
+            this->v[i] = v[i];
+        }
     }
-    Vector3(const std::initializer_list<Scalar>& v) : Vector<Scalar, 3>(v)
+    Vector(const std::initializer_list<Scalar>& v)
     {
+        int i = 0;
+        for (auto& val : v)
+        {
+            this->v[i++] = val;
+
+            if (i == 3)
+            {
+                break;
+            }
+        }
+    }
+
+    inline Scalar& operator[](int index)
+    {
+        return this->v[index];
+    }
+    inline const Scalar& operator[](int index) const
+    {
+        return this->v[index];
+    }
+    inline operator Scalar*()
+    {
+        return this->v;
+    }
+    inline operator const Scalar*() const
+    {
+        return this->v;
     }
 
     inline Scalar Dot() const
     {
         return ::Dot(*this, *this);
     }
-    inline Scalar Dot(const Vector3<Scalar>& other) const
+    inline Scalar Dot(const Vector<Scalar, 3>& other) const
     {
         return ::Dot(*this, other);
     }
@@ -259,99 +301,24 @@ struct Vector3 : public Vector<Scalar, 3>
     {
         return sqrtx(this->Dot());
     }
-    inline Vector3<Scalar> Cross(const Vector3<Scalar>& other) const
+    inline Vector<Scalar, 3> Cross(const Vector<Scalar, 3>& other) const
     {
-        return (Vector3<Scalar>&)::Cross(*this, other);
+        return (Vector<Scalar, 3>&)::Cross(*this, other);
     }
-    inline Vector3<Scalar> Normalize() const
+    inline Vector<Scalar, 3> Normalize() const
     {
-        return (Vector3<Scalar>&)::Normalize(*this);
-    }
-
-    inline operator Vector<Scalar, 3>&()
-    {
-        return *this;
-    }
-    inline operator const Vector<Scalar, 3>&() const
-    {
-        return *this;
+        return (Vector<Scalar, 3>&)::Normalize(*this);
     }
 
-    static Vector3<Scalar> XAxis, YAxis, ZAxis;
+    static Vector<Scalar, 3> XAxis, YAxis, ZAxis;
 };
 
 template<typename Scalar>
-Vector3<Scalar> Vector3<Scalar>::XAxis = { 1, 0, 0 };
+Vector<Scalar, 3> Vector<Scalar, 3>::XAxis = { 1, 0, 0 };
 template<typename Scalar>
-Vector3<Scalar> Vector3<Scalar>::YAxis = { 0, 1, 0 };
+Vector<Scalar, 3> Vector<Scalar, 3>::YAxis = { 0, 1, 0 };
 template<typename Scalar>
-Vector3<Scalar> Vector3<Scalar>::ZAxis = { 0, 0, 1 };
-
-template<typename Scalar>
-inline Vector3<Scalar> operator+(const Vector3<Scalar>& first, const Vector3<Scalar>& second)
-{
-    return (Vector3<Scalar>&)((Vector<Scalar, 3>&)first + (Vector<Scalar, 3>&)second);
-}
-
-template<typename Scalar>
-inline Vector3<Scalar> operator-(const Vector3<Scalar>& first, const Vector3<Scalar>& second)
-{
-    return (Vector3<Scalar>&)((Vector<Scalar, 3>&)first - (Vector<Scalar, 3>&)second);
-}
-
-template<typename Scalar>
-inline Vector3<Scalar> operator*(const Vector3<Scalar>& vector, Scalar scale)
-{
-    return (Vector3<Scalar>&)((Vector<Scalar, 3>&)vector * scale);
-}
-
-template<typename Scalar>
-inline Vector3<Scalar> operator*(Scalar scale, const Vector3<Scalar>& vector)
-{
-    return vector * scale;
-}
-
-template<typename Scalar>
-inline Vector3<Scalar> operator/(const Vector3<Scalar>& vector, Scalar scale)
-{
-    return (Vector3<Scalar>&)((Vector<Scalar, 3>&)vector / scale);
-}
-
-template<typename Scalar>
-inline Vector3<Scalar>& operator+=(Vector3<Scalar>& first, const Vector3<Scalar>& second)
-{
-    return (Vector3<Scalar>&)((Vector<Scalar, 3>&)first += (Vector<Scalar, 3>&)second);
-}
-
-template<typename Scalar>
-inline Vector3<Scalar>& operator-=(Vector3<Scalar>& first, const Vector3<Scalar>& second)
-{
-    return (Vector3<Scalar>&)((Vector<Scalar, 3>&)first -= (Vector<Scalar, 3>&)second);
-}
-
-template<typename Scalar>
-inline Vector3<Scalar>& operator+=(Vector3<Scalar>& first, Scalar second)
-{
-    return (Vector3<Scalar>&)((Vector<Scalar, 3>&)first += second);
-}
-
-template<typename Scalar>
-inline Vector3<Scalar>& operator-=(Vector3<Scalar>& first, Scalar second)
-{
-    return (Vecotr3<Scalar>&)((Vector<Scalar, 3>&)first -= second);
-}
-
-template<typename Scalar>
-inline Vector3<Scalar>& operator*=(Vector3<Scalar>& vector, Scalar scale)
-{
-    return (Vector3<Scalar>&)((Vector<Scalar, 3>&)vector *= scale);
-}
-
-template<typename Scalar>
-inline Vector3<Scalar>& operator/=(Vector3<Scalar>& vector, Scalar scale)
-{
-    return (Vector3<Scalar>&)((Vector<Scalar, 3>&)vector /= scale);
-}
+Vector<Scalar, 3> Vector<Scalar, 3>::ZAxis = { 0, 0, 1 };
 
 template<typename Scalar>
 struct Quaternion : public Vector<Scalar, 4>
@@ -366,9 +333,9 @@ struct Quaternion : public Vector<Scalar, 4>
 
     inline Vector<Scalar, 3> Rotate(const Vector<Scalar, 3>& v)
     {
-        auto uv = Cross((Vector<Scalar, 3>&)*this, v);
+        auto uv = ((Vector<Scalar, 3>*)this)->Cross(v);
         uv += uv;
-        return uv * this->v[3] + Cross((Vector<Scalar, 3>&)*this, uv) + v;
+        return uv * this->v[3] + ((Vector<Scalar, 3>*)this)->Cross(uv) + v;
     }
 
     inline Quaternion<Scalar> operator*(const Quaternion& other)
@@ -376,8 +343,8 @@ struct Quaternion : public Vector<Scalar, 4>
         auto& t = (Vector<Scalar, 3>&)*this;
         auto& o = (Vector<Scalar, 3>&)other;
 
-        auto w = t.v[3] * o.v[3] - Dot(t, o);
-        auto p = Cross(t, o) + o * this->v[3] + t * other.v[3];
+        auto w = t.v[3] * o.v[3] - t.Dot(o);
+        auto p = t.Cross(o) + o * this->v[3] + t * other.v[3];
 
         return Quaternion<Scalar>{ p.v[0], p.v[1], p.v[2], w };
     }
@@ -400,7 +367,7 @@ struct Quaternion : public Vector<Scalar, 4>
         auto& axis = *(Vector<Scalar, 3>*)&rotation.v[1];
         auto angle = rotation.v[0];
 
-        if (Dot(axis, axis) < FLT_MIN)
+        if (axis.Dot() < FLT_MIN)
         {
             return Identity;
         }
@@ -410,18 +377,18 @@ struct Quaternion : public Vector<Scalar, 4>
 
     inline static Quaternion<Scalar> From2Vectors(const Vector<Scalar, 3>& v0, const Vector<Scalar, 3>& v1)
     {
-        auto n0 = Normalize(v0);
-        auto n1 = Normalize(v1);
+        auto n0 = v0.Normalize();
+        auto n1 = v1.Normalize();
 
         if (n0 == n1)
         {
             return Identity;
         }
 
-        auto h = Normalize(n0 + n1);
-        auto q = Cross(n0, h);
+        auto h = (n0 + n1).Normalize();
+        auto q = n0.Cross(h);
 
-        return Quaternion<Scalar>{ q.v[0], q.v[1], q.v[2], Dot(n0, h) };
+        return Quaternion<Scalar>{ q.v[0], q.v[1], q.v[2], n0.Dot(h) };
     }
 
     inline static Quaternion<Scalar> FromAxisAngle(const Vector<Scalar, 3>& axis, float radian)
@@ -429,7 +396,7 @@ struct Quaternion : public Vector<Scalar, 4>
         auto a = radian / 2;
         auto c = cos(a);
         auto s = sin(a);
-        auto n = Normalize(axis);
+        auto n = axis.Normalize();
 
         return Quaternion<Scalar>{ s * n.v[0], s * n.v[1], s * n.v[2], c };
     }
@@ -440,8 +407,8 @@ struct Quaternion : public Vector<Scalar, 4>
 template<typename Scalar>
 Quaternion<Scalar> Quaternion<Scalar>::Identity = { 0, 0, 0, 1 };
 
-typedef Vector3<float>   Vertex;
-typedef Vector3<float>   Normal;
+typedef Vector<float, 3> Vertex;
+typedef Vector<float, 3> Normal;
 typedef Vector<float, 2> Coordinate;
 
 template <typename T, size_t N>
