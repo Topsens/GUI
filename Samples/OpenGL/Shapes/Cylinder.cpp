@@ -4,6 +4,7 @@
 using namespace std;
 
 const int   Pieces = 36;
+const int   Repeat = 3;
 const float Radius = 0.5f;
 const float Height = 1.0f;
 
@@ -32,7 +33,7 @@ Cylinder::Cylinder()
         normals.push_back(Normal{ x, 0.f, z });
         normals.push_back(Normal{ x, 0.f, z });
 
-        x = i / (float)Pieces * 3.f;
+        x = i / (float)Pieces * Repeat;
         texCoords.push_back(Coordinate{ x, 0.f });
         texCoords.push_back(Coordinate{ x, 1.f });
     }
