@@ -32,7 +32,7 @@ Cylinder::Cylinder()
         normals.push_back(Normal{ x, 0.f, z });
         normals.push_back(Normal{ x, 0.f, z });
 
-        x = i / (float)Pieces;
+        x = i / (float)Pieces * 3.f;
         texCoords.push_back(Coordinate{ x, 0.f });
         texCoords.push_back(Coordinate{ x, 1.f });
     }
