@@ -27,12 +27,14 @@ bool StatusBar::Create(View* parent, HINSTANCE instance)
 
 void StatusBar::Show()
 {
+    this->AutoResize();
     ShowWindow(this->hwnd, SW_SHOW);
 }
 
 void StatusBar::Hide()
 {
     ShowWindow(this->hwnd, SW_HIDE);
+    this->rect = { 0, 0, 0, 0 };
 }
 
 void StatusBar::AutoResize()
