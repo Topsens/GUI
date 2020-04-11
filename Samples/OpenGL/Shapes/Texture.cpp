@@ -24,6 +24,7 @@ Texture::Texture(const wchar_t* file)
         }
 
         bmp->UnlockBits(data);
+        delete data;
         delete bmp;
     }
 }
