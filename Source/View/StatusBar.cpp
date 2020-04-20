@@ -1,5 +1,4 @@
 #include "StatusBar.h"
-#include <CommCtrl.h>
 #include <vector>
 
 using namespace std;
@@ -13,14 +12,14 @@ StatusBar::operator bool() const
     return this->hwnd ? true : false;
 }
 
-bool StatusBar::Create(View* parent, HINSTANCE instance)
+bool StatusBar::Create(View* parent, HINSTANCE instance, DWORD style)
 {
     if (!parent)
     {
         return false;
     }
 
-    this->hwnd = CreateWindowExW(0, STATUSCLASSNAMEW, nullptr, WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, parent->Handle(), (HMENU)this->id, instance, nullptr);
+    this->hwnd = CreateWindowExW(0, STATUSCLASSNAMEW, nullptr, style, 0, 0, 0, 0, parent->Handle(), (HMENU)this->id, instance, nullptr);
 
     return this->hwnd ? true : false;
 }

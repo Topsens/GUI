@@ -1,6 +1,7 @@
 #pragma once
 
 #include "View.h"
+#include <CommCtrl.h>
 
 class StatusBar
 {
@@ -9,7 +10,7 @@ public:
 
     operator bool() const;
 
-    bool Create(View* parent, HINSTANCE instance);
+    bool Create(View* parent, HINSTANCE instance = nullptr, DWORD style = CCS_BOTTOM | WS_CHILD);
     void Show();
     void Hide();
     void AutoResize();
