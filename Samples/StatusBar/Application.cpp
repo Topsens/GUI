@@ -17,11 +17,14 @@ bool Application::OnCreated()
         return false;
     }
 
-    if (!this->status.Create(this, this->instance))
+    int positions[] = { 1, 2 };
+    if (!this->status.Create(this, this->instance) || !this->status.SetParts(2, positions))
     {
         return false;
     }
-    this->status.Text(L"Hello world!");
+
+    this->status.Text(L"Hello", 0);
+    this->status.Text(L"World", 1);
     this->status.Show();
 
     return true;
@@ -50,5 +53,9 @@ void Application::OnPaint()
 void Application::OnSize()
 {
     this->status.AutoResize();
+
+    int positions[] = { this->status.Width() / 2, -1 };
+    this->status.SetParts(2, positions);
+
     MainWindow::OnSize();
 }

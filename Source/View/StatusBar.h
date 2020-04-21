@@ -1,6 +1,7 @@
 #pragma once
 
 #include "View.h"
+#include <vector>
 #include <CommCtrl.h>
 
 class StatusBar
@@ -18,9 +19,13 @@ public:
     int  Width();
     int  Height();
 
-    void Text(const wchar_t* text);
-    void Text(const std::wstring& text);
-    std::wstring Text();
+    bool SetParts(UINT parts, int* rightEdgePositions);
+    UINT GetParts();
+    UINT GetParts(std::vector<int>& positions);
+
+    bool Text(const wchar_t* text, UINT part = 0);
+    bool Text(const std::wstring& text, UINT part = 0);
+    std::wstring Text(UINT part = 0);
 
 private:
     UINT id;

@@ -52,30 +52,62 @@ int StatusBar::Height()
     return this->rect.bottom - this->rect.top;
 }
 
-void StatusBar::Text(const wchar_t* text)
+bool StatusBar::SetParts(UINT parts, int* positions)
 {
-    SetWindowTextW(this->hwnd, text);
-}
-
-void StatusBar::Text(const wstring& text)
-{
-    this->Text(text.c_str());
-}
-
-wstring StatusBar::Text()
-{
-    vector<wchar_t> buf;
-
-    auto l = GetWindowTextLengthW(this->hwnd);
-    if (l)
+    if (parts > 256)
     {
-        buf.resize(l + 1);
-
-        if (GetWindowTextW(this->hwnd, &buf[0], (int)buf.size()))
-        {
-            return wstring(buf.data());
-        }
+        return false;
     }
 
-    return wstring();
+    if (!positions)
+    {
+        return false;
+    }
+
+    return SendMessageW(this->hwnd, SB_SETPARTS, parts, (LPARAM)positions) ? true : false;
+}
+
+UINT StatusBar::GetParts()
+{
+    return SendMessageW(this->hwnd, SB_GETPARTS, 0, 0);
+}
+
+UINT StatusBar::GetParts(std::vector<int>& positions)
+{
+    positions.resize(this->GetParts());
+    return SendMessageW(this->hwnd, SB_GETPARTS, (WPARAM)positions.size(), (LPARAM)&positions[0]);
+}
+
+bool StatusBar::Text(const wchar_t* text, UINT part)
+{
+    if (part > 256)
+    {
+        return false;
+    }
+
+    return SendMessageW(this->hwnd, SB_SETTEXTW, part, (LPARAM)text) ? true : false;
+}
+
+bool StatusBar::Text(const wstring& text, UINT part)
+{
+    return this->Text(text.c_str(), part);
+}
+
+wstring StatusBar::Text(UINT part)
+{
+    wstring text;
+
+    if (part > 256)
+    {
+        return text;
+    }
+
+    auto l = SendMessageW(this->hwnd, SB_GETTEXTLENGTH, part, 0) & 0xFF;
+    if (l)
+    {
+        text.resize(l);
+        SendMessageW(this->hwnd, SB_GETTEXTW, part, (LPARAM)&text[0]);
+    }
+
+    return text;
 }
