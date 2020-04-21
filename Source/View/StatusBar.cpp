@@ -69,13 +69,13 @@ bool StatusBar::SetParts(UINT parts, int* positions)
 
 UINT StatusBar::GetParts()
 {
-    return SendMessageW(this->hwnd, SB_GETPARTS, 0, 0);
+    return (UINT)SendMessageW(this->hwnd, SB_GETPARTS, 0, 0);
 }
 
 UINT StatusBar::GetParts(std::vector<int>& positions)
 {
     positions.resize(this->GetParts());
-    return SendMessageW(this->hwnd, SB_GETPARTS, (WPARAM)positions.size(), (LPARAM)&positions[0]);
+    return (UINT)SendMessageW(this->hwnd, SB_GETPARTS, (WPARAM)positions.size(), (LPARAM)&positions[0]);
 }
 
 bool StatusBar::Text(const wchar_t* text, UINT part)
