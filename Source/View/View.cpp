@@ -6,8 +6,9 @@ using namespace std;
 View::View(HINSTANCE instance)
   : hwnd(nullptr), owner(nullptr), parent(nullptr), instance(instance), cursor(nullptr)
 {
-    this->wrect = { 0, 0, 0, 0 };
-    this->crect = { 0, 0, 0, 0 };
+    this->c2scr = {};
+    this->wrect = {};
+    this->crect = {};
 }
 
 View::~View()
@@ -83,68 +84,84 @@ LRESULT View::MessageHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg)
     {
-    case WM_MOVE:
-        this->c2scr = { 0, 0 };
-        ClientToScreen(this->hwnd, &this->c2scr);
-        GetWindowRect(this->hwnd, &this->wrect);
-        this->OnMove();
-        break;
+        case WM_DESTROY:
+        {
+            auto res = this->WindowProc(hWnd, uMsg, wParam, lParam);
+            this->c2scr  = {};
+            this->wrect  = {};
+            this->crect  = {};
+            this->hwnd   = nullptr;
+            this->owner  = nullptr;
+            this->parent = nullptr;
+            return res;
+        }
 
-    case WM_SIZE:
-        this->c2scr = { 0, 0 };
-        ClientToScreen(this->hwnd, &this->c2scr);
-        GetWindowRect(this->hwnd, &this->wrect);
-        GetClientRect(this->hwnd, &this->crect);
-        this->OnSize();
-        break;
+        case WM_MOVE:
+        {
+            this->c2scr = {};
+            ClientToScreen(this->hwnd, &this->c2scr);
+            GetWindowRect(this->hwnd, &this->wrect);
+            break;
+        }
 
-    case WM_DESTROY:
-        this->OnDestroy();
-        this->c2scr  = { 0, 0 };
-        this->wrect  = { 0, 0, 0, 0 };
-        this->crect  = { 0, 0, 0, 0 };
-        this->hwnd   = nullptr;
-        this->owner  = nullptr;
-        this->parent = nullptr;
-        break;
+        case WM_SIZE:
+        {
+            this->c2scr = {};
+            ClientToScreen(this->hwnd, &this->c2scr);
+            GetWindowRect(this->hwnd, &this->wrect);
+            GetClientRect(this->hwnd, &this->crect);
+            break;
+        }
 
-    default:
-        return this->WindowProc(hWnd, uMsg, wParam, lParam);
+        default:
+            break;
     }
 
-    return 0;
+    return this->WindowProc(hWnd, uMsg, wParam, lParam);
 }
 
 LRESULT View::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg)
     {
-    case WM_PAINT:
-        this->OnPaint();
-        break;
+        case WM_PAINT:
+            this->OnPaint();
+            break;
 
-    case WM_TIMER:
-        this->OnTimer();
-        break;
+        case WM_TIMER:
+            this->OnTimer();
+            break;
 
-    case WM_COMMAND:
-        this->command = LOWORD(wParam);
-        this->OnCommand();
-        break;
+        case WM_COMMAND:
+            this->command = LOWORD(wParam);
+            this->OnCommand();
+            break;
 
-    case WM_CLOSE:
-        this->OnClose();
-        break;
+        case WM_SIZE:
+            this->OnSize();
+            break;
 
-    case WM_SETCURSOR:
-        if (this->OnSetCursor())
-        {
-            return TRUE;
-        }
-        // fall through
+        case WM_MOVE:
+            this->OnMove();
+            break;
 
-    default:
-        return this->DefaultProc(hWnd, uMsg, wParam, lParam);
+        case WM_CLOSE:
+            this->OnClose();
+            break;
+
+        case WM_DESTROY:
+            this->OnDestroy();
+            break;
+
+        case WM_SETCURSOR:
+            if (this->OnSetCursor())
+            {
+                return TRUE;
+            }
+            // fall through
+
+        default:
+            return this->DefaultProc(hWnd, uMsg, wParam, lParam);
     }
 
     return 0;

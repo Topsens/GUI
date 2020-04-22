@@ -1,5 +1,5 @@
 #include "Application.h"
-#include "D2DRenderer.h"
+#include "GDIRenderer.h"
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR, int nCmdShow)
 {
@@ -18,7 +18,7 @@ bool Application::OnCreated()
     }
 
     int positions[] = { 1, 2 };
-    if (!this->status.Create(this, this->instance) || !this->status.SetParts(2, positions))
+    if (!this->status.Create(this, this->instance, SBARS_SIZEGRIP | CCS_BOTTOM | WS_CHILD) || !this->status.SetParts(2, positions))
     {
         return false;
     }
@@ -32,16 +32,11 @@ bool Application::OnCreated()
 
 void Application::OnPaint()
 {
-    D2DRenderer renderer;
+    GDIRenderer renderer;
     if (renderer.BeginPaint(this->hwnd))
     {
-        renderer.Clear(RGB(0, 255, 0));
-
         // A status bar occupies client area
-        D2DRectangle rect(0, 0, (float)this->ClientWidth(), (float)this->ClientHeight() - this->status.Height());
-        renderer.SolidBrush(RGB(255, 0, 0));
-        renderer.Fill(rect);
-
+        renderer.Clear(RGB(255, 255, 255));
         renderer.EndPaint();
     }
     else

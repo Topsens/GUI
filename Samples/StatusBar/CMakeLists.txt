@@ -9,7 +9,7 @@ include_directories(${View})
 
 add_executable(${PROJECT_NAME}
                Application.cpp
-               ${View}/D2DRenderer.cpp
+               ${View}/GDIRenderer.cpp
                ${View}/MainWindow.cpp
                ${View}/StatusBar.cpp
                ${View}/Window.cpp
