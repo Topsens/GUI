@@ -63,9 +63,9 @@ public:
 
 protected:
     virtual bool OnSetCursor();
-    virtual bool OnCommand();
     virtual bool OnCreated();
     virtual void OnDestroy();
+    virtual void OnCommand();
     virtual void OnPaint();
     virtual void OnClose();
     virtual void OnTimer();

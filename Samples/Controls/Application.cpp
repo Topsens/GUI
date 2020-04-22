@@ -34,7 +34,7 @@ bool Application::OnCreated()
     return Dialog::OnCreated();
 }
 
-bool Application::OnCommand()
+void Application::OnCommand()
 {
     auto echo = this->Item(IDC_ECHO);
 
@@ -52,8 +52,8 @@ bool Application::OnCommand()
                     echo.Text(text);
                 }
             }
-            
-            return true;
+
+            break;
         }
 
         case IDC_CHECK:
@@ -75,17 +75,17 @@ bool Application::OnCommand()
                     echo.Text(L"Indeterminate");
                 }
             }
-            return true;
+
+            break;
         }
 
         case IDC_BUTTON:
         {
             echo.Text(L"Button clicked");
+            break;
         }
 
         default:
             break;
     }
-
-    return Dialog::OnCommand();
 }

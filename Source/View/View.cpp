@@ -123,12 +123,17 @@ LRESULT View::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         this->OnPaint();
         break;
 
-    case WM_CLOSE:
-        this->OnClose();
-        break;
-
     case WM_TIMER:
         this->OnTimer();
+        break;
+
+    case WM_COMMAND:
+        this->command = LOWORD(wParam);
+        this->OnCommand();
+        break;
+
+    case WM_CLOSE:
+        this->OnClose();
         break;
 
     case WM_SETCURSOR:
@@ -136,21 +141,13 @@ LRESULT View::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
             return TRUE;
         }
-        break;
-
-    case WM_COMMAND:
-        this->command = LOWORD(wParam);
-        if (this->OnCommand())
-        {
-            return FALSE;
-        }
-        break;
+        // fall through
 
     default:
-        break;
+        return this->DefaultProc(hWnd, uMsg, wParam, lParam);
     }
 
-    return this->DefaultProc(hWnd, uMsg, wParam, lParam);
+    return 0;
 }
 
 void View::Destroy()
@@ -466,20 +463,6 @@ bool View::OnSetCursor()
     return false;
 }
 
-bool View::OnCommand()
-{
-    if (this->parent)
-    {
-        this->parent->wparam  = this->wparam;
-        this->parent->lparam  = this->lparam;
-        this->parent->command = this->command;
-
-        return this->parent->OnCommand();
-    }
-
-    return false;
-}
-
 bool View::OnCreated()
 {
     return true;
@@ -487,6 +470,17 @@ bool View::OnCreated()
 
 void View::OnDestroy()
 {
+}
+
+void View::OnCommand()
+{
+    if (this->parent)
+    {
+        this->parent->wparam  = this->wparam;
+        this->parent->lparam  = this->lparam;
+        this->parent->command = this->command;
+        this->parent->OnCommand();
+    }
 }
 
 void View::OnPaint()
