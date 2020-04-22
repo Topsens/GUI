@@ -9,6 +9,7 @@ public:
     Application(HINSTANCE instance);
 
 protected:
+    LRESULT WindowProc(HWND, UINT, WPARAM, LPARAM) override;
     bool OnCreated() override;
     void OnPaint() override;
     void OnSize() override;

@@ -10,6 +10,24 @@ Application::Application(HINSTANCE instance) : MainWindow(instance), status(1000
 {
 }
 
+LRESULT Application::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    switch (uMsg)
+    {
+        case WM_MOUSEMOVE:
+        {
+            POINTS p = MAKEPOINTS(lParam);
+
+            auto text = L"x,y = {" + std::to_wstring(p.x) + L',' + std::to_wstring(p.y) + L'}';
+            this->status.Text(text, 1);
+            return 0;
+        }
+
+        default:
+            return MainWindow::WindowProc(hWnd, uMsg, wParam, lParam);
+    }
+}
+
 bool Application::OnCreated()
 {
     if (!MainWindow::OnCreated())
@@ -23,8 +41,7 @@ bool Application::OnCreated()
         return false;
     }
 
-    this->status.Text(L"Hello", 0);
-    this->status.Text(L"World", 1);
+    this->status.Text(L"Hello World!", 0);
     this->status.Show();
 
     return true;
@@ -49,7 +66,7 @@ void Application::OnSize()
 {
     this->status.AutoResize();
 
-    int positions[] = { this->status.Width() / 2, -1 };
+    int positions[] = { 100, -1 };
     this->status.SetParts(2, positions);
 
     MainWindow::OnSize();
