@@ -138,6 +138,11 @@ bool GDIRenderer::Pen(HPEN pen)
     }
     else
     {
+        if (this->pen && this->pen != NullPen)
+        {
+            DeleteObject(this->pen);
+        }
+
         return nullptr != (this->pen = NullPen);
     }
 }
@@ -178,6 +183,11 @@ bool GDIRenderer::Brush(HBRUSH brush)
     }
     else
     {
+        if (this->brush && this->brush != NullBrush)
+        {
+            DeleteObject(this->brush);
+        }
+
         return nullptr != (this->brush = NullBrush);
     }
 }
