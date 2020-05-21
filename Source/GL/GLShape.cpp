@@ -149,7 +149,7 @@ void GLShape::Render()
     glPushMatrix();
 
     glTranslatef(this->Position[0], this->Position[1], this->Position[2]);
-    glRotatef(this->Rotation[0], this->Rotation[1], this->Rotation[2], this->Rotation[3]);
+    glRotatef(this->Rotation[3], this->Rotation[0], this->Rotation[1], this->Rotation[2]);
     glScalef(this->Scaling[0], this->Scaling[1], this->Scaling[2]);
 
     auto vc = this->ApplyVertices();
@@ -194,6 +194,7 @@ void GLShape::Release()
     {
         child->Release();
     }
+    this->children.clear();
 
     if (this->nbo)
     {
@@ -218,6 +219,38 @@ void GLShape::Release()
         glDeleteBuffers(1, &this->ibo);
         this->ibo = 0;
     }
+}
+
+bool GLShape::HasChild() const
+{
+    return !this->children.empty();
+}
+
+bool GLShape::HasChild(const GLShape* child) const
+{
+    for (auto c : this->children)
+    {
+        if (c == child)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void GLShape::AddChild(GLShape* child)
+{
+    if (child)
+    {
+        child->parent = this;
+        this->children.push_back(child);
+    }
+}
+
+void GLShape::RemoveChild(const GLShape* child)
+{
+    this->children.erase(std::find(this->children.begin(), this->children.end(), child));
 }
 
 GLint GLShape::ApplyIndices()
@@ -340,14 +373,5 @@ void GLShape::RevokeTexture()
     else if (this->parent)
     {
         this->parent->RevokeTexture();
-    }
-}
-
-void GLShape::AddChild(GLShape* child)
-{
-    if (child)
-    {
-        child->parent = this;
-        this->children.push_back(child);
     }
 }

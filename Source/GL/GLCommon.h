@@ -48,17 +48,12 @@ struct Vector
             this->v[i] = v[i];
         }
     }
-    Vector(const std::initializer_list<Scalar>& v)
+    Vector(const std::initializer_list<Scalar>& list)
     {
-        int i = 0;
-        for (auto& val : v)
+        auto l = list.begin();
+        for (int i = 0; i < Dimensions; i++)
         {
-            this->v[i++] = val;
-
-            if (i == Dimensions)
-            {
-                break;
-            }
+            this->v[i] = (list.end() == l) ? 0 : *l++;
         }
     }
 
@@ -274,17 +269,13 @@ struct Vector<Scalar, 2>
             this->v[i] = v[i];
         }
     }
-    Vector(const std::initializer_list<Scalar>& v)
+    Vector(const std::initializer_list<Scalar>& list)
     {
-        int i = 0;
-        for (auto& val : v)
-        {
-            this->v[i++] = val;
+        auto l = list.begin();
 
-            if (i == 2)
-            {
-                break;
-            }
+        for (int i = 0; i < 2; i++)
+        {
+            this->v[i] = (list.end() == l) ? 0 : *l++;
         }
     }
 
@@ -351,17 +342,13 @@ struct Vector<Scalar, 3>
             this->v[i] = v[i];
         }
     }
-    Vector(const std::initializer_list<Scalar>& v)
+    Vector(const std::initializer_list<Scalar>& list)
     {
-        int i = 0;
-        for (auto& val : v)
-        {
-            this->v[i++] = val;
+        auto l = list.begin();
 
-            if (i == 3)
-            {
-                break;
-            }
+        for (int i = 0; i < 3; i++)
+        {
+            this->v[i] = (list.end() == l) ? 0 : *l++;
         }
     }
 
@@ -423,43 +410,48 @@ struct Quaternion : public Vector<Scalar, 4>
     {
     }
 
-    inline Vector<Scalar, 3> Rotate(const Vector<Scalar, 3>& v)
+    inline Vector<Scalar, 3> Rotate(const Vector<Scalar, 3>& v) const
     {
         auto uv = ((Vector<Scalar, 3>*)this)->Cross(v);
         uv += uv;
         return uv * this->v[3] + ((Vector<Scalar, 3>*)this)->Cross(uv) + v;
     }
 
-    inline Quaternion<Scalar> operator*(const Quaternion& other)
+    inline Quaternion<Scalar> Inverse() const
+    {
+        return Quaternion<Scalar>{ -this->v[0], -this->v[1], -this->v[2], this->v[3] };
+    }
+
+    inline Quaternion<Scalar> operator*(const Quaternion& other) const
     {
         auto& t = (Vector<Scalar, 3>&)*this;
         auto& o = (Vector<Scalar, 3>&)other;
 
-        auto w = t.v[3] * o.v[3] - t.Dot(o);
-        auto p = t.Cross(o) + o * this->v[3] + t * other.v[3];
+        auto w = t[3] * o[3] - t.Dot(o);
+        auto p = t.Cross(o) + o * t[3] + t * o[3];
 
         return Quaternion<Scalar>{ p.v[0], p.v[1], p.v[2], w };
     }
 
-    inline Vector<Scalar, 4> ToRotation()
+    inline Vector<Scalar, 4> ToRotation() const
     {
         auto a = acos(this->v[3]);
         auto s = sin(a);
 
-        if (abs(s) < FLT_MIN)
+        if (abs(s) < FLT_EPSILON)
         {
             return Vector<Scalar, 4>{ 0, 0, 0, 0 };
         }
 
-        return Vector<Scalar, 4>{ ToDegree(a * 2), this->v[0] / s, this->v[1] / s, this->v[2] / s };
+        return Vector<Scalar, 4>{ this->v[0] / s, this->v[1] / s, this->v[2] / s, ToDegree(a * 2) };
     }
 
     inline static Quaternion<Scalar> FromRotation(const Vector<Scalar, 4>& rotation)
     {
-        auto& axis = *(Vector<Scalar, 3>*)&rotation.v[1];
-        auto angle = rotation.v[0];
+        auto& axis = (Vector<Scalar, 3>&)rotation;
+        auto angle = rotation.v[3];
 
-        if (axis.Dot() < FLT_MIN)
+        if (axis.Dot() < FLT_EPSILON)
         {
             return Identity;
         }
@@ -472,7 +464,9 @@ struct Quaternion : public Vector<Scalar, 4>
         auto n0 = v0.Normalize();
         auto n1 = v1.Normalize();
 
-        if (n0 == n1)
+        if (std::fabs(n0[0] - n1[0]) < 0.00001 &&
+            std::fabs(n0[1] - n1[1]) < 0.00001 &&
+            std::fabs(n0[2] - n1[2]) < 0.00001)
         {
             return Identity;
         }
@@ -480,7 +474,7 @@ struct Quaternion : public Vector<Scalar, 4>
         auto h = (n0 + n1).Normalize();
         auto q = n0.Cross(h);
 
-        return Quaternion<Scalar>{ q.v[0], q.v[1], q.v[2], n0.Dot(h) };
+        return Quaternion<Scalar>{ q[0], q[1], q[2], n0.Dot(h) };
     }
 
     inline static Quaternion<Scalar> FromAxisAngle(const Vector<Scalar, 3>& axis, float radian)

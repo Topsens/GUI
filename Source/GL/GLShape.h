@@ -24,6 +24,11 @@ public:
     virtual void Render();
     virtual void Release();
 
+    bool HasChild() const;
+    bool HasChild(const GLShape* child) const;
+    void AddChild(GLShape* child);
+    void RemoveChild(const GLShape* child);
+
 protected:
     GLint ApplyIndices();
     GLint ApplyVertices();
@@ -36,8 +41,6 @@ protected:
     void RevokeNormals();
     void RevokeTexCoords();
     void RevokeTexture();
-
-    void AddChild(GLShape* child);
 
     GLenum mode;
     GLuint ibo, vbo, nbo, cbo;

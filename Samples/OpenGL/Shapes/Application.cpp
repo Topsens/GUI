@@ -43,10 +43,9 @@ bool Application::OnCreated()
     return true;
 }
 
-bool Application::OnCommand()
+void Application::OnCommand()
 {
     this->vport.CreateShape(this->command);
-    return true;
 }
 
 void Application::OnSize()
