@@ -6,9 +6,11 @@ using namespace std;
 View::View(HINSTANCE instance)
   : hwnd(nullptr), owner(nullptr), parent(nullptr), instance(instance), cursor(nullptr)
 {
-    this->c2scr = {};
-    this->wrect = {};
-    this->crect = {};
+    this->c2scr = {0};
+    this->wrect = {0};
+    this->crect = {0};
+    this->min   = {0};
+    this->max   = {0};
 }
 
 View::~View()
@@ -87,9 +89,9 @@ LRESULT View::MessageHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         case WM_DESTROY:
         {
             auto res = this->WindowProc(hWnd, uMsg, wParam, lParam);
-            this->c2scr  = {};
-            this->wrect  = {};
-            this->crect  = {};
+            this->c2scr  = {0};
+            this->wrect  = {0};
+            this->crect  = {0};
             this->hwnd   = nullptr;
             this->owner  = nullptr;
             this->parent = nullptr;
@@ -98,18 +100,34 @@ LRESULT View::MessageHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         case WM_MOVE:
         {
-            this->c2scr = {};
+            this->c2scr = {0};
             ClientToScreen(this->hwnd, &this->c2scr);
             GetWindowRect(this->hwnd, &this->wrect);
+
+            if (this->parent)
+            {
+                this->wrect.left   -= this->parent->c2scr.x;
+                this->wrect.right  -= this->parent->c2scr.x;
+                this->wrect.top    -= this->parent->c2scr.y;
+                this->wrect.bottom -= this->parent->c2scr.y;
+            }
             break;
         }
 
         case WM_SIZE:
         {
-            this->c2scr = {};
+            this->c2scr = {0};
             ClientToScreen(this->hwnd, &this->c2scr);
             GetWindowRect(this->hwnd, &this->wrect);
             GetClientRect(this->hwnd, &this->crect);
+
+            if (this->parent)
+            {
+                this->wrect.left -= this->parent->c2scr.x;
+                this->wrect.right -= this->parent->c2scr.x;
+                this->wrect.top -= this->parent->c2scr.y;
+                this->wrect.bottom -= this->parent->c2scr.y;
+            }
             break;
         }
 
@@ -137,12 +155,34 @@ LRESULT View::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             this->OnCommand();
             break;
 
+        case WM_GETMINMAXINFO:
+            if (this->min.x || this->min.y)
+            {
+                ((MINMAXINFO*)lParam)->ptMinTrackSize = this->min;
+            }
+            if (this->max.x || this->max.y)
+            {
+                ((MINMAXINFO*)lParam)->ptMaxTrackSize = this->max;
+            }
+            break;
+
         case WM_SIZE:
             this->OnSize();
             break;
 
         case WM_MOVE:
             this->OnMove();
+            break;
+
+        case WM_SHOWWINDOW:
+            if (wParam)
+            {
+                this->OnShow();
+            }
+            else
+            {
+                this->OnHide();
+            }
             break;
 
         case WM_CLOSE:
@@ -161,7 +201,18 @@ LRESULT View::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             // fall through
 
         default:
+        {
+            if (uMsg > WM_APP)
+            {
+                auto it = this->handlers.find(uMsg);
+                if (this->handlers.end() != it)
+                {
+                    return it->second();
+                }
+            }
+
             return this->DefaultProc(hWnd, uMsg, wParam, lParam);
+        }
     }
 
     return 0;
@@ -305,21 +356,11 @@ bool View::Post(UINT uMsg, WPARAM wParam, LPARAM lParam) const
 
 int View::X() const
 {
-    if (this->parent)
-    {
-        return this->wrect.left - this->parent->c2scr.x;
-    }
-
     return this->wrect.left;
 }
 
 int View::Y() const
 {
-    if (this->parent)
-    {
-        return this->wrect.top - this->parent->c2scr.y;
-    }
-
     return this->wrect.top;
 }
 
@@ -351,6 +392,50 @@ int View::ClientHeight() const
 RECT View::ClientRect() const
 {
     return this->crect;
+}
+
+POINT View::Min() const
+{
+    return this->min;
+}
+
+POINT View::Max() const
+{
+    return this->max;
+}
+
+POINT View::MinClient() const
+{
+    return this->min;
+}
+
+void View::Min(int x, int y)
+{
+    this->min.x = x > 0 ? x : 0;
+    this->min.y = y > 0 ? y : 0;
+}
+
+void View::Max(int x, int y)
+{
+    this->max.x = x > 0 ? x : 0;
+    this->max.y = y > 0 ? y : 0;
+}
+
+POINT View::MaxClient() const
+{
+    return this->max;
+}
+
+void View::MinClient(int x, int y)
+{
+    this->min.x = (x > 0 ? x : 0) + this->Width()  - this->ClientWidth();
+    this->min.y = (y > 0 ? y : 0) + this->Height() - this->ClientHeight();
+}
+
+void View::MaxClient(int x, int y)
+{
+    this->max.x = (x > 0 ? x : 0) + this->Width()  - this->ClientWidth();
+    this->max.y = (y > 0 ? y : 0) + this->Height() - this->ClientHeight();
 }
 
 HWND View::Handle() const
@@ -469,6 +554,20 @@ void View::KillTimer(UINT_PTR id)
     ::KillTimer(this->Handle(), id);
 }
 
+void View::RegisterHandler(UINT message, const function<LRESULT()>& handler)
+{
+    this->handlers[message] = handler;
+}
+
+void View::RemoveHandler(UINT message)
+{
+    auto it = this->handlers.find(message);
+    if (this->handlers.end() != it)
+    {
+        this->handlers.erase(it);
+    }
+}
+
 bool View::OnSetCursor()
 {
     if (this->cursor)
@@ -522,5 +621,13 @@ void View::OnMove()
 }
 
 void View::OnSize()
+{
+}
+
+void View::OnShow()
+{
+}
+
+void View::OnHide()
 {
 }

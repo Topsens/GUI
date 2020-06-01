@@ -114,6 +114,8 @@ LRESULT Window::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         break;
 
     case WM_CREATE:
+        this->c2scr = {0};
+        ClientToScreen(this->Handle(), &this->c2scr);
         GetWindowRect(this->Handle(), &this->wrect);
         GetClientRect(this->Handle(), &this->crect);
         this->OnCreate();

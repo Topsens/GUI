@@ -239,7 +239,7 @@ bool GDIRenderer::PixelsRGB(const BYTE* pixels, int width, int height, int x, in
         return false;
     }
 
-    BITMAPINFO bmi = {};
+    BITMAPINFO bmi = {0};
     bmi.bmiHeader.biSize = sizeof(bmi.bmiHeader);
     bmi.bmiHeader.biWidth = width;
     bmi.bmiHeader.biHeight = -height;
@@ -292,7 +292,7 @@ bool GDIRenderer::PixelsARGB(const BYTE* pixels, int width, int height, int x, i
         return false;
     }
 
-    BITMAPINFO bmi = {};
+    BITMAPINFO bmi = {0};
     bmi.bmiHeader.biSize = sizeof(bmi.bmiHeader);
     bmi.bmiHeader.biWidth = width;
     bmi.bmiHeader.biHeight = -height;
@@ -354,7 +354,7 @@ bool GDIRenderer::PixelsARGB(const BYTE* pixels, int width, int height, int x, i
 
     if (useAlpha)
     {
-        BLENDFUNCTION bf = {};
+        BLENDFUNCTION bf = {0};
         bf.BlendOp = AC_SRC_OVER;
         bf.AlphaFormat = AC_SRC_ALPHA;
         bf.SourceConstantAlpha = 255;
@@ -481,7 +481,7 @@ bool GDIRenderer::Rectangle(int left, int top, int right, int bottom, BYTE opaci
         return false;
     }
     
-    BLENDFUNCTION bf = {};
+    BLENDFUNCTION bf = {0};
     bf.BlendOp = AC_SRC_OVER;
     bf.AlphaFormat = 0;
     bf.SourceConstantAlpha = opacity;
@@ -567,7 +567,7 @@ bool GDIRenderer::Ellipse(int left, int top, int right, int bottom, BYTE opacity
         return false;
     }
     
-    BLENDFUNCTION bf = {};
+    BLENDFUNCTION bf = {0};
     bf.BlendOp = AC_SRC_OVER;
     bf.AlphaFormat = 0;
     bf.SourceConstantAlpha = opacity;
@@ -631,7 +631,7 @@ bool GDIRenderer::Text(const wchar_t* text, int x, int y, int w, int h, UINT ali
     
     if (255 != opacity)
     {
-        BLENDFUNCTION bf = {};
+        BLENDFUNCTION bf = {0};
         bf.BlendOp = AC_SRC_OVER;
         bf.AlphaFormat = 0;
         bf.SourceConstantAlpha = opacity;
@@ -669,7 +669,7 @@ HDC GDIRenderer::CreateDC(int width, int height, HDC src, int x, int y)
     HDC hdc = CreateCompatibleDC(this->hdc);
     if (hdc)
     {
-        BITMAPINFO bmi = {};
+        BITMAPINFO bmi = {0};
         bmi.bmiHeader.biSize = sizeof(bmi.bmiHeader);
         bmi.bmiHeader.biWidth = width;
         bmi.bmiHeader.biHeight = -height;

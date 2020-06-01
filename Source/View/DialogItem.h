@@ -12,8 +12,7 @@ public:
 
     void Show() const;
     void Hide() const;
-    bool Move(int x, int y, bool repaint = true) const;
-    bool Move(int x, int y, int width, int height, bool repaint = true) const;
+    bool MoveTo(int x, int y, bool repaint = true) const;
     bool Resize(int width, int height, bool repaint = true) const;
 
     void Enable() const;

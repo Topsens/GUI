@@ -24,6 +24,18 @@ bool StatusBar::Create(View* parent, HINSTANCE instance, DWORD style)
     return this->hwnd ? true : false;
 }
 
+bool StatusBar::Create(View* parent, bool sizeGrip)
+{
+    if (sizeGrip)
+    {
+        return this->Create(parent, nullptr, SBARS_SIZEGRIP | CCS_BOTTOM | WS_CHILD);
+    }
+    else
+    {
+        return this->Create(parent);
+    }
+}
+
 void StatusBar::Show()
 {
     this->AutoResize();

@@ -20,27 +20,21 @@ void DialogItem::Hide() const
     ShowWindow(this->hwnd, SW_HIDE);
 }
 
-bool DialogItem::Move(int x, int y, bool repaint) const
+bool DialogItem::MoveTo(int x, int y, bool repaint) const
 {
-    return this->Move(x, y, this->Width(), this->Height(), repaint);
-}
-
-bool DialogItem::Move(int x, int y, int width, int height, bool repaint) const
-{
-    if (!this->hwnd || width < 0 || height < 0)
+    if (this->hwnd)
     {
-        return false;
+        return MoveWindow(this->hwnd, x, y, this->Width(), this->Height(), repaint ? TRUE : FALSE) ? true : false;
     }
 
-    return FALSE != MoveWindow(this->hwnd, x, y, width, height, repaint ? TRUE : FALSE);
+    return false;
 }
 
 bool DialogItem::Resize(int width, int height, bool repaint) const
 {
     if (this->hwnd)
     {
-        auto rect = this->Rect();
-        return this->Move(rect.left, rect.top, width, height, repaint);
+        return MoveWindow(this->hwnd, this->X(), this->Y(), width, height, repaint ? TRUE : FALSE) ? true : false;
     }
 
     return false;
@@ -93,10 +87,13 @@ bool DialogItem::Post(UINT uMsg, WPARAM wParam, LPARAM lParam) const
 
 int DialogItem::X() const
 {
-    RECT rect;
-    if (GetWindowRect(this->hwnd, &rect))
+    POINT c2scr = {0};
+    RECT  rect;
+
+    if (ClientToScreen(this->parent, &c2scr) &&
+        GetWindowRect(this->hwnd, &rect))
     {
-        return rect.left;
+        return rect.left - c2scr.x;
     }
 
     return 0;
@@ -104,10 +101,13 @@ int DialogItem::X() const
 
 int DialogItem::Y() const
 {
-    RECT rect;
-    if (GetWindowRect(this->hwnd, &rect))
+    POINT c2scr = {0};
+    RECT  rect;
+
+    if (ClientToScreen(this->parent, &c2scr) &&
+        GetWindowRect(this->hwnd, &rect))
     {
-        return rect.top;
+        return rect.top - c2scr.y;
     }
 
     return 0;

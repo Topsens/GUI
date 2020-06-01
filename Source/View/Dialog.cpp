@@ -86,7 +86,7 @@ LRESULT Dialog::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     switch (uMsg)
     {
     case WM_INITDIALOG:
-        this->c2scr = {};
+        this->c2scr = {0};
         ClientToScreen(this->Handle(), &this->c2scr);
         GetWindowRect(this->Handle(), &this->wrect);
         GetClientRect(this->Handle(), &this->crect);

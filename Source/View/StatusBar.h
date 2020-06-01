@@ -12,6 +12,7 @@ public:
     operator bool() const;
 
     bool Create(View* parent, HINSTANCE instance = nullptr, DWORD style = CCS_BOTTOM | WS_CHILD);
+    bool Create(View* parent, bool sizeGrip);
     void Show();
     void Hide();
     void AutoResize();

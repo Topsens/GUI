@@ -1,6 +1,8 @@
 #pragma once
 
 #include <Windows.h>
+#include <functional>
+#include <map>
 #include <string>
 
 class View
@@ -45,6 +47,16 @@ public:
     int   ClientHeight() const;
     RECT  ClientRect() const;
 
+    POINT Min() const;
+    POINT Max() const;
+    void  Min(int x, int y);
+    void  Max(int x, int y);
+
+    POINT MinClient() const;
+    POINT MaxClient() const;
+    void  MinClient(int x, int y);
+    void  MaxClient(int x, int y);
+
     HWND  Handle() const;
 
     bool  Owner(View* parent);
@@ -61,6 +73,9 @@ public:
     void SetTimer(UINT_PTR id, UINT elapse);
     void KillTimer(UINT_PTR id);
 
+    void RegisterHandler(UINT message, const std::function<LRESULT()>& handler);   // Customized message must be greater than WM_APP
+    void RemoveHandler(UINT message);
+
 protected:
     virtual bool OnSetCursor();
     virtual bool OnCreated();
@@ -71,6 +86,8 @@ protected:
     virtual void OnTimer();
     virtual void OnMove();
     virtual void OnSize();
+    virtual void OnShow();
+    virtual void OnHide();
 
     static  WPARAM  MessageLoop(HWND hwnd, HACCEL haccel);
     static  LRESULT MessageRouter(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -82,9 +99,12 @@ protected:
 protected:
     HWND  hwnd;
     UINT  umsg;
+    UINT  dbgid;
     RECT  wrect;
     RECT  crect;
     POINT c2scr;
+    POINT min;
+    POINT max;
     View* owner;
     View* parent;
     WORD  command;
@@ -92,4 +112,6 @@ protected:
     LPARAM lparam;
     HCURSOR cursor;
     HINSTANCE instance;
+
+    std::map<UINT, std::function<LRESULT()>> handlers;
 };
