@@ -1,6 +1,22 @@
 #include "ProgressBar.h"
 #include <CommCtrl.h>
 
+ProgressBar ProgressBar::Create(HWND parent, UINT id)
+{
+    DialogItem di;
+
+    if (parent)
+    {
+        auto hWnd = CreateWindowExW(0, PROGRESS_CLASSW, nullptr, WS_CHILD, 0, 0, 20, 10, parent, 0, 0, nullptr);
+        if (hWnd)
+        {
+            di = DialogItem(parent, hWnd, id);
+        }
+    }
+
+    return (ProgressBar&)di;
+}
+
 bool ProgressBar::SetRange(int min, int max)
 {
     if (max <= min)

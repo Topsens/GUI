@@ -16,17 +16,25 @@ public:
     void Show();
     void Hide();
     void AutoResize();
+    void ClipChildren(bool clip = true) const;
 
-    int  Width();
-    int  Height();
 
-    bool SetParts(UINT parts, int* rightEdgePositions);
-    UINT GetParts();
-    UINT GetParts(std::vector<int>& positions);
+    int  Width() const;
+    int  Height() const;
 
-    bool Text(const wchar_t* text, UINT part = 0);
-    bool Text(const std::wstring& text, UINT part = 0);
-    std::wstring Text(UINT part = 0);
+    HWND  Handle() const;
+    DWORD Style() const;
+    DWORD StyleEx() const;
+    void  Style(DWORD style) const;
+    void  StyleEx(DWORD style) const;
+
+    bool SetParts(UINT parts, int* rightEdgePositions) const;
+    UINT GetParts() const;
+    UINT GetParts(std::vector<int>& positions) const;
+
+    bool Text(const wchar_t* text, UINT part = 0) const;
+    bool Text(const std::wstring& text, UINT part = 0) const;
+    std::wstring Text(UINT part = 0) const;
 
 private:
     UINT id;

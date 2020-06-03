@@ -6,9 +6,9 @@
 class DialogItem
 {
 public:
+    DialogItem();
     DialogItem(HWND parent, UINT id);
-
-    DialogItem(){}
+    DialogItem(HWND parent, HWND hWnd, UINT id);
 
     void Show() const;
     void Hide() const;
@@ -41,7 +41,7 @@ public:
     UINT ID() const;
     HWND Handle() const;
 
-    operator bool();
+    operator bool() const;
 
 protected:
     HWND parent;

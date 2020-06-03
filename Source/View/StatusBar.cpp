@@ -54,17 +54,70 @@ void StatusBar::AutoResize()
     GetWindowRect(this->hwnd, &this->rect);
 }
 
-int StatusBar::Width()
+void StatusBar::ClipChildren(bool clip) const
+{
+    if (clip)
+    {
+        this->Style(this->Style() | WS_CLIPCHILDREN);
+    }
+    else
+    {
+        this->Style(this->Style() &~ WS_CLIPCHILDREN);
+    }
+}
+
+int StatusBar::Width() const
 {
     return this->rect.right - this->rect.left;
 }
 
-int StatusBar::Height()
+int StatusBar::Height() const
 {
     return this->rect.bottom - this->rect.top;
 }
 
-bool StatusBar::SetParts(UINT parts, int* positions)
+HWND StatusBar::Handle() const
+{
+    return this->hwnd;
+}
+
+DWORD StatusBar::Style() const
+{
+    if (this->hwnd)
+    {
+        return (DWORD)GetWindowLongPtrW(this->hwnd, GWL_STYLE);
+    }
+
+    return 0;
+}
+
+DWORD StatusBar::StyleEx() const
+{
+    if (this->hwnd)
+    {
+        return (DWORD)GetWindowLongPtrW(this->hwnd, GWL_EXSTYLE);
+    }
+
+    return 0;
+}
+
+void StatusBar::Style(DWORD style) const
+{
+    if (this->hwnd)
+    {
+        SetWindowLongPtrW(this->hwnd, GWL_STYLE, style);
+    }
+}
+
+void StatusBar::StyleEx(DWORD style) const
+{
+    if (this->hwnd)
+    {
+        SetWindowLongPtrW(this->hwnd, GWL_EXSTYLE, style);
+    }
+}
+
+bool StatusBar::SetParts(UINT parts, int* positions) const
 {
     if (parts > 256)
     {
@@ -79,18 +132,18 @@ bool StatusBar::SetParts(UINT parts, int* positions)
     return SendMessageW(this->hwnd, SB_SETPARTS, parts, (LPARAM)positions) ? true : false;
 }
 
-UINT StatusBar::GetParts()
+UINT StatusBar::GetParts() const
 {
     return (UINT)SendMessageW(this->hwnd, SB_GETPARTS, 0, 0);
 }
 
-UINT StatusBar::GetParts(std::vector<int>& positions)
+UINT StatusBar::GetParts(std::vector<int>& positions) const
 {
     positions.resize(this->GetParts());
     return (UINT)SendMessageW(this->hwnd, SB_GETPARTS, (WPARAM)positions.size(), (LPARAM)&positions[0]);
 }
 
-bool StatusBar::Text(const wchar_t* text, UINT part)
+bool StatusBar::Text(const wchar_t* text, UINT part) const
 {
     if (part > 256)
     {
@@ -100,12 +153,12 @@ bool StatusBar::Text(const wchar_t* text, UINT part)
     return SendMessageW(this->hwnd, SB_SETTEXTW, part, (LPARAM)text) ? true : false;
 }
 
-bool StatusBar::Text(const wstring& text, UINT part)
+bool StatusBar::Text(const wstring& text, UINT part) const
 {
     return this->Text(text.c_str(), part);
 }
 
-wstring StatusBar::Text(UINT part)
+wstring StatusBar::Text(UINT part) const
 {
     wstring text;
 

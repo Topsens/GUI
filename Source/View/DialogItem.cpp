@@ -4,10 +4,18 @@
 
 using namespace std;
 
+DialogItem::DialogItem() : parent(0), hwnd(0), id(0)
+{
+}
+
 DialogItem::DialogItem(HWND parent, UINT id)
   : parent(parent), id(id)
 {
     this->hwnd = GetDlgItem(parent, id);
+}
+
+DialogItem::DialogItem(HWND parent, HWND hWnd, UINT id) : parent(parent), hwnd(hWnd), id(id)
+{
 }
 
 void DialogItem::Show() const
@@ -196,7 +204,7 @@ HWND DialogItem::Handle() const
     return this->hwnd;
 }
 
-DialogItem::operator bool()
+DialogItem::operator bool() const
 {
     return nullptr != this->hwnd;
 }
