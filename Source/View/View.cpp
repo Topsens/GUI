@@ -143,19 +143,26 @@ LRESULT View::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     switch (uMsg)
     {
         case WM_PAINT:
+        {
             this->OnPaint();
             break;
+        }
 
         case WM_TIMER:
+        {
             this->OnTimer();
             break;
+        }
 
         case WM_COMMAND:
+        {
             this->command = LOWORD(wParam);
             this->OnCommand();
             break;
+        }
 
         case WM_GETMINMAXINFO:
+        {
             if (this->min.x || this->min.y)
             {
                 ((MINMAXINFO*)lParam)->ptMinTrackSize = this->min;
@@ -165,16 +172,22 @@ LRESULT View::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 ((MINMAXINFO*)lParam)->ptMaxTrackSize = this->max;
             }
             break;
+        }
 
         case WM_SIZE:
+        {
             this->OnSize();
             break;
+        }
 
         case WM_MOVE:
+        {
             this->OnMove();
             break;
+        }
 
         case WM_SHOWWINDOW:
+        {
             if (wParam)
             {
                 this->OnShow();
@@ -184,34 +197,36 @@ LRESULT View::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 this->OnHide();
             }
             break;
+        }
 
         case WM_CLOSE:
+        {
             this->OnClose();
             break;
+        }
 
         case WM_DESTROY:
+        {
             this->OnDestroy();
             break;
+        }
 
         case WM_SETCURSOR:
+        {
             if (this->OnSetCursor())
             {
                 return TRUE;
             }
-            // fall through
+            else
+            {
+                return this->DefaultProc(hWnd, uMsg, wParam, lParam);
+            }
+        }
 
         default:
         {
-            if (uMsg > WM_APP)
-            {
-                auto it = this->handlers.find(uMsg);
-                if (this->handlers.end() != it)
-                {
-                    return it->second();
-                }
-            }
-
-            return this->DefaultProc(hWnd, uMsg, wParam, lParam);
+            auto it = this->messages.find(uMsg);
+            return this->messages.end() != it ? it->second() : this->DefaultProc(hWnd, uMsg, wParam, lParam);
         }
     }
 
@@ -554,17 +569,31 @@ void View::KillTimer(UINT_PTR id)
     ::KillTimer(this->Handle(), id);
 }
 
-void View::RegisterHandler(UINT message, const function<LRESULT()>& handler)
+void View::RegisterMessage(UINT message, const function<LRESULT()>& handler)
 {
-    this->handlers[message] = handler;
+    this->messages[message] = handler;
 }
 
-void View::RemoveHandler(UINT message)
+void View::RemoveMessage(UINT message)
 {
-    auto it = this->handlers.find(message);
-    if (this->handlers.end() != it)
+    auto it = this->messages.find(message);
+    if (this->messages.end() != it)
     {
-        this->handlers.erase(it);
+        this->messages.erase(it);
+    }
+}
+
+void View::RegisterCommand(UINT command, const function<void()>& handler)
+{
+    this->commands[command] = handler;
+}
+
+void View::RemoveCommand(UINT command)
+{
+    auto it = this->commands.find(command);
+    if (this->commands.end() != it)
+    {
+        this->commands.erase(it);
     }
 }
 
@@ -590,7 +619,12 @@ void View::OnDestroy()
 
 void View::OnCommand()
 {
-    if (this->parent)
+    auto it = this->commands.find(this->command);
+    if (this->commands.end() != it)
+    {
+        it->second();
+    }
+    else if (this->parent)
     {
         this->parent->wparam  = this->wparam;
         this->parent->lparam  = this->lparam;

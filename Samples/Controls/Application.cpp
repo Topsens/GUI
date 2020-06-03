@@ -23,6 +23,11 @@ Application::Application(HINSTANCE instance) : Dialog(IDD_MAIN, instance)
 
 bool Application::OnCreated()
 {
+    if (!Dialog::OnCreated())
+    {
+        return false;
+    }
+
     auto combo = (ComboBox&)this->Item(IDC_COMBO);
     combo.Add(L"Hello");
     combo.Add(L"World");
@@ -31,61 +36,45 @@ bool Application::OnCreated()
     progress.SetRange(-100, 100);
     progress.Position(-50);
 
-    return Dialog::OnCreated();
-}
-
-void Application::OnCommand()
-{
-    auto echo = this->Item(IDC_ECHO);
-
-    switch (this->command)
+    this->RegisterCommand(IDC_COMBO, [this]
     {
-        case IDC_COMBO:
+        if (CBN_SELCHANGE == HIWORD(this->wparam))
         {
-            if (CBN_SELCHANGE == HIWORD(this->wparam))
+            auto combo = (ComboBox&)this->Item(IDC_COMBO);
+            wstring text;
+
+            if (combo.GetText(combo.Selection(), text))
             {
-                auto combo = (ComboBox&)this->Item(IDC_COMBO);
-                wstring text;
-
-                if (combo.GetText(combo.Selection(), text))
-                {
-                    echo.Text(text);
-                }
+                this->Item(IDC_ECHO).Text(text);
             }
-
-            break;
         }
+    });
 
-        case IDC_CHECK:
+    this->RegisterCommand(IDC_CHECK, [this]
+    {
+        if (BN_CLICKED == HIWORD(this->wparam))
         {
-            if (BN_CLICKED == HIWORD(this->wparam))
+            auto echo  = this->Item(IDC_ECHO);
+            auto check = (CheckBox&)this->Item(IDC_CHECK);
+
+            if (check.IsChecked())
             {
-                auto check = (CheckBox&)this->Item(IDC_CHECK);
-
-                if (check.IsChecked())
-                {
-                    echo.Text(L"Checked");
-                }
-                else if (check.IsUnchecked())
-                {
-                    echo.Text(L"Unchecked");
-                }
-                else if (check.IsIndeterminate())
-                {
-                    echo.Text(L"Indeterminate");
-                }
+                echo.Text(L"Checked");
             }
-
-            break;
+            else if (check.IsUnchecked())
+            {
+                echo.Text(L"Unchecked");
+            }
+            else if (check.IsIndeterminate())
+            {
+                echo.Text(L"Indeterminate");
+            }
         }
+    });
 
-        case IDC_BUTTON:
-        {
-            echo.Text(L"Button clicked");
-            break;
-        }
-
-        default:
-            break;
-    }
+    this->RegisterCommand(IDC_BUTTON, [this]
+    {
+        this->Item(IDC_ECHO).Text(L"Button clicked");
+    });
+    return true;
 }

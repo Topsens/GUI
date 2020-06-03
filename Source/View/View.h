@@ -73,8 +73,10 @@ public:
     void SetTimer(UINT_PTR id, UINT elapse);
     void KillTimer(UINT_PTR id);
 
-    void RegisterHandler(UINT message, const std::function<LRESULT()>& handler);   // Customized message must be greater than WM_APP
-    void RemoveHandler(UINT message);
+    void RegisterMessage(UINT message, const std::function<LRESULT()>& handler);
+    void RemoveMessage(UINT message);
+    void RegisterCommand(UINT command, const std::function<void()>& handler);
+    void RemoveCommand(UINT command);
 
 protected:
     virtual bool OnSetCursor();
@@ -113,5 +115,6 @@ protected:
     HCURSOR cursor;
     HINSTANCE instance;
 
-    std::map<UINT, std::function<LRESULT()>> handlers;
+    std::map<UINT, std::function<LRESULT()>> messages;
+    std::map<UINT, std::function<void()>>    commands;
 };

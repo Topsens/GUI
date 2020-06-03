@@ -9,5 +9,4 @@ public:
 
 protected:
     bool OnCreated() override;
-    void OnCommand() override;
 };
