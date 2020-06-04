@@ -1,4 +1,5 @@
 #include "Application.h"
+#include "Button.h"
 #include "CheckBox.h"
 #include "ComboBox.h"
 #include "ProgressBar.h"
@@ -38,7 +39,7 @@ bool Application::OnCreated()
         return false;
     }
 
-    auto pb = ProgressBar::Create(this->status.Handle(), IDC_PBONSB);
+    auto pb = ProgressBar::Create(this->status.Handle(), IDC_STATUS_PROGRESS);
     if (!pb)
     {
         return false;
@@ -46,8 +47,15 @@ bool Application::OnCreated()
     pb.Position(50);
     pb.Show();
 
-    int positions[] = { 100, -1 };
-    this->status.SetParts(2, positions);
+    auto bt = Button::Create(this->status.Handle(), IDC_STATUS_BUTTON, L"S-Button");
+    if (!bt)
+    {
+        return false;
+    }
+    bt.Show();
+
+    int positions[3] = { 100, 200, -1 };
+    this->status.SetParts(3, positions);
     this->status.ClipChildren();
     this->status.Show();
 
@@ -106,9 +114,15 @@ bool Application::OnCreated()
     this->RegisterCommand(IDC_BUTTON, [this]
     {
         this->Item(IDC_ECHO).Text(L"Button clicked");
-        this->status.Text(this->Item(IDC_ECHO).Text());
+        this->status.Text(L"Button clicked");
     });
     
+    this->RegisterCommand(IDC_STATUS_BUTTON, [this]
+    {
+        this->Item(IDC_ECHO).Text(L"S-Button clicked");
+        this->status.Text(L"S-Button clicked");
+    });
+
     return true;
 }
 
@@ -119,7 +133,11 @@ void Application::OnSize()
     vector<int> positions;
     this->status.GetParts(positions);
 
-    auto pb = this->status.Item(IDC_PBONSB);
-    pb.MoveTo(positions[0], 2);
+    auto bt = this->status.Item(IDC_STATUS_BUTTON);
+    bt.MoveTo(positions[0], 2);
+    bt.Resize(positions[1] - bt.X(), this->status.Height() - bt.Y());
+
+    auto pb = this->status.Item(IDC_STATUS_PROGRESS);
+    pb.MoveTo(positions[1], 2);
     pb.Resize(this->status.Width() - pb.X(), this->status.Height() - pb.Y());
 }

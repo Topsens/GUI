@@ -67,7 +67,7 @@ LRESULT View::MessageRouter(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
     else
     {
-        pThis = reinterpret_cast<View*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        pThis = reinterpret_cast<View*>(::GetWindowLongPtrW(hWnd, GWLP_USERDATA));
     }
 
     if (pThis)

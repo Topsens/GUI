@@ -1,6 +1,8 @@
 #pragma once
 
 #include "View.h"
+#include <functional>
+#include <map>
 #include <vector>
 #include <CommCtrl.h>
 
@@ -37,8 +39,26 @@ public:
     bool Text(const std::wstring& text, UINT part = 0) const;
     std::wstring Text(UINT part = 0) const;
 
+    void RegisterCommand(UINT command, const std::function<void()>& handler);
+    void RemoveCommand(UINT command);
+
+protected:
+    virtual LRESULT WindowProc(HWND, UINT, WPARAM, LPARAM);
+
+private:
+    static LRESULT MessageRouter(HWND, UINT, WPARAM, LPARAM);
+
 private:
     UINT id;
     HWND hwnd;
     RECT rect;
+
+    View* parent;
+
+    WNDPROC defaultProc;
+    WORD    command;
+    WPARAM  wparam;
+    LPARAM  lparam;
+    
+    std::map<UINT, std::function<void()>> commands;
 };

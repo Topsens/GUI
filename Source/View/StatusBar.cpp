@@ -3,7 +3,7 @@
 
 using namespace std;
 
-StatusBar::StatusBar(UINT id) : id(id), hwnd(nullptr), rect({ 0, 0, 0, 0})
+StatusBar::StatusBar(UINT id) : id(id), hwnd(nullptr), rect({ 0, 0, 0, 0}), parent(nullptr)
 {
 }
 
@@ -19,7 +19,14 @@ bool StatusBar::Create(View* parent, HINSTANCE instance, DWORD style)
         return false;
     }
 
+    this->parent = parent;
+
     this->hwnd = CreateWindowExW(0, STATUSCLASSNAMEW, nullptr, style, 0, 0, 0, 0, parent->Handle(), (HMENU)this->id, instance, nullptr);
+    if (this->hwnd)
+    {
+        SetWindowLongPtrW(this->hwnd, GWLP_USERDATA, (LONG_PTR)this);
+        this->defaultProc = (WNDPROC)SetWindowLongPtrW(this->hwnd, GWLP_WNDPROC, (LONG_PTR)MessageRouter);
+    }
 
     return this->hwnd ? true : false;
 }
@@ -178,4 +185,55 @@ wstring StatusBar::Text(UINT part) const
     }
 
     return text;
+}
+
+void StatusBar::RegisterCommand(UINT command, const function<void()>& handler)
+{
+    this->commands[command] = handler;
+}
+
+void StatusBar::RemoveCommand(UINT command)
+{
+    auto it = this->commands.find(command);
+    if (this->commands.end() != it)
+    {
+        this->commands.erase(it);
+    }
+}
+
+LRESULT StatusBar::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    switch (uMsg)
+    {
+        case WM_COMMAND:
+        {
+            auto it = this->commands.find(this->command);
+            if (this->commands.end() != it)
+            {
+                it->second();
+                return 0;
+            }
+            else
+            {
+                return this->parent->Send(WM_COMMAND, this->wparam, this->lparam);
+            }
+        }
+
+        default:
+            return this->defaultProc(hWnd, uMsg, wParam, lParam);
+    }
+}
+
+LRESULT StatusBar::MessageRouter(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    StatusBar* pThis = reinterpret_cast<StatusBar*>(GetWindowLongPtrW(hWnd, GWLP_USERDATA));
+    if (pThis)
+    {
+        pThis->hwnd = hWnd;
+        pThis->wparam = wParam;
+        pThis->lparam = lParam;
+        return pThis->WindowProc(hWnd, uMsg, wParam, lParam);
+    }
+
+    return DefWindowProcW(hWnd, uMsg, wParam, lParam);
 }
