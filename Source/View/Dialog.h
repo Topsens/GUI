@@ -13,7 +13,6 @@ public:
     int Modal(View* owner = nullptr);
 
     UINT DialogID() const;
-    DialogItem Item(UINT id) const;
 
 protected:
     virtual LRESULT WindowProc(HWND, UINT, WPARAM, LPARAM) override;

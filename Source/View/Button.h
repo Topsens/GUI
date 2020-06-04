@@ -5,12 +5,5 @@
 class Button : public DialogItem
 {
 public:
-    Button(const DialogItem& di);
-    
-    void SetBitmap(HBITMAP bitmap);
-    bool SetBitmap(const wchar_t* file);
-    void SetIcon(HICON icon);
-
-private:
-    HANDLE img;
+    static Button Create(HWND parent, UINT id, const wchar_t* text, HINSTANCE instance = nullptr);
 };

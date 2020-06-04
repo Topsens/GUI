@@ -1,13 +1,13 @@
 #include "ProgressBar.h"
 #include <CommCtrl.h>
 
-ProgressBar ProgressBar::Create(HWND parent, UINT id)
+ProgressBar ProgressBar::Create(HWND parent, UINT id, HINSTANCE instance)
 {
     DialogItem di;
 
     if (parent)
     {
-        auto hWnd = CreateWindowExW(0, PROGRESS_CLASSW, nullptr, WS_CHILD, 0, 0, 0, 0, parent, (HMENU)id, 0, nullptr);
+        auto hWnd = CreateWindowExW(0, PROGRESS_CLASSW, nullptr, WS_CHILD, 0, 0, 0, 0, parent, (HMENU)id, instance, nullptr);
         if (hWnd)
         {
             di = DialogItem(parent, hWnd, id);

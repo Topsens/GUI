@@ -1,7 +1,6 @@
 #pragma once
 
 #include "View.h"
-#include "DialogItem.h"
 #include <vector>
 #include <CommCtrl.h>
 

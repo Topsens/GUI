@@ -38,7 +38,6 @@ bool StatusBar::Create(View* parent, bool sizeGrip)
 
 void StatusBar::Show()
 {
-    this->AutoResize();
     ShowWindow(this->hwnd, SW_SHOW);
 }
 

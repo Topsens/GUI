@@ -5,7 +5,7 @@
 class ProgressBar : public DialogItem
 {
 public:
-    static ProgressBar Create(HWND parent, UINT id = 0);
+    static ProgressBar Create(HWND parent, UINT id, HINSTANCE instance = nullptr);
 
     bool SetRange(int min, int max);
     void GetRange(int& min, int& max);

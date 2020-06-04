@@ -1,25 +1,17 @@
 #include "Button.h"
 
-Button::Button(const DialogItem& di) : DialogItem(di.Handle(), di.ID())
+Button Button::Create(HWND parent, UINT id, const wchar_t* text, HINSTANCE instance)
 {
-}
+    DialogItem di;
 
-void Button::SetBitmap(HBITMAP bitmap)
-{
-    this->Send(BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bitmap);
-}
-
-bool Button::SetBitmap(const wchar_t* file)
-{
-    if (!file)
+    if (parent)
     {
-        return false;
+        auto hwnd = CreateWindowExW(0, L"BUTTON", text, WS_CHILD | WS_TABSTOP, 0, 0, 0, 0, parent, (HMENU)id, instance, nullptr);
+        if (hwnd)
+        {
+            di = DialogItem(parent, hwnd, id);
+        }
     }
 
-    return true;
-}
-
-void Button::SetIcon(HICON icon)
-{
-    this->Send(BM_SETIMAGE, IMAGE_ICON, (LPARAM)icon);
+    return (Button&)di;
 }

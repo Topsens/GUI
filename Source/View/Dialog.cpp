@@ -76,11 +76,6 @@ UINT Dialog::DialogID() const
     return this->dialogID;
 }
 
-DialogItem Dialog::Item(UINT id) const
-{
-    return DialogItem(this->Handle(), id);
-}
-
 LRESULT Dialog::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg)

@@ -45,7 +45,7 @@ bool Application::OnCreated()
     }
     pb.Position(50);
     pb.Show();
-    
+
     int positions[] = { 100, -1 };
     this->status.SetParts(2, positions);
     this->status.ClipChildren();
@@ -61,7 +61,7 @@ bool Application::OnCreated()
     pb.SetRange(-100, 100);
     pb.Position(-50);
 
-    this->Resize(500, 500);
+    this->OnSize();
 
     this->RegisterCommand(IDC_COMBO, [this]
     {

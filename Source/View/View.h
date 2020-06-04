@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Windows.h>
+#include "DialogItem.h"
 #include <functional>
 #include <map>
 #include <string>
@@ -63,6 +63,8 @@ public:
     View* Owner() const;
     bool  Parent(View* parent);
     View* Parent() const;
+
+    DialogItem Item(UINT id) const;
 
     void  Cursor(LPTSTR name);
 

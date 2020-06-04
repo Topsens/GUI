@@ -516,6 +516,11 @@ View* View::Parent() const
     return this->parent;
 }
 
+DialogItem View::Item(UINT id) const
+{
+    return DialogItem(this->hwnd, id);
+}
+
 void View::Cursor(LPTSTR name)
 {
     if (name)
