@@ -150,20 +150,12 @@ RECT DialogItem::Rect() const
     return rect;
 }
 
-bool DialogItem::Font(const wchar_t* family, int size, int weight, bool italic, bool underline, bool strikeOut, DWORD charSet, DWORD outPrecision, DWORD clipPrecision, DWORD quality, DWORD pitchAndFamity, int escapement, int orientation) const
+void DialogItem::Font(HFONT font) const
 {
     if (this->hwnd)
     {
-        auto font = CreateFontW(size, 0, escapement, orientation, weight, italic ? TRUE : FALSE, underline ? TRUE : FALSE, strikeOut ? TRUE : FALSE, charSet, outPrecision, clipPrecision, quality, pitchAndFamity, family);
-
-        if (font)
-        {
-            SendMessageW(this->hwnd, WM_SETFONT, (WPARAM)font, TRUE);
-            return true;
-        }
+        SendMessageW(this->hwnd, WM_SETFONT, (WPARAM)font, TRUE);
     }
-
-    return false;
 }
 
 void DialogItem::Text(const wchar_t* text) const
@@ -207,4 +199,17 @@ HWND DialogItem::Handle() const
 DialogItem::operator bool() const
 {
     return nullptr != this->hwnd;
+}
+
+HFONT DialogItem::CreateFont(const wchar_t* family, int size, int weight, bool italic, bool underline, bool strikeOut, DWORD charSet, DWORD outPrecision, DWORD clipPrecision, DWORD quality, DWORD pitchAndFamity, int escapement, int orientation)
+{
+    return ::CreateFontW(size, 0, escapement, orientation, weight, italic ? TRUE : FALSE, underline ? TRUE : FALSE, strikeOut ? TRUE : FALSE, charSet, outPrecision, clipPrecision, quality, pitchAndFamity, family);
+}
+
+void DialogItem::DestroyFont(HFONT font)
+{
+    if (font)
+    {
+        DeleteObject(font);
+    }
 }

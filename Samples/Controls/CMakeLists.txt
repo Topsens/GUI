@@ -15,4 +15,5 @@ add_executable(${PROJECT_NAME}
                ${View}/Dialog.cpp
                ${View}/DialogItem.cpp
                ${View}/ProgressBar.cpp
+               ${View}/StatusBar.cpp
                ${View}/View.cpp)

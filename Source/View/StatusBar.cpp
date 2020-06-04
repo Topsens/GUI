@@ -45,7 +45,6 @@ void StatusBar::Show()
 void StatusBar::Hide()
 {
     ShowWindow(this->hwnd, SW_HIDE);
-    this->rect = { 0, 0, 0, 0 };
 }
 
 void StatusBar::AutoResize()
@@ -64,6 +63,11 @@ void StatusBar::ClipChildren(bool clip) const
     {
         this->Style(this->Style() &~ WS_CLIPCHILDREN);
     }
+}
+
+DialogItem StatusBar::Item(UINT id) const
+{
+    return DialogItem(this->Handle(), id);
 }
 
 int StatusBar::Width() const

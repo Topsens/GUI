@@ -12,7 +12,7 @@ public:
 
     void Show() const;
     void Hide() const;
-    bool MoveTo(int x, int y, bool repaint = true) const;
+    bool MoveTo(int x, int y, bool repaint = false) const;
     bool Resize(int width, int height, bool repaint = true) const;
 
     void Enable() const;
@@ -33,7 +33,7 @@ public:
     int   Height() const;
     RECT  Rect() const;
 
-    bool Font(const wchar_t* family, int size, int weight = FW_DONTCARE, bool italic = false, bool underline = false, bool strikeOut = false, DWORD charSet = DEFAULT_CHARSET, DWORD outPrecision = OUT_DEFAULT_PRECIS, DWORD clipPrecision = CLIP_DEFAULT_PRECIS, DWORD quality = DEFAULT_QUALITY, DWORD pitchAndFamity = DEFAULT_PITCH | FF_DONTCARE, int escapement = 0, int orientation = 0) const;
+    void Font(HFONT font) const;
     void Text(const wchar_t* text) const;
     void Text(const std::wstring& text) const;
     std::wstring Text() const;
@@ -42,6 +42,9 @@ public:
     HWND Handle() const;
 
     operator bool() const;
+
+    static HFONT CreateFont(const wchar_t* family, int size, int weight = FW_DONTCARE, bool italic = false, bool underline = false, bool strikeOut = false, DWORD charSet = DEFAULT_CHARSET, DWORD outPrecision = OUT_DEFAULT_PRECIS, DWORD clipPrecision = CLIP_DEFAULT_PRECIS, DWORD quality = DEFAULT_QUALITY, DWORD pitchAndFamity = DEFAULT_PITCH | FF_DONTCARE, int escapement = 0, int orientation = 0);
+    static void  DestroyFont(HFONT font);
 
 protected:
     HWND parent;

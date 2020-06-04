@@ -1,6 +1,7 @@
 #pragma once
 
 #include "View.h"
+#include "DialogItem.h"
 #include <vector>
 #include <CommCtrl.h>
 
@@ -18,6 +19,7 @@ public:
     void AutoResize();
     void ClipChildren(bool clip = true) const;
 
+    DialogItem Item(UINT id) const;
 
     int  Width() const;
     int  Height() const;
