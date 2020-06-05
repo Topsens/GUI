@@ -24,6 +24,8 @@ bool StatusBar::Create(View* parent, HINSTANCE instance, DWORD style)
     this->hwnd = CreateWindowExW(0, STATUSCLASSNAMEW, nullptr, style, 0, 0, 0, 0, parent->Handle(), (HMENU)this->id, instance, nullptr);
     if (this->hwnd)
     {
+        this->AutoResize();
+
         SetWindowLongPtrW(this->hwnd, GWLP_USERDATA, (LONG_PTR)this);
         this->defaultProc = (WNDPROC)SetWindowLongPtrW(this->hwnd, GWLP_WNDPROC, (LONG_PTR)MessageRouter);
     }
