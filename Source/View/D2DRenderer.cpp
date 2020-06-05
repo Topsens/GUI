@@ -12,7 +12,7 @@ IDWriteFactory* D2DRenderer::dwriteFactory = nullptr;
 
 D2DRenderer::D2DRenderer() : target(nullptr), style(nullptr), brush(nullptr), format(nullptr), width(1.f), transform(D2D1::Matrix3x2F::Identity())
 {
-    lock_guard<std::mutex> lock(this->mutex);
+    lock_guard<std::mutex> lock(D2DRenderer::mutex);
 
     if (!d2d1Factory)
     {
@@ -30,7 +30,7 @@ D2DRenderer::~D2DRenderer()
 {
     this->EndPaint();
 
-    lock_guard<std::mutex> lock(this->mutex);
+    lock_guard<std::mutex> lock(D2DRenderer::mutex);
 
     if (!d2d1Factory->Release())
     {
