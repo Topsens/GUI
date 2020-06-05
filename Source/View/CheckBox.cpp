@@ -1,4 +1,23 @@
 #include "CheckBox.h"
+#include <CommCtrl.h>
+
+using namespace std;
+
+CheckBox CheckBox::Create(HWND parent, UINT id, const wstring& text, DWORD type, HINSTANCE instance)
+{
+    DialogItem di;
+
+    if (parent)
+    {
+        auto hwnd = CreateWindowExW(0, WC_BUTTONW, text.c_str(), type | BS_CHECKBOX | WS_CHILD | WS_TABSTOP, 0, 0, 0, 0, parent, (HMENU)id, instance, nullptr);
+        if (hwnd)
+        {
+            di = DialogItem(parent, hwnd, id);
+        }
+    }
+
+    return (CheckBox&)di;
+}
 
 void CheckBox::Check() const
 {

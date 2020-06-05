@@ -10,6 +10,13 @@ public:
     DialogItem(HWND parent, UINT id);
     DialogItem(HWND parent, HWND hWnd, UINT id);
 
+    void Destroy();
+
+    DWORD Style() const;
+    DWORD StyleEx() const;
+    void  Style(DWORD style);
+    void  StyleEx(DWORD style);
+
     void Show() const;
     void Hide() const;
     bool MoveTo(int x, int y, bool repaint = false) const;

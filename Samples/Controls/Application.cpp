@@ -34,30 +34,10 @@ bool Application::OnCreated()
         return false;
     }
 
-    if (!this->status.Create(this))
+    if (!this->CreateStatus())
     {
         return false;
     }
-
-    auto pb = ProgressBar::Create(this->status.Handle(), IDC_STATUS_PROGRESS);
-    if (!pb)
-    {
-        return false;
-    }
-    pb.Position(50);
-    pb.Show();
-
-    auto bt = Button::Create(this->status.Handle(), IDC_STATUS_BUTTON, L"S-Button");
-    if (!bt)
-    {
-        return false;
-    }
-    bt.Show();
-
-    int positions[3] = { 100, 200, -1 };
-    this->status.SetParts(3, positions);
-    this->status.ClipChildren();
-    this->status.Show();
 
     this->Item(IDC_ECHO).Font(this->font);
 
@@ -65,9 +45,10 @@ bool Application::OnCreated()
     combo.Add(L"Hello");
     combo.Add(L"World");
 
-    pb = (ProgressBar&)this->Item(IDC_PROGRESS);
-    pb.SetRange(-100, 100);
-    pb.Position(-50);
+    auto style = combo.Style();
+
+    auto progress = (ProgressBar&)this->Item(IDC_PROGRESS);
+    progress.Position(50);
 
     this->OnSize();
 
@@ -117,12 +98,6 @@ bool Application::OnCreated()
         this->status.Text(L"Button clicked");
     });
     
-    this->RegisterCommand(IDC_STATUS_BUTTON, [this]
-    {
-        this->Item(IDC_ECHO).Text(L"S-Button clicked");
-        this->status.Text(L"S-Button clicked");
-    });
-
     return true;
 }
 
@@ -135,9 +110,92 @@ void Application::OnSize()
 
     auto bt = this->status.Item(IDC_STATUS_BUTTON);
     bt.MoveTo(positions[0], 2);
-    bt.Resize(positions[1] - bt.X(), this->status.Height() - bt.Y());
+    bt.Resize(60, this->status.Height() - bt.Y());
+
+    auto ck = this->status.Item(IDC_STATUS_CHECK);
+    ck.MoveTo(bt.X() + bt.Width() + 5, 2);
+    ck.Resize(100, this->status.Height() - ck.Y());
+
+    auto cb = this->status.Item(IDC_STATUS_COMBO);
+    cb.MoveTo(ck.X() + ck.Width(), 2);
+    cb.Resize(50, 120);
 
     auto pb = this->status.Item(IDC_STATUS_PROGRESS);
-    pb.MoveTo(positions[1], 2);
-    pb.Resize(this->status.Width() - pb.X(), this->status.Height() - pb.Y());
+    pb.MoveTo(cb.X() + cb.Width(), 2);
+    pb.Resize(this->status.Width() - cb.X() - cb.Width(), this->status.Height() - pb.Y());
+}
+
+bool Application::CreateStatus()
+{
+    if (!this->status.Create(this))
+    {
+        return false;
+    }
+
+    auto button = Button::Create(this->status.Handle(), IDC_STATUS_BUTTON, L"S-Button");
+    if (!button)
+    {
+        return false;
+    }
+
+    auto combo = ComboBox::Create(this->status.Handle(), IDC_STATUS_COMBO);
+    if (!combo)
+    {
+        return false;
+    }
+
+    auto check = CheckBox::Create(this->status.Handle(), IDC_STATUS_CHECK, L"Unchecked");
+    if (!check)
+    {
+        return false;
+    }
+
+    auto progress = ProgressBar::Create(this->status.Handle(), IDC_STATUS_PROGRESS);
+    if (!progress)
+    {
+        return false;
+    }
+
+    button.Show();
+
+    combo.Add(L"0");
+    combo.Add(L"25");
+    combo.Add(L"50");
+    combo.Add(L"75");
+    combo.Add(L"100");
+    combo.Select(2);
+    combo.Show();
+
+    check.Show();
+
+    progress.Position(50);
+    progress.Show();
+
+    int positions[] = { 100, -1 };
+    this->status.SetParts(2, positions);
+    this->status.ClipChildren();
+    this->status.Show();
+
+    this->RegisterCommand(IDC_STATUS_BUTTON, [this]
+    {
+        this->Item(IDC_ECHO).Text(L"S-Button clicked");
+        this->status.Text(L"S-Button clicked");
+    });
+    this->RegisterCommand(IDC_STATUS_COMBO, [this]
+    {
+        auto text = this->status.Item(IDC_STATUS_COMBO).Text();
+        this->Item(IDC_ECHO).Text(text);
+        this->status.Text(text);
+        ((ProgressBar&)this->Item(IDC_PROGRESS)).Position(_wtoi(text.c_str()));
+        ((ProgressBar&)this->status.Item(IDC_STATUS_PROGRESS)).Position(_wtoi(text.c_str()));
+    });
+    this->RegisterCommand(IDC_STATUS_CHECK, [this]
+    {
+        auto check = (CheckBox&)this->status.Item(IDC_STATUS_CHECK);
+        check.Text(check.IsChecked() ? L"Checked" : L"Unchecked");
+        this->Item(IDC_ECHO).Text(check.Text());
+        this->status.Text(check.Text());
+    });
+
+    return true;
 }

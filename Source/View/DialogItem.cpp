@@ -18,6 +18,55 @@ DialogItem::DialogItem(HWND parent, HWND hWnd, UINT id) : parent(parent), hwnd(h
 {
 }
 
+void DialogItem::Destroy()
+{
+    if (this->hwnd)
+    {
+        DestroyWindow(this->hwnd);
+        this->parent = 0;
+        this->hwnd   = 0;
+        this->id     = 0;
+    }
+}
+
+DWORD DialogItem::Style() const
+{
+    if (this->hwnd)
+    {
+        return (DWORD)GetWindowLongPtrW(this->hwnd, GWL_STYLE);
+    }
+
+    return 0;
+}
+
+DWORD DialogItem::StyleEx() const
+{
+    if (this->hwnd)
+    {
+        return (DWORD)GetWindowLongPtrW(this->hwnd, GWL_EXSTYLE);
+    }
+
+    return 0;
+}
+
+void DialogItem::Style(DWORD style)
+{
+    if (this->hwnd)
+    {
+        SetWindowLongPtrW(this->hwnd, GWL_STYLE, style);
+        SetWindowPos(this->hwnd, 0, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_DRAWFRAME);
+    }
+}
+
+void DialogItem::StyleEx(DWORD style)
+{
+    if (this->hwnd)
+    {
+        SetWindowLongPtrW(this->hwnd, GWL_EXSTYLE, style);
+        SetWindowPos(this->hwnd, 0, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_DRAWFRAME);
+    }
+}
+
 void DialogItem::Show() const
 {
     ShowWindow(this->hwnd, SW_SHOW);

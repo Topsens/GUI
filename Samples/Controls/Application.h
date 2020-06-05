@@ -14,6 +14,9 @@ protected:
     void OnSize() override;
 
 private:
+    bool CreateStatus();
+
+private:
     HFONT font;
     StatusBar status;
 };
