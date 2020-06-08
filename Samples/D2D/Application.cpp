@@ -15,15 +15,26 @@ Application::Application(HINSTANCE instance) : MainWindow(instance)
 
 bool Application::OnCreated()
 {
+    if (!MainWindow::OnCreated())
+    {
+        return false;
+    }
+
+    this->renderer = D2DRenderer::Create(this->Handle());
+    if (!this->renderer)
+    {
+        return false;
+    }
+
     this->Caption(L"D2D");
     this->ResizeClient(400, 400);
-    return MainWindow::OnCreated();
+
+    return true;
 }
 
 void Application::OnPaint()
 {
-    D2DRenderer renderer;
-    if (renderer.BeginPaint(this->Handle()))
+    if (renderer.BeginPaint())
     {
         int w = this->ClientWidth();
         int h = this->ClientHeight();
@@ -31,19 +42,7 @@ void Application::OnPaint()
         auto x = w * .5f;
         auto y = h * .5f;
 
-        vector<int> pixels(w * h);
-
-        int idx = 0;
-        for (auto i = 0; i < h; i++)
-        {
-            auto odd = (i >> 4) & 1;
-
-            for (auto j = 0; j < w; j++, idx++)
-            {
-                pixels[idx] = (odd == ((j >> 4) & 1)) ? 0xC0FFFFFF : 0x80FFFFFF;
-            }
-        }
-        renderer.Draw(renderer.CreateBitmap(w, h, pixels.data(), true), 0, 0, (float)w, (float)h);
+        renderer.Draw(this->bitmap, 0, 0, (float)w, (float)h);
         
         renderer.SolidBrush(RGB(255, 0, 0), .5f);
         renderer.Translate(x + 100.f, y);
@@ -69,8 +68,31 @@ void Application::OnPaint()
 
         renderer.EndPaint();
     }
-    else
+    
+    MainWindow::OnPaint();
+}
+
+void Application::OnSize()
+{
+    auto w = this->ClientWidth();
+    auto h = this->ClientHeight();
+
+    this->renderer.ResizeTarget(this->ClientWidth(), this->ClientHeight());
+
+    if (this->bitmap.Width() != w || this->bitmap.Height() != h)
     {
-        MainWindow::OnPaint();
+        vector<int> pixels(w * h);
+
+        for (auto i = 0, idx = 0; i < h; i++)
+        {
+            auto odd = (i >> 4) & 1;
+
+            for (auto j = 0; j < w; j++)
+            {
+                pixels[idx++] = (odd == ((j >> 4) & 1)) ? 0xC0FFFFFF : 0x80FFFFFF;
+            }
+        }
+
+        this->bitmap = this->renderer.CreateBitmap(w, h, pixels.data(), true);
     }
 }

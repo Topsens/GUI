@@ -1,4 +1,5 @@
 #include "D2DRenderer.h"
+#include "Cleanup.h"
 #include <vector>
 
 #pragma comment(lib, "d2d1.lib")
@@ -10,75 +11,138 @@ std::mutex D2DRenderer::mutex;
 ID2D1Factory*   D2DRenderer::d2d1Factory   = nullptr;
 IDWriteFactory* D2DRenderer::dwriteFactory = nullptr;
 
+D2DRenderer D2DRenderer::Create(HWND hWnd)
+{
+    if (!hWnd)
+    {
+        return D2DRenderer();
+    }
+
+    if (!AddRefFactories())
+    {
+        return D2DRenderer();
+    }
+    ONCLEANUP(factories, []{ ReleaseFactories(); });
+
+    RECT client;
+    if (!GetClientRect(hWnd, &client))
+    {
+        return D2DRenderer();
+    }
+
+    auto propH = D2D1::RenderTargetProperties();
+    propH.type = D2D1_RENDER_TARGET_TYPE_HARDWARE;
+    propH.usage = D2D1_RENDER_TARGET_USAGE_GDI_COMPATIBLE;
+    propH.minLevel = D2D1_FEATURE_LEVEL_DEFAULT;
+    propH.pixelFormat = D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED);
+
+    auto propD = propH;
+    propD.type = D2D1_RENDER_TARGET_TYPE_DEFAULT;
+
+    ID2D1HwndRenderTarget* target;
+    if (FAILED(D2DRenderer::d2d1Factory->CreateHwndRenderTarget(propH, D2D1::HwndRenderTargetProperties(hWnd, D2D1::SizeU(client.right - client.left, client.bottom - client.top)), &target)) &&
+        FAILED(D2DRenderer::d2d1Factory->CreateHwndRenderTarget(propD, D2D1::HwndRenderTargetProperties(hWnd, D2D1::SizeU(client.right - client.left, client.bottom - client.top)), &target)))
+    {
+        return D2DRenderer();
+    }
+    ONCLEANUP(target, [target]{ target->Release(); });
+
+    if (FAILED(target->Resize(D2D1::SizeU(client.right - client.left, client.bottom - client.top))))
+    {
+        return D2DRenderer();
+    }
+
+    return D2DRenderer(target);
+}
+
 D2DRenderer::D2DRenderer() : target(nullptr), style(nullptr), brush(nullptr), format(nullptr), width(1.f), transform(D2D1::Matrix3x2F::Identity())
 {
-    lock_guard<std::mutex> lock(D2DRenderer::mutex);
+    AddRefFactories();
+}
 
-    if (!d2d1Factory)
+D2DRenderer::D2DRenderer(D2DRenderer&& other) : D2DRenderer()
+{
+    *this = move(other);
+}
+
+D2DRenderer::D2DRenderer(ID2D1RenderTarget* target) : D2DRenderer()
+{
+    if (target)
     {
-        D2D1CreateFactory(D2D1_FACTORY_TYPE_MULTI_THREADED, &d2d1Factory);
-        DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), reinterpret_cast<IUnknown**>(&dwriteFactory));
-    }
-    else
-    {
-        d2d1Factory->AddRef();
-        dwriteFactory->AddRef();
+        this->target = target;
+        this->target->AddRef();
     }
 }
 
 D2DRenderer::~D2DRenderer()
 {
-    this->EndPaint();
-
-    lock_guard<std::mutex> lock(D2DRenderer::mutex);
-
-    if (!d2d1Factory->Release())
-    {
-        d2d1Factory = nullptr;
-    }
-
-    if (!dwriteFactory->Release())
-    {
-        dwriteFactory = nullptr;
-    }
-}
-
-bool D2DRenderer::BeginPaint(HWND hWnd)
-{
-    if (!this->CreateRenderTarget(hWnd))
-    {
-        return false;
-    }
-
-    this->target->BeginDraw();
-
-    return true;
-}
-
-void D2DRenderer::EndPaint()
-{
     if (this->style)
     {
         this->style->Release();
-        this->style = nullptr;
     }
 
     if (this->brush)
     {
         this->brush->Release();
-        this->brush = nullptr;
     }
 
     if (this->format)
     {
         this->format->Release();
-        this->format = nullptr;
     }
 
     if (this->target)
     {
+        this->target->Release();
+    }
+
+    ReleaseFactories();
+}
+
+D2DRenderer::operator bool() const
+{
+    return this->target ? true : false;
+}
+
+D2DRenderer& D2DRenderer::operator=(D2DRenderer&& other)
+{
+    if (this->target)
+    {
+        this->target->Release();
+    }
+
+    this->target = other.target;
+    other.target = nullptr;
+
+    return *this;
+}
+
+bool D2DRenderer::ResizeTarget(int width, int height)
+{
+    if (!this->target)
+    {
+        return false;
+    }
+
+    return SUCCEEDED(((ID2D1HwndRenderTarget*)this->target)->Resize(D2D1::SizeU(width, height))) ? true : false;
+}
+
+bool D2DRenderer::BeginPaint()
+{
+    if (!this->target)
+    {
+        return false;
+    }
+
+    this->target->BeginDraw();
+    return true;
+}
+
+void D2DRenderer::EndPaint()
+{
+    if (this->target)
+    {
         this->target->EndDraw();
-        this->target = nullptr;
     }
 }
 
@@ -390,45 +454,46 @@ D2DBitmap D2DRenderer::CreateBitmap(int width, int height, const int* pixels, bo
     return bmp;
 }
 
-bool D2DRenderer::CreateRenderTarget(HWND hWnd)
+bool D2DRenderer::AddRefFactories()
 {
-    if (!this->target)
+    lock_guard<std::mutex> lock(D2DRenderer::mutex);
+
+    if (D2DRenderer::d2d1Factory)
     {
-        auto prop = D2D1::RenderTargetProperties();
-        prop.type = D2D1_RENDER_TARGET_TYPE_HARDWARE;
-        prop.usage = D2D1_RENDER_TARGET_USAGE_GDI_COMPATIBLE;
-        prop.minLevel = D2D1_FEATURE_LEVEL_DEFAULT;
-        prop.pixelFormat = D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED);
-
-        RECT client;
-        ::GetClientRect(hWnd, &client);
-
-        ID2D1HwndRenderTarget* target = nullptr;
-        if (SUCCEEDED(d2d1Factory->CreateHwndRenderTarget(prop, D2D1::HwndRenderTargetProperties(hWnd, D2D1::SizeU(client.right, client.bottom)), &target)))
+        D2DRenderer::d2d1Factory->AddRef();
+        D2DRenderer::dwriteFactory->AddRef();
+    }
+    else
+    {
+        if (FAILED(D2D1CreateFactory(D2D1_FACTORY_TYPE_MULTI_THREADED, &D2DRenderer::d2d1Factory)))
         {
-            if (SUCCEEDED(target->Resize(D2D1::SizeU(client.right, client.bottom))))
-            {
-                this->target = target;
-                return true;
-            }
-
-            target->Release();
+            return false;
         }
-        else
+        if (FAILED(DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), reinterpret_cast<IUnknown**>(&dwriteFactory))))
         {
-            prop.type = D2D1_RENDER_TARGET_TYPE_DEFAULT;
-            if (SUCCEEDED(d2d1Factory->CreateHwndRenderTarget(prop, D2D1::HwndRenderTargetProperties(hWnd, D2D1::SizeU(client.right, client.bottom)), &target)))
-            {
-                if (SUCCEEDED(target->Resize(D2D1::SizeU(client.right, client.bottom))))
-                {
-                    this->target = target;
-                    return true;
-                }
-
-                target->Release();
-            }
+            D2DRenderer::d2d1Factory->Release();
+            D2DRenderer::d2d1Factory = nullptr;
+            return false;
         }
     }
 
-    return false;
+    return true;
+}
+
+void D2DRenderer::ReleaseFactories()
+{
+    lock_guard<std::mutex> lock(D2DRenderer::mutex);
+
+    if (D2DRenderer::d2d1Factory)
+    {
+        if (!D2DRenderer::d2d1Factory->Release())
+        {
+            D2DRenderer::d2d1Factory = nullptr;
+        }
+
+        if (!D2DRenderer::dwriteFactory->Release())
+        {
+            D2DRenderer::dwriteFactory = nullptr;
+        }
+    }
 }

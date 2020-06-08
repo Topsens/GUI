@@ -65,13 +65,10 @@ public:
     {
     }
 
-    D2DBitmap(const D2DBitmap& other)
+    D2DBitmap(D2DBitmap&& other)
     {
         this->bitmap = other.bitmap;
-        if (this->bitmap)
-        {
-            this->bitmap->AddRef();
-        }
+        other.bitmap = nullptr;
     }
 
     D2DBitmap(ID2D1Bitmap* bitmap)
@@ -83,6 +80,8 @@ public:
         }
     }
 
+    D2DBitmap(const D2DBitmap&) = delete;
+
    ~D2DBitmap()
     {
         if (this->bitmap)
@@ -90,6 +89,31 @@ public:
             this->bitmap->Release();
         }
     }
+
+    operator bool() const
+    {
+        return this->bitmap ? true : false;
+    }
+
+    operator ID2D1Bitmap*() const
+    {
+        return this->bitmap;
+    }
+
+    D2DBitmap& operator=(D2DBitmap&& other)
+    {
+        if (this->bitmap)
+        {
+            this->bitmap->Release();
+        }
+
+        this->bitmap = other.bitmap;
+        other.bitmap = nullptr;
+
+        return *this;
+    }
+
+    D2DBitmap& operator=(const D2DBitmap&) = delete;
 
     int Width() const
     {
@@ -111,16 +135,6 @@ public:
         return 0;
     }
 
-    operator bool() const
-    {
-        return this->bitmap ? true : false;
-    }
-
-    operator ID2D1Bitmap*() const
-    {
-        return this->bitmap;
-    }
-
 private:
     ID2D1Bitmap* bitmap;
 };
@@ -128,10 +142,20 @@ private:
 class D2DRenderer
 {
 public:
+    static D2DRenderer Create(HWND hWnd);
+
     D2DRenderer();
+    D2DRenderer(D2DRenderer&& other);
+    D2DRenderer(const D2DRenderer&) = delete;
+    D2DRenderer(ID2D1RenderTarget* target);
    ~D2DRenderer();
 
-    bool BeginPaint(HWND hWnd);
+    operator bool() const;
+    D2DRenderer& operator=(D2DRenderer&& other);
+    D2DRenderer& operator=(const D2DRenderer&) = delete;
+
+    bool ResizeTarget(int width, int height);
+    bool BeginPaint();
     void EndPaint();
 
     void Brush(ID2D1Brush* brush);
@@ -163,7 +187,8 @@ public:
     D2DBitmap CreateBitmap(int width, int height, const int* pixels, bool premultiply = false);
 
 protected:
-    bool CreateRenderTarget(HWND hWnd);
+    static bool AddRefFactories();
+    static void ReleaseFactories();
 
 protected:
     float x, y;
