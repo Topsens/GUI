@@ -62,15 +62,3 @@ DDCRenderer& DDCRenderer::operator=(DDCRenderer&& other)
     *(D2DRenderer*)this = (D2DRenderer&&)other;
     return *this;
 }
-
-bool DDCRenderer::BeginPaint()
-{
-    if (!this->target)
-    {
-        return false;
-    }
-
-    this->target->BeginDraw();
-
-    return true;
-}

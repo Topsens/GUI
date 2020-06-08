@@ -66,9 +66,4 @@ public:
 
     DDCRenderer& operator=(DDCRenderer&& other);
     DDCRenderer& operator=(const DDCRenderer&) = delete;
-
-    bool BeginPaint();
-
-private:
-    bool BeginPaint(HWND);
 };
