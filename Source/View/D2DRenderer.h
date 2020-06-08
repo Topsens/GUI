@@ -185,7 +185,7 @@ public:
     bool Clear(COLORREF rgb, float opacity = 1.f);
     bool Clear(UCHAR r, UCHAR g, UCHAR b, float opacity = 1.f);
 
-    D2DBitmap CreateBitmap(int width, int height, const int* pixels, bool premultiply = false);
+    D2DBitmap CreateBitmap(int width, int height, const uint32_t* pixels, bool premultiply = false);
 
 protected:
     static bool AddRefFactories();

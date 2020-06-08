@@ -81,7 +81,7 @@ void Application::OnSize()
 
     if (this->bitmap.Width() != w || this->bitmap.Height() != h)
     {
-        vector<int> pixels(w * h);
+        vector<uint32_t> pixels(w * h);
 
         for (auto i = 0, idx = 0; i < h; i++)
         {

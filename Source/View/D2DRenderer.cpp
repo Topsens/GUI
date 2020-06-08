@@ -113,6 +113,9 @@ bool D2DRenderer::ResizeTarget(int width, int height)
         return false;
     }
 
+    width  = max(0, width);
+    height = max(0, height);
+
     return SUCCEEDED(((ID2D1HwndRenderTarget*)this->target)->Resize(D2D1::SizeU(width, height))) ? true : false;
 }
 
@@ -414,12 +417,15 @@ bool D2DRenderer::Clear(UCHAR r, UCHAR g, UCHAR b, float opacity)
     return true;
 }
 
-D2DBitmap D2DRenderer::CreateBitmap(int width, int height, const int* pixels, bool premultiply)
+D2DBitmap D2DRenderer::CreateBitmap(int width, int height, const uint32_t* pixels, bool premultiply)
 {
     if (!this->target)
     {
         return D2DBitmap();
     }
+
+    width  = max(0, width);
+    height = max(0, height);
 
     ID2D1Bitmap* bitmap;
     if (FAILED(this->target->CreateBitmap(D2D1::SizeU(width, height), D2D1::BitmapProperties(this->target->GetPixelFormat()), &bitmap)))
