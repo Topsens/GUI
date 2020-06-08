@@ -57,10 +57,17 @@ private:
 class DDCRenderer : public D2DRenderer
 {
 public:
-    bool BeginPaint(HDC hdc);
+    static DDCRenderer Create(HDC hdc);
 
-protected:
-    bool CreateRenderTarget(HDC);
+    DDCRenderer();
+    DDCRenderer(DDCRenderer&& other);
+    DDCRenderer(ID2D1RenderTarget* target);
+    DDCRenderer(const DDCRenderer&) = delete;
+
+    DDCRenderer& operator=(DDCRenderer&& other);
+    DDCRenderer& operator=(const DDCRenderer&) = delete;
+
+    bool BeginPaint();
 
 private:
     bool BeginPaint(HWND);

@@ -10,6 +10,7 @@ add_executable(${PROJECT_NAME}
                Application.cpp
                ${View}/D2DRenderer.cpp
                ${View}/DDCRenderer.cpp
+               ${View}/DialogItem.cpp
                ${View}/MainWindow.cpp
                ${View}/Window.cpp
                ${View}/View.cpp)

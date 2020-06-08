@@ -76,26 +76,7 @@ D2DRenderer::D2DRenderer(ID2D1RenderTarget* target) : D2DRenderer()
 
 D2DRenderer::~D2DRenderer()
 {
-    if (this->style)
-    {
-        this->style->Release();
-    }
-
-    if (this->brush)
-    {
-        this->brush->Release();
-    }
-
-    if (this->format)
-    {
-        this->format->Release();
-    }
-
-    if (this->target)
-    {
-        this->target->Release();
-    }
-
+    this->Release();
     ReleaseFactories();
 }
 
@@ -106,12 +87,20 @@ D2DRenderer::operator bool() const
 
 D2DRenderer& D2DRenderer::operator=(D2DRenderer&& other)
 {
-    if (this->target)
-    {
-        this->target->Release();
-    }
+    this->Release();
 
+    this->x      = other.x;
+    this->y      = other.y;
+    this->width  = other.width;
+    this->brush  = other.brush;
+    this->style  = other.style;
+    this->format = other.format;
     this->target = other.target;
+    this->transform = other.transform;
+
+    other.brush  = nullptr;
+    other.style  = nullptr;
+    other.format = nullptr;
     other.target = nullptr;
 
     return *this;
@@ -143,6 +132,33 @@ void D2DRenderer::EndPaint()
     if (this->target)
     {
         this->target->EndDraw();
+    }
+}
+
+void D2DRenderer::Release()
+{
+    if (this->style)
+    {
+        this->style->Release();
+        this->style = nullptr;
+    }
+
+    if (this->brush)
+    {
+        this->brush->Release();
+        this->brush = nullptr;
+    }
+
+    if (this->format)
+    {
+        this->format->Release();
+        this->format = nullptr;
+    }
+
+    if (this->target)
+    {
+        this->target->Release();
+        this->target = nullptr;
     }
 }
 

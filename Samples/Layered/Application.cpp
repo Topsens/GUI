@@ -15,16 +15,21 @@ Application::Application(HINSTANCE instance) : MainWindow(instance)
     this->StyleEx(WS_EX_LAYERED);
 }
 
-LRESULT Application::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+bool Application::OnCreated()
 {
-    switch (uMsg)
+    if (!MainWindow::OnCreated())
     {
-    case WM_MOUSEMOVE:
+        return false;
+    }
+
+    this->Resize(400, 400);
+
+    this->RegisterMessage(WM_MOUSEMOVE, [this]
     {
         POINT pos;
         GetCursorPos(&pos);
 
-        if (MK_LBUTTON & wParam)
+        if (MK_LBUTTON & this->wparam)
         {
             auto x = pos.x - this->pos.x;
             auto y = pos.y - this->pos.y;
@@ -32,32 +37,21 @@ LRESULT Application::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
         }
 
         this->pos = pos;
+        return 0;
+    });
 
-        break;
-    }
-
-    case WM_KEYUP:
+    this->RegisterMessage(WM_KEYUP, [this]
     {
-        if (VK_ESCAPE == wParam)
+        if (VK_ESCAPE == this->wparam)
         {
             this->Destroy();
-            return 0;
+            return (LRESULT)0;
         }
 
-        break;
-    }
+        return MainWindow::WindowProc(this->Handle(), WM_KEYUP, this->wparam, this->lparam);
+    });
 
-    default:
-        break;
-    }
-    
-    return MainWindow::WindowProc(hWnd, uMsg, wParam, lParam);
-}
-
-bool Application::OnCreated()
-{
-    this->Resize(400, 400);
-    return MainWindow::OnCreated();
+    return true;
 }
 
 void Application::OnSize()
@@ -76,8 +70,8 @@ void Application::Update()
     }
 
     D2DDc src(w, h);
-    DDCRenderer renderer;
-    if (src && renderer.BeginPaint(src))
+    auto renderer = DDCRenderer::Create(src);
+    if (src && renderer.BeginPaint())
     {
         renderer.SolidBrush(RGB(0x87, 0xCE, 0xFA), .5f);
         renderer.Fill(D2DEllipse(0.f, 0.f, (float)w, (float)h));

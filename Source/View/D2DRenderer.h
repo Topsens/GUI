@@ -157,6 +157,7 @@ public:
     bool ResizeTarget(int width, int height);
     bool BeginPaint();
     void EndPaint();
+    void Release();
 
     void Brush(ID2D1Brush* brush);
     bool SolidBrush(COLORREF rgb, float opacity = 1.f);
