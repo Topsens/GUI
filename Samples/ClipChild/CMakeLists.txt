@@ -10,6 +10,7 @@ add_executable(${PROJECT_NAME}
                Application.cpp
                SubWindow.cpp
                ${VIEW}/GDIRenderer.cpp
+               ${VIEW}/DialogItem.cpp
                ${VIEW}/MainWindow.cpp
                ${VIEW}/Window.cpp
                ${VIEW}/View.cpp)

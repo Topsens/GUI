@@ -7,8 +7,9 @@ class DialogItem
 {
 public:
     DialogItem();
-    DialogItem(HWND parent, UINT id);
-    DialogItem(HWND parent, HWND hWnd, UINT id);
+    DialogItem(HWND hWnd);
+    DialogItem(HWND parent, int id);
+    DialogItem(HWND parent, HWND hWnd, int id);
 
     void Destroy();
 
@@ -45,7 +46,7 @@ public:
     void Text(const std::wstring& text) const;
     std::wstring Text() const;
 
-    UINT ID() const;
+    int  ID() const;
     HWND Handle() const;
 
     operator bool() const;
@@ -56,5 +57,5 @@ public:
 protected:
     HWND parent;
     HWND hwnd;
-    UINT id;
+    int  id;
 };

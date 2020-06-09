@@ -16,6 +16,12 @@ public:
 
     void Destroy();
 
+    DWORD Style() const;
+    DWORD StyleEx() const;
+    void  Style(DWORD style);
+    void  StyleEx(DWORD style);
+    void  ClipChildren(bool clip);
+
     void Show() const;
     void Hide() const;
     bool Update() const;
@@ -64,7 +70,7 @@ public:
     bool  Parent(View* parent);
     View* Parent() const;
 
-    DialogItem Item(UINT id) const;
+    DialogItem Item(int id) const;
 
     void  Cursor(LPTSTR name);
 
@@ -112,6 +118,8 @@ protected:
     View* owner;
     View* parent;
     WORD  command;
+    DWORD style;
+    DWORD styleEx;
     WPARAM wparam;
     LPARAM lparam;
     HCURSOR cursor;

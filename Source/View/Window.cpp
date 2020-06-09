@@ -5,7 +5,7 @@
 bool Window::registered = false;
 
 Window::Window(HINSTANCE instance)
-  : View(instance), style(0), styleEx(0)
+  : View(instance)
 {
 }
 
@@ -68,38 +68,6 @@ bool Window::Create(View* parent)
     }
 
     return nullptr != this->hwnd;
-}
-
-void Window::Style(DWORD style)
-{
-    this->style = style;
-
-    if (this->hwnd)
-    {
-        SetWindowLongPtrW(this->hwnd, GWL_STYLE, style);
-        SetWindowPos(this->hwnd, 0, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_DRAWFRAME);
-    }
-}
-
-DWORD Window::Style() const
-{
-    return this->style;
-}
-
-void Window::StyleEx(DWORD style)
-{
-    this->styleEx = style;
-
-    if (this->hwnd)
-    {
-        SetWindowLongPtr(this->hwnd, GWL_EXSTYLE, style);
-        SetWindowPos(this->hwnd, 0, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_DRAWFRAME);
-    }
-}
-
-DWORD Window::StyleEx() const
-{
-    return this->styleEx;
 }
 
 LRESULT Window::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)

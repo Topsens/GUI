@@ -58,8 +58,8 @@ bool Application::OnCreated()
 
 void Application::OnPaint()
 {
-    D2DRenderer renderer;
-    if (renderer.BeginPaint(this->Handle()))
+    D2DRenderer renderer = D2DRenderer::Create(this->Handle());
+    if (renderer.BeginPaint())
     {
         renderer.Clear(RGB(0x87, 0xCE, 0xFA));
 
@@ -69,8 +69,6 @@ void Application::OnPaint()
 
         renderer.EndPaint();
     }
-    else
-    {
-        MainWindow::OnPaint();
-    }
+    
+    MainWindow::OnPaint();
 }

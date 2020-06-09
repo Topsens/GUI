@@ -18,7 +18,7 @@ bool Application::OnCreated()
     }
 
     // Use WS_CLIPCHILDREN style to avoid child windows flickering when parent window is re-painted
-    this->Style(this->Style() | WS_CLIPCHILDREN);
+    this->ClipChildren(true);
 
     if (!this->sub.Create(this))
     {

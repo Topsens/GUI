@@ -4,7 +4,7 @@
 using namespace std;
 
 View::View(HINSTANCE instance)
-  : hwnd(nullptr), owner(nullptr), parent(nullptr), instance(instance), cursor(nullptr)
+  : hwnd(nullptr), owner(nullptr), parent(nullptr), style(0), styleEx(0), instance(instance), cursor(nullptr)
 {
     this->c2scr = {0};
     this->wrect = {0};
@@ -238,6 +238,50 @@ void View::Destroy()
     if (this->hwnd)
     {
         DestroyWindow(this->hwnd);
+    }
+}
+
+DWORD View::Style() const
+{
+    return this->style;
+}
+
+DWORD View::StyleEx() const
+{
+    return this->styleEx;
+}
+
+void View::Style(DWORD style)
+{
+    this->style = style;
+
+    if (this->hwnd)
+    {
+        SetWindowLongPtrW(this->hwnd, GWL_STYLE, style);
+        SetWindowPos(this->hwnd, 0, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_DRAWFRAME);
+    }
+}
+
+void View::StyleEx(DWORD style)
+{
+    this->styleEx = style;
+
+    if (this->hwnd)
+    {
+        SetWindowLongPtr(this->hwnd, GWL_EXSTYLE, style);
+        SetWindowPos(this->hwnd, 0, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_DRAWFRAME);
+    }
+}
+
+void View::ClipChildren(bool clip)
+{
+    if (clip)
+    {
+        this->Style(this->Style() | WS_CLIPCHILDREN);
+    }
+    else
+    {
+        this->Style(this->Style() &~ WS_CLIPCHILDREN);
     }
 }
 
@@ -516,7 +560,7 @@ View* View::Parent() const
     return this->parent;
 }
 
-DialogItem View::Item(UINT id) const
+DialogItem View::Item(int id) const
 {
     return DialogItem(this->hwnd, id);
 }

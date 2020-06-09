@@ -9,6 +9,7 @@ include_directories(${View})
 add_executable(${PROJECT_NAME}
                Application.cpp
                ${View}/D2DRenderer.cpp
+               ${View}/DialogItem.cpp
                ${View}/MainWindow.cpp
                ${View}/Window.cpp
                ${View}/View.cpp)

@@ -8,13 +8,15 @@ DialogItem::DialogItem() : parent(0), hwnd(0), id(0)
 {
 }
 
-DialogItem::DialogItem(HWND parent, UINT id)
-  : parent(parent), id(id)
+DialogItem::DialogItem(HWND hWnd) : parent(GetParent(hWnd)), hwnd(hWnd), id(GetDlgCtrlID(hWnd))
 {
-    this->hwnd = GetDlgItem(parent, id);
 }
 
-DialogItem::DialogItem(HWND parent, HWND hWnd, UINT id) : parent(parent), hwnd(hWnd), id(id)
+DialogItem::DialogItem(HWND parent, int id) : parent(parent), hwnd(GetDlgItem(parent, id)), id(id)
+{
+}
+
+DialogItem::DialogItem(HWND parent, HWND hWnd, int id) : parent(parent), hwnd(hWnd), id(id)
 {
 }
 
@@ -209,7 +211,7 @@ void DialogItem::Font(HFONT font) const
 
 void DialogItem::Text(const wchar_t* text) const
 {
-    SetDlgItemTextW(this->parent, id, text);
+    SetWindowTextW(this->hwnd, text);
 }
 
 void DialogItem::Text(const wstring& text) const
@@ -235,7 +237,7 @@ wstring DialogItem::Text() const
     return wstring();
 }
 
-UINT DialogItem::ID() const
+int DialogItem::ID() const
 {
     return this->id;
 }
