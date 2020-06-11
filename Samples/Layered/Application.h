@@ -1,4 +1,5 @@
 #include "MainWindow.h"
+#include "DDCRenderer.h"
 
 class Application : public MainWindow
 {
@@ -7,11 +8,14 @@ public:
 
 protected:
     bool OnCreated() override;
-    void OnSize()    override;
+    void OnSize() override;
 
 private:
     void Update();
 
 private:
     POINT pos;
+
+    D2DDc dc;
+    DDCRenderer renderer;
 };

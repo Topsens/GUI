@@ -69,34 +69,42 @@ void Application::Update()
         return;
     }
 
-    D2DDc src(w, h);
-    auto renderer = DDCRenderer::Create(src);
-    if (src && renderer.BeginPaint())
+    if (this->dc.Width() != w || this->dc.Height() != h)
     {
-        renderer.SolidBrush(RGB(0x87, 0xCE, 0xFA), .5f);
-        renderer.Fill(D2DEllipse(0.f, 0.f, (float)w, (float)h));
-        renderer.SolidBrush(RGB(0, 0, 0));
-        renderer.Font(L"Segoe UI", 50.f);
-        renderer.Text(L"A layered transparent window", 0, 0, (float)w, (float)h, DWRITE_TEXT_ALIGNMENT_CENTER, DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
-        renderer.EndPaint();
+        this->dc = D2DDc(w, h);
+        this->renderer = DDCRenderer::Create(this->dc);
     }
 
-    auto sp = POINT{ 0, 0 };
-    auto dp = POINT{ 0, 0 };
-    auto size = SIZE{ w, h };
+    if (this->renderer.BeginPaint())
+    {
+        this->renderer.Brush(this->renderer.CreateSolidBrush(RGB(0x87, 0xCE, 0xFA), .5f));
+        this->renderer.Fill(D2DEllipse(0.f, 0.f, (float)w, (float)h));
+        this->renderer.Brush(this->renderer.CreateSolidBrush(RGB(0, 0, 0)));
 
-    BLENDFUNCTION blend = {};
-    blend.AlphaFormat = AC_SRC_ALPHA;
-    blend.SourceConstantAlpha = 255;
+        auto format = D2DFormat::Create(L"Segoe UI", 50.f);
+        format.TextAlign(DWRITE_TEXT_ALIGNMENT_CENTER);
+        format.ParaAlign(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+        this->renderer.Format(format);
+        this->renderer.Text(L"A layered transparent window", 0, 0, (float)w, (float)h);
+        this->renderer.EndPaint();
 
-    UPDATELAYEREDWINDOWINFO ulwi = {};
-    ulwi.cbSize  = sizeof(ulwi);
-    ulwi.psize   = &size;
-    ulwi.hdcSrc  = src;
-    ulwi.pptSrc  = &sp;
-    ulwi.pptDst  = &dp;
-    ulwi.pblend  = &blend;
-    ulwi.dwFlags = ULW_ALPHA;
+        auto sp = POINT{ 0, 0 };
+        auto dp = POINT{ 0, 0 };
+        auto size = SIZE{ w, h };
 
-    UpdateLayeredWindowIndirect(this->Handle(), &ulwi);
+        BLENDFUNCTION blend = {};
+        blend.AlphaFormat = AC_SRC_ALPHA;
+        blend.SourceConstantAlpha = 255;
+
+        UPDATELAYEREDWINDOWINFO ulwi = {};
+        ulwi.cbSize  = sizeof(ulwi);
+        ulwi.psize   = &size;
+        ulwi.hdcSrc  = this->dc;
+        ulwi.pptSrc  = &sp;
+        ulwi.pptDst  = &dp;
+        ulwi.pblend  = &blend;
+        ulwi.dwFlags = ULW_ALPHA;
+
+        UpdateLayeredWindowIndirect(this->Handle(), &ulwi);
+    }
 }

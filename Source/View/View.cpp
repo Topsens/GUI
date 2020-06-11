@@ -226,7 +226,15 @@ LRESULT View::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         default:
         {
             auto it = this->messages.find(uMsg);
-            return this->messages.end() != it ? it->second() : this->DefaultProc(hWnd, uMsg, wParam, lParam);
+            if (this->messages.end() != it && !it->second.first)
+            {
+                it->second.first = true;
+                auto result = it->second.second();
+                it->second.first = false;
+                return result;
+            }
+
+            return this->DefaultProc(hWnd, uMsg, wParam, lParam);
         }
     }
 
@@ -620,7 +628,7 @@ void View::KillTimer(UINT_PTR id)
 
 void View::RegisterMessage(UINT message, const function<LRESULT()>& handler)
 {
-    this->messages[message] = handler;
+    this->messages[message] = make_pair(false, handler);
 }
 
 void View::RemoveMessage(UINT message)
@@ -634,7 +642,7 @@ void View::RemoveMessage(UINT message)
 
 void View::RegisterCommand(UINT command, const function<void()>& handler)
 {
-    this->commands[command] = handler;
+    this->commands[command] = make_pair(false, handler);
 }
 
 void View::RemoveCommand(UINT command)
@@ -669,9 +677,11 @@ void View::OnDestroy()
 void View::OnCommand()
 {
     auto it = this->commands.find(this->command);
-    if (this->commands.end() != it)
+    if (this->commands.end() != it && !it->second.first)
     {
-        it->second();
+        it->second.first = true;
+        it->second.second();
+        it->second.first = false;
     }
     else if (this->parent)
     {

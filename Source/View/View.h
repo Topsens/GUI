@@ -125,6 +125,6 @@ protected:
     HCURSOR cursor;
     HINSTANCE instance;
 
-    std::map<UINT, std::function<LRESULT()>> messages;
-    std::map<UINT, std::function<void()>>    commands;
+    std::map<UINT, std::pair<bool, std::function<LRESULT()>>> messages;
+    std::map<UINT, std::pair<bool, std::function<void()>>>    commands;
 };
