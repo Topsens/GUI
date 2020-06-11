@@ -26,6 +26,12 @@ bool Application::OnCreated()
         return false;
     }
 
+    this->format = D2DFormat::Create(L"Segoe UI", 40, DWRITE_FONT_WEIGHT_BOLD);
+
+    this->red   = this->renderer.CreateSolidBrush(255, 0, 0, .5f);
+    this->blue  = this->renderer.CreateSolidBrush(0, 0, 255, .5f);
+    this->green = this->renderer.CreateSolidBrush(0, 255, 0, .5f);
+
     this->Caption(L"D2D");
     this->ResizeClient(400, 400);
 
@@ -34,7 +40,7 @@ bool Application::OnCreated()
 
 void Application::OnPaint()
 {
-    if (renderer.BeginPaint())
+    if (this->renderer.BeginPaint())
     {
         int w = this->ClientWidth();
         int h = this->ClientHeight();
@@ -42,31 +48,32 @@ void Application::OnPaint()
         auto x = w * .5f;
         auto y = h * .5f;
 
-        renderer.Draw(this->bitmap, 0, 0, (float)w, (float)h);
+        this->renderer.Draw(this->bitmap, 0, 0, (float)w, (float)h);
         
-        renderer.SolidBrush(RGB(255, 0, 0), .5f);
-        renderer.Translate(x + 100.f, y);
-        renderer.Fill(D2DEllipse(25.f, 25.f));
-        renderer.Identity();
+        this->renderer.Brush(this->red);
+        this->renderer.Translate(x + 100.f, y);
+        this->renderer.Fill(D2DEllipse(25.f, 25.f));
+        this->renderer.Identity();
 
-        renderer.Translate(x - 100.f, y);
-        renderer.Fill(D2DEllipse(25.f, 25.f));
-        renderer.Identity();
+        this->renderer.Translate(x - 100.f, y);
+        this->renderer.Fill(D2DEllipse(25.f, 25.f));
+        this->renderer.Identity();
 
-        renderer.SolidBrush(RGB(0, 255, 0), .5f);
-        renderer.Translate(x, y);
-        renderer.Rotate(45.f);
-        renderer.Fill(D2DRectangle(50.f, 50.f));
+        this->renderer.Brush(this->green);
+        this->renderer.Translate(x, y);
+        this->renderer.Rotate(45.f);
+        this->renderer.Fill(D2DRectangle(50.f, 50.f));
 
-        renderer.SolidBrush(RGB(0, 0, 255), .5f);
-        renderer.Stroke(20.f);
-        renderer.Draw(D2DRectangle(50.f + 20.f, 50.f + 20.f));
-        renderer.Identity();
+        this->renderer.Brush(this->blue);
+        this->renderer.Stroke(D2DStroke(20.f));
+        this->renderer.Draw(D2DRectangle(50.f + 20.f, 50.f + 20.f));
+        this->renderer.Identity();
+        
+        this->renderer.Brush(this->green);
+        this->renderer.Format(this->format);
+        this->renderer.Text(L"D2D", 0.f, 0.f, (float)w, 40.f);
 
-        renderer.Font(L"Segoe UI", 40, DWRITE_FONT_WEIGHT_BOLD) && renderer.SolidBrush(RGB(0, 255, 0), .5f);
-        renderer.Text(L"D2D", 0.f, 0.f, (float)w, 40.f);
-
-        renderer.EndPaint();
+        this->renderer.EndPaint();
     }
     
     MainWindow::OnPaint();
@@ -93,6 +100,7 @@ void Application::OnSize()
             }
         }
 
-        this->bitmap = this->renderer.CreateBitmap(w, h, pixels.data(), true);
+        this->bitmap = this->renderer.CreateBitmap(w, h);
+        this->bitmap.Pixels(pixels.data(), true);
     }
 }
