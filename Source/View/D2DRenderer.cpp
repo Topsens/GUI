@@ -418,6 +418,11 @@ D2DBitmap D2DRenderer::CreateBitmap(int width, int height)
     return D2DBitmap(bitmap);
 }
 
+D2DBrush D2DRenderer::CreateSolidBrush(COLORREF rgb, float opacity)
+{
+    return this->CreateSolidBrush(GetRValue(rgb), GetGValue(rgb), GetBValue(rgb), opacity);
+}
+
 D2DBrush D2DRenderer::CreateSolidBrush(UCHAR r, UCHAR g, UCHAR b, float opacity)
 {
     if (!this->target)
