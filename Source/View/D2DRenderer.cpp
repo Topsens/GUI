@@ -284,19 +284,26 @@ void D2DRenderer::Stroke(const D2DStroke& stroke)
     }
 }
 
-bool D2DRenderer::Draw(const D2D1_RECT_F& rectangle)
+bool D2DRenderer::Draw(const D2DRectangle& rectangle) const
 {
     if (!this->target || !this->brush)
     {
         return false;
     }
 
-    this->target->DrawRectangle(rectangle, this->brush, this->width, this->style);
+    if (((D2D1_ROUNDED_RECT&)rectangle).radiusX || ((D2D1_ROUNDED_RECT&)rectangle).radiusY)
+    {
+        this->target->DrawRoundedRectangle(rectangle, this->brush, this->width, this->style);
+    }
+    else
+    {
+        this->target->DrawRectangle(rectangle, this->brush, this->width, this->style);
+    }
 
     return true;
 }
 
-bool D2DRenderer::Draw(const D2D1_ELLIPSE& ellipse)
+bool D2DRenderer::Draw(const D2D1_ELLIPSE& ellipse) const
 {
     if (!this->target || !this->brush)
     {
@@ -308,7 +315,7 @@ bool D2DRenderer::Draw(const D2D1_ELLIPSE& ellipse)
     return true;
 }
 
-bool D2DRenderer::Draw(const D2DBitmap& bitmap, const D2D1_RECT_F& rectangle, float opacity)
+bool D2DRenderer::Draw(const D2DBitmap& bitmap, const D2D1_RECT_F& rectangle, float opacity) const
 {
     if (!this->target || !bitmap)
     {
@@ -320,24 +327,31 @@ bool D2DRenderer::Draw(const D2DBitmap& bitmap, const D2D1_RECT_F& rectangle, fl
     return true;
 }
 
-bool D2DRenderer::Draw(const D2DBitmap& bitmap, float x, float y, float cx, float cy, float opacity)
+bool D2DRenderer::Draw(const D2DBitmap& bitmap, float x, float y, float cx, float cy, float opacity) const
 {
     return this->Draw(bitmap, D2D1::RectF(x, y, x + cx, y + cy), opacity);
 }
 
-bool D2DRenderer::Fill(const D2D1_RECT_F& rectangle)
+bool D2DRenderer::Fill(const D2DRectangle& rectangle) const
 {
     if (!this->target || !this->brush)
     {
         return false;
     }
 
-    this->target->FillRectangle(rectangle, this->brush);
+    if (((D2D1_ROUNDED_RECT&)rectangle).radiusX || ((D2D1_ROUNDED_RECT&)rectangle).radiusY)
+    {
+        this->target->FillRoundedRectangle(rectangle, this->brush);
+    }
+    else
+    {
+        this->target->FillRectangle(rectangle, this->brush);
+    }
 
     return true;
 }
 
-bool D2DRenderer::Fill(const D2D1_ELLIPSE& ellipse)
+bool D2DRenderer::Fill(const D2D1_ELLIPSE& ellipse) const
 {
     if (!this->target || !this->brush)
     {
@@ -365,7 +379,17 @@ bool D2DRenderer::Format(const D2DFormat& format)
     return this->format ? true : false;
 }
 
-bool D2DRenderer::Text(const wchar_t* text, const D2D1_RECT_F& rectangle)
+bool D2DRenderer::Text(const wstring& text, const D2D1_RECT_F& rectangle) const
+{
+    return this->Text(text.c_str(), rectangle);
+}
+
+bool D2DRenderer::Text(const wstring& text, float x, float y, float w, float h) const
+{
+    return this->Text(text.c_str(), x, y, w, h);
+}
+
+bool D2DRenderer::Text(const wchar_t* text, const D2D1_RECT_F& rectangle) const
 {
     if (!this->target || !this->brush || !this->format)
     {
@@ -376,7 +400,7 @@ bool D2DRenderer::Text(const wchar_t* text, const D2D1_RECT_F& rectangle)
     return true;
 }
 
-bool D2DRenderer::Text(const wchar_t* text, float x, float y, float w, float h)
+bool D2DRenderer::Text(const wchar_t* text, float x, float y, float w, float h) const
 {
     return this->Text(text, D2D1::RectF(x, y, x + w, y + h));
 }

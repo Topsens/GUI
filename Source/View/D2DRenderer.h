@@ -21,28 +21,98 @@ public:
 class D2DRectangle
 {
 public:
-    D2DRectangle(float left, float top, float right, float bottom)
+    D2DRectangle(float left, float top, float right, float bottom, float radius = 0.f)
     {
-        this->Value.left   = left;
-        this->Value.top    = top;
-        this->Value.right  = right;
-        this->Value.bottom = bottom;
+        this->rect.rect.left   = left;
+        this->rect.rect.top    = top;
+        this->rect.rect.right  = right;
+        this->rect.rect.bottom = bottom;
+        this->rect.radiusX     = radius;
+        this->rect.radiusY     = radius;
     }
 
-    D2DRectangle(float width, float height, const D2DPoint& center = D2DPoint(0.f, 0.f))
+    D2DRectangle(float left, float top, float right, float bottom, float radiusX, float radiusY)
     {
-        this->Value.left   = center.X - width  * .5f;
-        this->Value.right  = center.X + width  * .5f;
-        this->Value.top    = center.Y - height * .5f;
-        this->Value.bottom = center.Y + height * .5f;
+        this->rect.rect.left   = left;
+        this->rect.rect.top    = top;
+        this->rect.rect.right  = right;
+        this->rect.rect.bottom = bottom;
+        this->rect.radiusX     = radiusX;
+        this->rect.radiusY     = radiusY;
+    }
+
+    D2DRectangle(float width, float height, const D2DPoint& center = D2DPoint(0.f, 0.f), float radius = 0.f)
+    {
+        this->rect.rect.left   = center.X - width  * .5f;
+        this->rect.rect.right  = center.X + width  * .5f;
+        this->rect.rect.top    = center.Y - height * .5f;
+        this->rect.rect.bottom = center.Y + height * .5f;
+        this->rect.radiusX     = radius;
+        this->rect.radiusY     = radius;
+    }
+
+    D2DRectangle(float width, float height, const D2DPoint& center, float radiusX, float radiusY)
+    {
+        this->rect.rect.left   = center.X - width  * .5f;
+        this->rect.rect.right  = center.X + width  * .5f;
+        this->rect.rect.top    = center.Y - height * .5f;
+        this->rect.rect.bottom = center.Y + height * .5f;
+        this->rect.radiusX     = radiusX;
+        this->rect.radiusY     = radiusY;
     }
 
     operator D2D1_RECT_F() const
     {
-        return this->Value;
+        return this->rect.rect;
     }
-    
-    D2D1_RECT_F Value;
+
+    operator D2D1_ROUNDED_RECT() const
+    {
+        return this->rect;
+    }
+
+    float L() const
+    {
+        return this->rect.rect.left;
+    }
+
+    float R() const
+    {
+        return this->rect.rect.right;
+    }
+
+    float T() const
+    {
+        return this->rect.rect.top;
+    }
+
+    float B() const
+    {
+        return this->rect.rect.bottom;
+    }
+
+    float W() const
+    {
+        return this->rect.rect.right - this->rect.rect.left;
+    }
+
+    float H() const
+    {
+        return this->rect.rect.bottom - this->rect.rect.top;
+    }
+
+    float Rx() const
+    {
+        return this->rect.radiusX;
+    }
+
+    float Ry() const
+    {
+        return this->rect.radiusY;
+    }
+
+private:
+    D2D1_ROUNDED_RECT rect;
 };
 
 class D2DEllipse
@@ -188,16 +258,18 @@ public:
     bool LineTo(float x, float y);
     void Stroke(const D2DStroke& stroke);
 
-    bool Draw(const D2D1_RECT_F& rectangle);
-    bool Draw(const D2D1_ELLIPSE& ellipse);
-    bool Draw(const D2DBitmap& bitmap, const D2D1_RECT_F& rectangle, float opacity = 1.f);
-    bool Draw(const D2DBitmap& bitmap, float x, float y, float cx, float cy, float opacity = 1.f);
-    bool Fill(const D2D1_RECT_F& rectangle);
-    bool Fill(const D2D1_ELLIPSE& ellipse);
+    bool Draw(const D2DRectangle& rectangle) const;
+    bool Draw(const D2D1_ELLIPSE& ellipse) const;
+    bool Draw(const D2DBitmap& bitmap, const D2D1_RECT_F& rectangle, float opacity = 1.f) const;
+    bool Draw(const D2DBitmap& bitmap, float x, float y, float cx, float cy, float opacity = 1.f) const;
+    bool Fill(const D2DRectangle& rectangle) const;
+    bool Fill(const D2D1_ELLIPSE& ellipse) const;
 
     bool Format(const D2DFormat& format);
-    bool Text(const wchar_t* text, const D2D1_RECT_F& rectangle);
-    bool Text(const wchar_t* text, float x, float y, float w, float h);
+    bool Text(const std::wstring& text, const D2D_RECT_F& rectangle) const;
+    bool Text(const std::wstring& text, float x, float y, float w, float h) const;
+    bool Text(const wchar_t* text, const D2D1_RECT_F& rectangle) const;
+    bool Text(const wchar_t* text, float x, float y, float w, float h) const;
 
     bool Clear(COLORREF rgb, float opacity = 1.f);
     bool Clear(UCHAR r, UCHAR g, UCHAR b, float opacity = 1.f);
