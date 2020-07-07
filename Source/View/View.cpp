@@ -156,7 +156,6 @@ LRESULT View::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         case WM_COMMAND:
         {
-            this->sender  = hWnd;
             this->command = LOWORD(wParam);
             this->OnCommand();
             break;
@@ -688,7 +687,6 @@ void View::OnCommand()
     {
         this->parent->wparam  = this->wparam;
         this->parent->lparam  = this->lparam;
-        this->parent->sender  = this->sender;
         this->parent->command = this->command;
         this->parent->OnCommand();
     }
