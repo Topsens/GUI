@@ -7,6 +7,11 @@ StatusBar::StatusBar(UINT id) : id(id), hwnd(nullptr), rect({ 0, 0, 0, 0}), pare
 {
 }
 
+StatusBar::~StatusBar()
+{
+    this->Destroy();
+}
+
 StatusBar::operator bool() const
 {
     return this->hwnd ? true : false;
@@ -42,6 +47,14 @@ bool StatusBar::Create(View* parent, bool sizeGrip)
     else
     {
         return this->Create(parent);
+    }
+}
+
+void StatusBar::Destroy()
+{
+    if (this->hwnd)
+    {
+        DestroyWindow(this->hwnd);
     }
 }
 
@@ -209,6 +222,8 @@ LRESULT StatusBar::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
     {
         case WM_COMMAND:
         {
+            this->command = LOWORD(wParam);
+            
             auto it = this->commands.find(this->command);
             if (this->commands.end() != it)
             {
@@ -221,6 +236,12 @@ LRESULT StatusBar::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
             }
         }
 
+        case WM_DESTROY:
+        {
+            this->hwnd = nullptr;
+            // fall through
+        }
+
         default:
             return this->defaultProc(hWnd, uMsg, wParam, lParam);
     }
@@ -231,7 +252,6 @@ LRESULT StatusBar::MessageRouter(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
     StatusBar* pThis = reinterpret_cast<StatusBar*>(GetWindowLongPtrW(hWnd, GWLP_USERDATA));
     if (pThis)
     {
-        pThis->hwnd = hWnd;
         pThis->wparam = wParam;
         pThis->lparam = lParam;
         return pThis->WindowProc(hWnd, uMsg, wParam, lParam);

@@ -117,6 +117,7 @@ protected:
     POINT max;
     View* owner;
     View* parent;
+    HWND  sender;
     WORD  command;
     DWORD style;
     DWORD styleEx;
