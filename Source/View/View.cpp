@@ -616,6 +616,16 @@ wstring View::Caption() const
     return wstring();
 }
 
+void View::Icon(UINT iconId)
+{
+    HICON hIcon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(iconId));
+    if (hIcon)
+    {
+        SendMessageW(this->hwnd, WM_SETICON, ICON_BIG, LPARAM(hIcon));
+        DestroyIcon(hIcon);
+    }
+}
+
 void View::SetTimer(UINT_PTR id, UINT elapse)
 {
     ::SetTimer(this->Handle(), id, elapse, nullptr);
