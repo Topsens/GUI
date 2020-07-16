@@ -3,13 +3,9 @@
 
 using namespace std;
 
-StatusBar::StatusBar(UINT id) : id(id), hwnd(nullptr), rect({ 0, 0, 0, 0}), parent(nullptr)
+StatusBar::StatusBar(UINT id, HINSTANCE instance) : View(instance), id(id)
 {
-}
-
-StatusBar::~StatusBar()
-{
-    this->Destroy();
+    this->style = CCS_BOTTOM | WS_CHILD;
 }
 
 StatusBar::operator bool() const
@@ -17,22 +13,36 @@ StatusBar::operator bool() const
     return this->hwnd ? true : false;
 }
 
-bool StatusBar::Create(View* parent, HINSTANCE instance, DWORD style)
+bool StatusBar::Create(View* parent)
 {
     if (!parent)
     {
         return false;
     }
 
-    this->parent = parent;
-
-    this->hwnd = CreateWindowExW(0, STATUSCLASSNAMEW, nullptr, style, 0, 0, 0, 0, parent->Handle(), (HMENU)this->id, instance, nullptr);
     if (this->hwnd)
     {
-        this->AutoResize();
+        this->Destroy();
+    }
 
+    this->owner  = parent;
+    this->parent = parent;
+
+    this->hwnd = CreateWindowExW(0, STATUSCLASSNAMEW, nullptr, this->style, 0, 0, 0, 0, parent->Handle(), (HMENU)this->id, this->instance, nullptr);
+    if (this->hwnd)
+    {
         SetWindowLongPtrW(this->hwnd, GWLP_USERDATA, (LONG_PTR)this);
-        this->defaultProc = (WNDPROC)SetWindowLongPtrW(this->hwnd, GWLP_WNDPROC, (LONG_PTR)MessageRouter);
+        this->defaultProc = (WNDPROC)SetWindowLongPtrW(this->hwnd, GWLP_WNDPROC, (LONG_PTR)StatusBar::MessageRouter);
+
+        if (!this->OnCreated())
+        {
+            this->Destroy();
+        }
+    }
+    else
+    {
+        this->owner  = nullptr;
+        this->parent = nullptr;
     }
 
     return this->hwnd ? true : false;
@@ -42,104 +52,19 @@ bool StatusBar::Create(View* parent, bool sizeGrip)
 {
     if (sizeGrip)
     {
-        return this->Create(parent, nullptr, SBARS_SIZEGRIP | CCS_BOTTOM | WS_CHILD);
+        this->Style(this->Style() | SBARS_SIZEGRIP);
     }
     else
     {
-        return this->Create(parent);
+        this->Style(this->Style() &~ SBARS_SIZEGRIP);
     }
-}
 
-void StatusBar::Destroy()
-{
-    if (this->hwnd)
-    {
-        DestroyWindow(this->hwnd);
-    }
-}
-
-void StatusBar::Show()
-{
-    ShowWindow(this->hwnd, SW_SHOW);
-}
-
-void StatusBar::Hide()
-{
-    ShowWindow(this->hwnd, SW_HIDE);
+    return this->Create(parent);
 }
 
 void StatusBar::AutoResize()
 {
     SendMessageW(this->hwnd, WM_SIZE, 0, 0);
-    GetWindowRect(this->hwnd, &this->rect);
-}
-
-void StatusBar::ClipChildren(bool clip) const
-{
-    if (clip)
-    {
-        this->Style(this->Style() | WS_CLIPCHILDREN);
-    }
-    else
-    {
-        this->Style(this->Style() &~ WS_CLIPCHILDREN);
-    }
-}
-
-DialogItem StatusBar::Item(UINT id) const
-{
-    return DialogItem(this->Handle(), id);
-}
-
-int StatusBar::Width() const
-{
-    return this->rect.right - this->rect.left;
-}
-
-int StatusBar::Height() const
-{
-    return this->rect.bottom - this->rect.top;
-}
-
-HWND StatusBar::Handle() const
-{
-    return this->hwnd;
-}
-
-DWORD StatusBar::Style() const
-{
-    if (this->hwnd)
-    {
-        return (DWORD)GetWindowLongPtrW(this->hwnd, GWL_STYLE);
-    }
-
-    return 0;
-}
-
-DWORD StatusBar::StyleEx() const
-{
-    if (this->hwnd)
-    {
-        return (DWORD)GetWindowLongPtrW(this->hwnd, GWL_EXSTYLE);
-    }
-
-    return 0;
-}
-
-void StatusBar::Style(DWORD style) const
-{
-    if (this->hwnd)
-    {
-        SetWindowLongPtrW(this->hwnd, GWL_STYLE, style);
-    }
-}
-
-void StatusBar::StyleEx(DWORD style) const
-{
-    if (this->hwnd)
-    {
-        SetWindowLongPtrW(this->hwnd, GWL_EXSTYLE, style);
-    }
 }
 
 bool StatusBar::SetParts(UINT parts, int* positions) const
@@ -202,60 +127,32 @@ wstring StatusBar::Text(UINT part) const
     return text;
 }
 
-void StatusBar::RegisterCommand(UINT command, const function<void()>& handler)
-{
-    this->commands[command] = handler;
-}
-
-void StatusBar::RemoveCommand(UINT command)
-{
-    auto it = this->commands.find(command);
-    if (this->commands.end() != it)
-    {
-        this->commands.erase(it);
-    }
-}
-
 LRESULT StatusBar::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg)
     {
         case WM_COMMAND:
         {
-            this->command = LOWORD(wParam);
-            
-            auto it = this->commands.find(this->command);
-            if (this->commands.end() != it)
-            {
-                it->second();
-                return 0;
-            }
-            else
-            {
-                return this->parent->Send(WM_COMMAND, this->wparam, this->lparam);
-            }
-        }
-
-        case WM_DESTROY:
-        {
-            this->hwnd = nullptr;
-            // fall through
+            return View::WindowProc(hWnd, uMsg, wParam, lParam);
         }
 
         default:
-            return this->defaultProc(hWnd, uMsg, wParam, lParam);
+            return this->DefaultProc(hWnd, uMsg, wParam, lParam);
     }
 }
 
-LRESULT StatusBar::MessageRouter(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT StatusBar::DefaultProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    StatusBar* pThis = reinterpret_cast<StatusBar*>(GetWindowLongPtrW(hWnd, GWLP_USERDATA));
-    if (pThis)
+    return this->defaultProc(hWnd, uMsg, wParam, lParam);
+}
+
+bool StatusBar::OnCreated()
+{
+    if (!View::OnCreated())
     {
-        pThis->wparam = wParam;
-        pThis->lparam = lParam;
-        return pThis->WindowProc(hWnd, uMsg, wParam, lParam);
+        return false;
     }
 
-    return DefWindowProcW(hWnd, uMsg, wParam, lParam);
+    this->AutoResize();
+    return true;
 }

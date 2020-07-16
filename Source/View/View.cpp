@@ -123,9 +123,9 @@ LRESULT View::MessageHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
             if (this->parent)
             {
-                this->wrect.left -= this->parent->c2scr.x;
-                this->wrect.right -= this->parent->c2scr.x;
-                this->wrect.top -= this->parent->c2scr.y;
+                this->wrect.left   -= this->parent->c2scr.x;
+                this->wrect.right  -= this->parent->c2scr.x;
+                this->wrect.top    -= this->parent->c2scr.y;
                 this->wrect.bottom -= this->parent->c2scr.y;
             }
             break;

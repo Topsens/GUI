@@ -20,7 +20,7 @@ public:
     DWORD StyleEx() const;
     void  Style(DWORD style);
     void  StyleEx(DWORD style);
-    void  ClipChildren(bool clip);
+    void  ClipChildren(bool clip = true);
 
     void Show() const;
     void Hide() const;

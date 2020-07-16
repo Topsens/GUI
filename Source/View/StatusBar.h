@@ -6,32 +6,16 @@
 #include <vector>
 #include <CommCtrl.h>
 
-class StatusBar
+class StatusBar : public View
 {
 public:
-    StatusBar(UINT controlID);
-   ~StatusBar();
+    StatusBar(UINT controlID, HINSTANCE instance = nullptr);
 
     operator bool() const;
 
-    bool Create(View* parent, HINSTANCE instance = nullptr, DWORD style = CCS_BOTTOM | WS_CHILD);
+    bool Create(View* parent) override;
     bool Create(View* parent, bool sizeGrip);
-    void Destroy();
-    void Show();
-    void Hide();
     void AutoResize();
-    void ClipChildren(bool clip = true) const;
-
-    DialogItem Item(UINT id) const;
-
-    int  Width() const;
-    int  Height() const;
-
-    HWND  Handle() const;
-    DWORD Style() const;
-    DWORD StyleEx() const;
-    void  Style(DWORD style) const;
-    void  StyleEx(DWORD style) const;
 
     bool SetParts(UINT parts, int* rightEdgePositions) const;
     UINT GetParts() const;
@@ -41,26 +25,13 @@ public:
     bool Text(const std::wstring& text, UINT part = 0) const;
     std::wstring Text(UINT part = 0) const;
 
-    void RegisterCommand(UINT command, const std::function<void()>& handler);
-    void RemoveCommand(UINT command);
-
 protected:
-    virtual LRESULT WindowProc(HWND, UINT, WPARAM, LPARAM);
+    LRESULT WindowProc(HWND, UINT, WPARAM, LPARAM) override;
+    LRESULT DefaultProc(HWND, UINT, WPARAM, LPARAM) override;
 
-private:
-    static LRESULT MessageRouter(HWND, UINT, WPARAM, LPARAM);
+    bool OnCreated() override;
 
 private:
     UINT id;
-    HWND hwnd;
-    RECT rect;
-
-    View* parent;
-
     WNDPROC defaultProc;
-    WORD    command;
-    WPARAM  wparam;
-    LPARAM  lparam;
-    
-    std::map<UINT, std::function<void()>> commands;
 };
