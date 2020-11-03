@@ -3,7 +3,7 @@
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR, int nCmdShow)
 {
-    Application(hInstance).Run(nCmdShow);
+    return Application(hInstance).Run(nCmdShow);
 }
 
 Application::Application(HINSTANCE instance) : MainWindow(instance)

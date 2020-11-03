@@ -78,7 +78,7 @@ public:
     void Caption(const std::wstring& caption) const;
     std::wstring Caption() const;
 
-    void Icon(UINT);
+    bool Icon(UINT resourceId);
 
     void SetTimer(UINT_PTR id, UINT elapse);
     void KillTimer(UINT_PTR id);
