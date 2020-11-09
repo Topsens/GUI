@@ -597,7 +597,7 @@ bool D2DBitmap::Pixels(const uint32_t* pixels, bool premultiply)
                 auto g = (bgra[1] * a) >> 8 << 8;
                 auto r = (bgra[2] * a) >> 8 << 16;
 
-                pix[i] = b | g | r | (bgra[3] << 24);
+                pix[i] = b | g | r;
             }
             else
             {
