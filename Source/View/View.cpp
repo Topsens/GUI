@@ -261,23 +261,29 @@ DWORD View::StyleEx() const
 
 void View::Style(DWORD style)
 {
-    this->style = style;
-
     if (this->hwnd)
     {
         SetWindowLongPtrW(this->hwnd, GWL_STYLE, style);
+        this->style = (DWORD)GetWindowLongPtrW(this->hwnd, GWL_STYLE);
         SetWindowPos(this->hwnd, 0, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_DRAWFRAME);
+    }
+    else
+    {
+        this->style = style;
     }
 }
 
 void View::StyleEx(DWORD style)
 {
-    this->styleEx = style;
-
     if (this->hwnd)
     {
-        SetWindowLongPtr(this->hwnd, GWL_EXSTYLE, style);
+        SetWindowLongPtrW(this->hwnd, GWL_EXSTYLE, style);
+        this->styleEx = (DWORD)GetWindowLongPtrW(this->hwnd, GWL_EXSTYLE);
         SetWindowPos(this->hwnd, 0, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_DRAWFRAME);
+    }
+    else
+    {
+        this->styleEx = style;
     }
 }
 
