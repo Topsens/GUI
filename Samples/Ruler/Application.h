@@ -14,11 +14,13 @@ protected:
 private:
     void OnKeyDown();
     void OnMouseMove();
+    void Update();
 
 private:
     POINT pos;
 
+    int  color;
     int  length;
-    int  orient;
     bool sizing;
+    bool vertical;
 };

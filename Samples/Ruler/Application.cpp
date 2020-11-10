@@ -3,12 +3,14 @@
 
 #define EDGE (10)
 
+const COLORREF Colors[] = { RGB(255, 0, 0), RGB(0, 255, 0), RGB(0, 0, 255), RGB(255, 255, 255), RGB(0, 0, 0) };
+
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR, int nCmdShow)
 {
     return Application(hInstance).Run(nCmdShow);
 }
 
-Application::Application(HINSTANCE instance) : MainWindow(instance)
+Application::Application(HINSTANCE instance) : MainWindow(instance), color(0)
 {
 }
 
@@ -43,7 +45,7 @@ bool Application::OnCreated()
 
     this->RegisterMessage(WM_LBUTTONDBLCLK, [this]
     {
-        this->orient = !this->orient;
+        this->vertical = !this->vertical;
         this->Resize(this->Height(), this->Width());
         return 0;
     });
@@ -51,13 +53,175 @@ bool Application::OnCreated()
     this->Style(WS_OVERLAPPED | WS_POPUP);
     this->StyleEx(WS_EX_LAYERED);
 
-    this->orient = 0;   // Horizontal
+    this->vertical = false;
     this->Resize(300, 50);
 
     return true;
 }
 
 void Application::OnSize()
+{
+    this->Update();
+}
+
+void Application::OnKeyDown()
+{
+    auto shift = GetKeyState(VK_SHIFT) < 0 ? true : false;
+
+    switch (this->wparam)
+    {
+        case VK_LEFT:
+        {
+            if (shift)
+            {
+                if (!this->vertical && this->length > 0)
+                {
+                    this->Resize(this->Width() - 1, this->Height());
+                }
+            }
+            else if (this->X() + EDGE > 0)
+            {
+                this->MoveTo(this->X() - 1, this->Y());
+            }
+            
+            break;
+        }
+
+        case VK_RIGHT:
+        {
+            if (shift)
+            {
+                if (!this->vertical)
+                {
+                    this->Resize(this->Width() + 1, this->Height());
+                }
+            }
+            else
+            {
+                RECT rect;
+                GetWindowRect(GetDesktopWindow(), &rect);
+
+                if (this->X() + this->Width() < rect.right + EDGE)
+                {
+                    this->MoveTo(this->X() + 1, this->Y());
+                }
+            }
+
+            break;
+        }
+
+        case VK_UP:
+        {
+            if (shift)
+            {
+                if (this->vertical && this->length > 0)
+                {
+                    this->Resize(this->Width(), this->Height() - 1);
+                }
+            }
+            else if (this->Y() + EDGE > 0)
+            {
+                this->MoveTo(this->X(), this->Y() - 1);
+            }
+            break;
+        }
+
+        case VK_DOWN:
+        {
+            if (shift)
+            {
+                if (this->vertical)
+                {
+                    this->Resize(this->Width(), this->Height() + 1);
+                }
+            }
+            else
+            {
+                RECT rect;
+                GetWindowRect(GetDesktopWindow(), &rect);
+
+                if (this->Y() + this->Height() < rect.bottom + EDGE)
+                {
+                    this->MoveTo(this->X(), this->Y() + 1);
+                }
+            }
+            
+            break;
+        }
+
+        case VK_RETURN:
+        {
+            this->vertical = !this->vertical;
+            this->Resize(this->Height(), this->Width());
+            break;
+        }
+
+        case VK_SPACE:
+        {
+            this->color = (this->color + 1) % (sizeof(Colors) / sizeof(Colors[0]));
+            this->Update();
+            break;
+        }
+
+        default: break;
+    }
+}
+
+void Application::OnMouseMove()
+{
+    POINT pos;
+    GetCursorPos(&pos);
+
+    if (MK_LBUTTON & this->wparam)
+    {
+        SetCapture(this->Handle());
+        auto x = pos.x - this->pos.x;
+        auto y = pos.y - this->pos.y;
+        
+        if (this->sizing)
+        {
+            if (this->vertical)
+            {
+                this->Resize(this->Width(), max(2 * EDGE, this->Height() + y));
+            }
+            else
+            {
+                this->Resize(max(2 * EDGE, this->Width() + x), this->Height());
+            }
+        }
+        else
+        {
+            this->Move(x, y);
+        }
+    }
+    else
+    {
+        if (this->Handle() == GetCapture())
+        {
+            ReleaseCapture();
+        }
+
+        if (this->vertical && pos.y - this->Y() >= this->Height() - EDGE)
+        {
+            this->sizing = true;
+            this->Cursor(IDC_SIZENS);
+        }
+        else if (!this->vertical && pos.x - this->X() >= this->Width() - EDGE)
+        {
+            this->sizing = true;
+            this->Cursor(IDC_SIZEWE);
+        }
+        else
+        {
+            this->sizing = false;
+            this->Cursor(IDC_ARROW);
+        }
+    }
+
+    this->pos = pos;
+}
+
+void Application::Update()
 {
     int w = this->ClientWidth();
     int h = this->ClientHeight();
@@ -69,9 +233,9 @@ void Application::OnSize()
     {
         renderer.Clear(RGB(0, 0, 0), 0.1f);
 
-        renderer.Brush(renderer.CreateSolidBrush(255, 0, 0));
+        renderer.Brush(renderer.CreateSolidBrush(Colors[this->color]));
 
-        if (this->orient)
+        if (this->vertical)
         {
             this->length = h - 2 * EDGE;
 
@@ -122,153 +286,4 @@ void Application::OnSize()
 
         UpdateLayeredWindowIndirect(this->Handle(), &ulwi);
     }
-}
-
-void Application::OnKeyDown()
-{
-    auto shift = GetKeyState(VK_SHIFT) < 0 ? true : false;
-
-    switch (this->wparam)
-    {
-        case VK_LEFT:
-        {
-            if (shift)
-            {
-                if (!this->orient && this->length > 0)
-                {
-                    this->Resize(this->Width() - 1, this->Height());
-                }
-            }
-            else if (this->X() + EDGE > 0)
-            {
-                this->MoveTo(this->X() - 1, this->Y());
-            }
-            
-            break;
-        }
-
-        case VK_RIGHT:
-        {
-            if (shift)
-            {
-                if (!this->orient)
-                {
-                    this->Resize(this->Width() + 1, this->Height());
-                }
-            }
-            else
-            {
-                RECT rect;
-                GetWindowRect(GetDesktopWindow(), &rect);
-
-                if (this->X() + this->Width() < rect.right + EDGE)
-                {
-                    this->MoveTo(this->X() + 1, this->Y());
-                }
-            }
-
-            break;
-        }
-
-        case VK_UP:
-        {
-            if (shift)
-            {
-                if (this->orient && this->length > 0)
-                {
-                    this->Resize(this->Width(), this->Height() - 1);
-                }
-            }
-            else if (this->Y() + EDGE > 0)
-            {
-                this->MoveTo(this->X(), this->Y() - 1);
-            }
-            break;
-        }
-
-        case VK_DOWN:
-        {
-            if (shift)
-            {
-                if (this->orient)
-                {
-                    this->Resize(this->Width(), this->Height() + 1);
-                }
-            }
-            else
-            {
-                RECT rect;
-                GetWindowRect(GetDesktopWindow(), &rect);
-
-                if (this->Y() + this->Height() < rect.bottom + EDGE)
-                {
-                    this->MoveTo(this->X(), this->Y() + 1);
-                }
-            }
-            
-            break;
-        }
-
-        case VK_RETURN:
-        {
-            this->orient = !this->orient;
-            this->Resize(this->Height(), this->Width());
-        }
-
-        default: break;
-    }
-}
-
-void Application::OnMouseMove()
-{
-    POINT pos;
-    GetCursorPos(&pos);
-
-    if (MK_LBUTTON & this->wparam)
-    {
-        SetCapture(this->Handle());
-        auto x = pos.x - this->pos.x;
-        auto y = pos.y - this->pos.y;
-        
-        if (this->sizing)
-        {
-            if (this->orient)
-            {
-                this->Resize(this->Width(), max(2 * EDGE, this->Height() + y));
-            }
-            else
-            {
-                this->Resize(max(2 * EDGE, this->Width() + x), this->Height());
-            }
-        }
-        else
-        {
-            this->Move(x, y);
-        }
-    }
-    else
-    {
-        if (this->Handle() == GetCapture())
-        {
-            ReleaseCapture();
-        }
-
-        if (this->orient && pos.y - this->Y() >= this->Height() - EDGE)
-        {
-            this->sizing = true;
-            this->Cursor(IDC_SIZENS);
-        }
-        else if (!this->orient && pos.x - this->X() >= this->Width() - EDGE)
-        {
-            this->sizing = true;
-            this->Cursor(IDC_SIZEWE);
-        }
-        else
-        {
-            this->sizing = false;
-            this->Cursor(IDC_ARROW);
-        }
-    }
-
-    this->pos = pos;
 }
