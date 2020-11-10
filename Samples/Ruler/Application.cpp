@@ -43,17 +43,8 @@ bool Application::OnCreated()
 
     this->RegisterMessage(WM_LBUTTONDBLCLK, [this]
     {
-        if (this->orient)
-        {
-            this->orient = 0;
-        }
-        else
-        {
-            this->orient = 1;
-        }
-
+        this->orient = !this->orient;
         this->Resize(this->Height(), this->Width());
-        
         return 0;
     });
 
@@ -216,6 +207,12 @@ void Application::OnKeyDown()
             }
             
             break;
+        }
+
+        case VK_RETURN:
+        {
+            this->orient = !this->orient;
+            this->Resize(this->Height(), this->Width());
         }
 
         default: break;
