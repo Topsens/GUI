@@ -579,11 +579,11 @@ DialogItem View::Item(int id) const
     return DialogItem(this->hwnd, id);
 }
 
-void View::Cursor(LPTSTR name)
+void View::Cursor(LPWSTR name)
 {
     if (name)
     {
-        this->cursor = LoadCursor(nullptr, name);
+        this->cursor = LoadCursorW(nullptr, name);
     }
     else
     {

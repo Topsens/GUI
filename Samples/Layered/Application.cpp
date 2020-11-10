@@ -89,7 +89,7 @@ void Application::Update()
         this->renderer.EndPaint();
 
         auto sp = POINT{ 0, 0 };
-        auto dp = POINT{ 0, 0 };
+        auto dp = POINT{ this->X(), this->Y() };
         auto size = SIZE{ w, h };
 
         BLENDFUNCTION blend = {};

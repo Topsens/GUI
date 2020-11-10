@@ -72,7 +72,7 @@ public:
 
     DialogItem Item(int id) const;
 
-    void  Cursor(LPTSTR name);
+    void  Cursor(LPWSTR name);
 
     void Caption(const wchar_t* caption) const;
     void Caption(const std::wstring& caption) const;
