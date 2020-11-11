@@ -8,6 +8,12 @@
 class D2DPoint
 {
 public:
+    D2DPoint()
+    {
+        this->X = 0;
+        this->Y = 0;
+    }
+
     D2DPoint(float x, float y)
     {
         this->X = x;
@@ -21,44 +27,39 @@ public:
 class D2DRectangle
 {
 public:
+    D2DRectangle()
+    {
+        this->rect.rect    = D2D1::RectF();
+        this->rect.radiusX = 0;
+        this->rect.radiusY = 0;
+    }
+
     D2DRectangle(float left, float top, float right, float bottom, float radius = 0.f)
     {
-        this->rect.rect.left   = left;
-        this->rect.rect.top    = top;
-        this->rect.rect.right  = right;
-        this->rect.rect.bottom = bottom;
-        this->rect.radiusX     = radius;
-        this->rect.radiusY     = radius;
+        this->rect.rect    = D2D1::RectF(left, top, right, bottom);
+        this->rect.radiusX = radius;
+        this->rect.radiusY = radius;
     }
 
     D2DRectangle(float left, float top, float right, float bottom, float radiusX, float radiusY)
     {
-        this->rect.rect.left   = left;
-        this->rect.rect.top    = top;
-        this->rect.rect.right  = right;
-        this->rect.rect.bottom = bottom;
-        this->rect.radiusX     = radiusX;
-        this->rect.radiusY     = radiusY;
+        this->rect.rect    = D2D1::RectF(left, top, right, bottom);
+        this->rect.radiusX = radiusX;
+        this->rect.radiusY = radiusY;
     }
 
     D2DRectangle(float width, float height, const D2DPoint& center = D2DPoint(0.f, 0.f), float radius = 0.f)
     {
-        this->rect.rect.left   = center.X - width  * .5f;
-        this->rect.rect.right  = center.X + width  * .5f;
-        this->rect.rect.top    = center.Y - height * .5f;
-        this->rect.rect.bottom = center.Y + height * .5f;
-        this->rect.radiusX     = radius;
-        this->rect.radiusY     = radius;
+        this->rect.rect    = D2D1::RectF(center.X - width  * .5f, center.Y - height * .5f, center.X + width  * .5f, center.Y + height * .5f);
+        this->rect.radiusX = radius;
+        this->rect.radiusY = radius;
     }
 
     D2DRectangle(float width, float height, const D2DPoint& center, float radiusX, float radiusY)
     {
-        this->rect.rect.left   = center.X - width  * .5f;
-        this->rect.rect.right  = center.X + width  * .5f;
-        this->rect.rect.top    = center.Y - height * .5f;
-        this->rect.rect.bottom = center.Y + height * .5f;
-        this->rect.radiusX     = radiusX;
-        this->rect.radiusY     = radiusY;
+        this->rect.rect    = D2D1::RectF(center.X - width  * .5f, center.Y - height * .5f, center.X + width  * .5f, center.Y + height * .5f);
+        this->rect.radiusX = radiusX;
+        this->rect.radiusY = radiusY;
     }
 
     operator D2D1_RECT_F() const
