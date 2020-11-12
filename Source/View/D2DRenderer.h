@@ -171,6 +171,9 @@ public:
     D2DBrush(const D2DBrush&) = delete;
    ~D2DBrush();
 
+    void Opacity(float);
+    void Transform(const D2D1_MATRIX_3X2_F&);
+
     operator bool() const;
     operator ID2D1Brush*() const;
 
@@ -256,8 +259,10 @@ public:
     bool Brush(const D2DBrush& brush);
 
     void From(float x, float y);
+    void From(const D2DPoint&);
     bool LineTo(float x, float y);
-    void Stroke(const D2DStroke& stroke);
+    bool LineTo(const D2DPoint&);
+    void Stroke(const D2DStroke&);
 
     bool Draw(const D2DRectangle& rectangle) const;
     bool Draw(const D2D1_ELLIPSE& ellipse) const;
@@ -278,6 +283,7 @@ public:
     D2DBitmap CreateBitmap(int width, int height);
     D2DBrush  CreateSolidBrush(COLORREF rgb, float opacity = 1.f);
     D2DBrush  CreateSolidBrush(UCHAR r, UCHAR g, UCHAR b, float opacity = 1.f);
+    D2DBrush  CreateBitmapBrush(const D2DBitmap&, float opacity = 1.f, D2D1_BITMAP_INTERPOLATION_MODE interpolation = D2D1_BITMAP_INTERPOLATION_MODE_LINEAR, D2D1_EXTEND_MODE xMode = D2D1_EXTEND_MODE_WRAP, D2D1_EXTEND_MODE yMode = D2D1_EXTEND_MODE_WRAP);
 
 protected:
     static bool AddRefFactories();

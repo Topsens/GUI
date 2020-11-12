@@ -32,6 +32,13 @@ bool Application::OnCreated()
     this->blue  = this->renderer.CreateSolidBrush(0, 0, 255, .5f);
     this->green = this->renderer.CreateSolidBrush(0, 255, 0, .5f);
 
+    uint32_t pixels[] = { 0xC0FFFFFF, 0x80FFFFFF, 0x80FFFFFF, 0xC0FFFFFF };
+    auto bitmap = this->renderer.CreateBitmap(2, 2);
+    bitmap.Pixels(pixels, true);
+
+    this->bkgrd = this->renderer.CreateBitmapBrush(bitmap, 1.0f, D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR);
+    this->bkgrd.Transform(D2D1::Matrix3x2F::Scale(D2D1::SizeF(16, 16)));
+
     this->Caption(L"D2D");
     this->ResizeClient(400, 400);
 
@@ -48,7 +55,8 @@ void Application::OnPaint()
         auto x = w * .5f;
         auto y = h * .5f;
 
-        this->renderer.Draw(this->bitmap, 0, 0, (float)w, (float)h);
+        this->renderer.Brush(this->bkgrd);
+        this->renderer.Fill(D2DRectangle(0, 0, (float)w, (float)h));
         
         this->renderer.Brush(this->red);
         this->renderer.Translate(x + 100.f, y);
@@ -81,26 +89,5 @@ void Application::OnPaint()
 
 void Application::OnSize()
 {
-    auto w = this->ClientWidth();
-    auto h = this->ClientHeight();
-
     this->renderer.ResizeTarget(this->ClientWidth(), this->ClientHeight());
-
-    if (this->bitmap.Width() != w || this->bitmap.Height() != h)
-    {
-        vector<uint32_t> pixels(w * h);
-
-        for (auto i = 0, idx = 0; i < h; i++)
-        {
-            auto odd = (i >> 4) & 1;
-
-            for (auto j = 0; j < w; j++)
-            {
-                pixels[idx++] = (odd == ((j >> 4) & 1)) ? 0xC0FFFFFF : 0x80FFFFFF;
-            }
-        }
-
-        this->bitmap = this->renderer.CreateBitmap(w, h);
-        this->bitmap.Pixels(pixels.data(), true);
-    }
 }

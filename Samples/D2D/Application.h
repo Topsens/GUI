@@ -13,9 +13,9 @@ protected:
 
 private:
     D2DRenderer renderer;
-    D2DBitmap   bitmap;
     D2DFormat   format;
     D2DBrush    red;
     D2DBrush    blue;
     D2DBrush    green;
+    D2DBrush    bkgrd;
 };

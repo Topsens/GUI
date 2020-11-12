@@ -252,6 +252,12 @@ void D2DRenderer::From(float x, float y)
     this->y = y;
 }
 
+void D2DRenderer::From(const D2DPoint& point)
+{
+    this->x = point.X;
+    this->y = point.Y;
+}
+
 bool D2DRenderer::LineTo(float x, float y)
 {
     if (!this->target || !this->brush)
@@ -265,6 +271,11 @@ bool D2DRenderer::LineTo(float x, float y)
     this->y = y;
 
     return true;
+}
+
+bool D2DRenderer::LineTo(const D2DPoint& point)
+{
+    return this->LineTo(point.X, point.Y);
 }
 
 void D2DRenderer::Stroke(const D2DStroke& stroke)
@@ -464,6 +475,32 @@ D2DBrush D2DRenderer::CreateSolidBrush(UCHAR r, UCHAR g, UCHAR b, float opacity)
     return D2DBrush(brush);
 }
 
+D2DBrush D2DRenderer::CreateBitmapBrush(const D2DBitmap& bitmap, float opacity, D2D1_BITMAP_INTERPOLATION_MODE interpolation, D2D1_EXTEND_MODE xMode, D2D1_EXTEND_MODE yMode)
+{
+    if (!this->target)
+    {
+        return D2DBrush();
+    }
+
+    D2D1_BITMAP_BRUSH_PROPERTIES bitmapProperties;
+    bitmapProperties.extendModeX = xMode;
+    bitmapProperties.extendModeY = yMode;
+    bitmapProperties.interpolationMode = interpolation;
+
+    D2D1_BRUSH_PROPERTIES brushProperties;
+    brushProperties.opacity = opacity;
+    brushProperties.transform = D2D1::Matrix3x2F::Identity();
+
+    ID2D1BitmapBrush* brush;
+    if (FAILED(this->target->CreateBitmapBrush(bitmap, &bitmapProperties, &brushProperties, &brush)))
+    {
+        return D2DBrush();
+    }
+    ONCLEANUP(brush, [brush]{ brush->Release(); });
+
+    return D2DBrush(brush);
+}
+
 bool D2DRenderer::AddRefFactories()
 {
     lock_guard<std::mutex> lock(D2DRenderer::mutex);
@@ -597,7 +634,7 @@ bool D2DBitmap::Pixels(const uint32_t* pixels, bool premultiply)
                 auto g = (bgra[1] * a) >> 8 << 8;
                 auto r = (bgra[2] * a) >> 8 << 16;
 
-                pix[i] = b | g | r;
+                pix[i] = bgra[3] | b | g | r;
             }
             else
             {
@@ -640,6 +677,22 @@ D2DBrush::~D2DBrush()
     if (this->brush)
     {
         this->brush->Release();
+    }
+}
+
+void D2DBrush::Opacity(float opacity)
+{
+    if (this->brush)
+    {
+        this->brush->SetOpacity(opacity);
+    }
+}
+
+void D2DBrush::Transform(const D2D1_MATRIX_3X2_F& transform)
+{
+    if (this->brush)
+    {
+        this->brush->SetTransform(transform);
     }
 }
 
