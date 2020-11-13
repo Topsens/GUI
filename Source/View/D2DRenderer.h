@@ -139,93 +139,112 @@ public:
     D2D1_ELLIPSE Value;
 };
 
-class D2DBitmap
+template<typename T>
+class D2DInterface
+{
+public:
+    D2DInterface() : itf(nullptr) {}
+    D2DInterface(D2DInterface&& other)
+    {
+        *this = move(other);
+    }
+    D2DInterface(const D2DInterface&) = delete;
+    D2DInterface(T* itf) : itf(itf)
+    {
+        if (itf)
+        {
+            itf->AddRef();
+        }
+    }
+   ~D2DInterface()
+    {
+        if (this->itf)
+        {
+            this->itf->Release();
+        }
+    }
+
+    operator bool() const
+    {
+        return this->itf ? true : false;
+    }
+    operator T*() const
+    {
+        return this->itf;
+    }
+
+    D2DInterface& operator=(D2DInterface&& other)
+    {
+        if (this->itf)
+        {
+            this->itf->Release();
+        }
+
+        this->itf = other.itf;
+        other.itf = nullptr;
+        return *this;
+    }
+    D2DInterface& operator=(const D2DInterface&) = delete;
+
+protected:
+    T* itf;
+};
+
+class D2DBitmap : public D2DInterface<ID2D1Bitmap>
 {
 public:
     D2DBitmap();
-    D2DBitmap(D2DBitmap&& other);
-    D2DBitmap(ID2D1Bitmap* bitmap);
-    D2DBitmap(const D2DBitmap&) = delete;
-   ~D2DBitmap();
-
-    operator bool() const;
-    operator ID2D1Bitmap*() const;
-    D2DBitmap& operator=(D2DBitmap&& other);
-    D2DBitmap& operator=(const D2DBitmap&) = delete;
+    D2DBitmap(D2DBitmap&&);
+    D2DBitmap(ID2D1Bitmap*);
 
     int Width() const;
     int Height() const;
-
     bool Pixels(const uint32_t* pixels, bool premultiply = false);
 
-private:
-    ID2D1Bitmap* bitmap;
+    D2DBitmap& operator=(D2DBitmap&&);
 };
 
-class D2DBrush
+class D2DBrush : public D2DInterface<ID2D1Brush>
 {
 public:
     D2DBrush();
-    D2DBrush(D2DBrush&& other);
-    D2DBrush(ID2D1Brush* brush);
-    D2DBrush(const D2DBrush&) = delete;
-   ~D2DBrush();
+    D2DBrush(D2DBrush&&);
+    D2DBrush(ID2D1Brush*);
 
     void Opacity(float);
     void Transform(const D2D1_MATRIX_3X2_F&);
 
-    operator bool() const;
-    operator ID2D1Brush*() const;
-
-    D2DBrush& operator=(D2DBrush&& other);
-    D2DBrush& operator=(const D2DBrush&) = delete;
-
-private:
-    ID2D1Brush* brush;
+    D2DBrush& operator=(D2DBrush&&);
 };
 
-class D2DStroke
+class D2DStroke : public D2DInterface<ID2D1StrokeStyle>
 {
 public:
     D2DStroke(float width = 1.f);
-    D2DStroke(D2DStroke&& other);
-    D2DStroke(float width, ID2D1StrokeStyle* style);
-    D2DStroke(const D2DStroke& stroke) = delete;
-   ~D2DStroke();
-
-    operator ID2D1StrokeStyle*() const;
-
-    D2DStroke& operator=(D2DStroke&& other);
+    D2DStroke(D2DStroke&&);
+    D2DStroke(float width, ID2D1StrokeStyle*);
 
     float Width() const;
 
+    D2DStroke& operator=(D2DStroke&& other);
+
 private:
     float width;
-    ID2D1StrokeStyle* style;
 };
 
-class D2DFormat
+class D2DFormat : public D2DInterface<IDWriteTextFormat>
 {
 public:
     static D2DFormat Create(const wchar_t* family, float size, DWRITE_FONT_WEIGHT weight = DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE style = DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH stretch = DWRITE_FONT_STRETCH_NORMAL);
 
     D2DFormat();
-    D2DFormat(D2DFormat&& other);
-    D2DFormat(IDWriteTextFormat* format);
-    D2DFormat(const D2DFormat&) = delete;
-   ~D2DFormat();
+    D2DFormat(D2DFormat&&);
+    D2DFormat(IDWriteTextFormat*);
 
-    operator bool() const;
-    operator IDWriteTextFormat*() const;
+    void TextAlign(DWRITE_TEXT_ALIGNMENT);
+    void ParaAlign(DWRITE_PARAGRAPH_ALIGNMENT);
 
-    D2DFormat& operator=(D2DFormat&& other);
-    D2DFormat& operator=(const D2DFormat&) = delete;
-
-    void TextAlign(DWRITE_TEXT_ALIGNMENT alignment);
-    void ParaAlign(DWRITE_PARAGRAPH_ALIGNMENT alignment);
-
-private:
-    IDWriteTextFormat* format;
+    D2DFormat& operator=(D2DFormat&&);
 };
 
 class D2DRenderer
