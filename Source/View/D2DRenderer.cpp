@@ -545,15 +545,11 @@ void D2DRenderer::ReleaseFactories()
     }
 }
 
-D2DBitmap::D2DBitmap() : D2DInterface()
-{
-}
-
-D2DBitmap::D2DBitmap(D2DBitmap&& other) : D2DInterface(move(other))
-{
-}
-
 D2DBitmap::D2DBitmap(ID2D1Bitmap* bitmap) : D2DInterface(bitmap)
+{
+}
+
+D2DBitmap::D2DBitmap(const D2DBitmap& other) : D2DInterface(other)
 {
 }
 
@@ -619,21 +615,11 @@ bool D2DBitmap::Pixels(const uint32_t* pixels, bool premultiply)
     return true;
 }
 
-D2DBitmap& D2DBitmap::operator=(D2DBitmap&& other)
-{
-    *(D2DInterface*)this = move(other);
-    return *this;
-}
-
-D2DBrush::D2DBrush() : D2DInterface()
-{
-}
-
-D2DBrush::D2DBrush(D2DBrush&& other) : D2DInterface(move(other))
-{
-}
-
 D2DBrush::D2DBrush(ID2D1Brush* brush) : D2DInterface(brush)
+{
+}
+
+D2DBrush::D2DBrush(const D2DBrush& other) : D2DInterface(other)
 {
 }
 
@@ -653,27 +639,22 @@ void D2DBrush::Transform(const D2D1_MATRIX_3X2_F& transform)
     }
 }
 
-D2DBrush& D2DBrush::operator=(D2DBrush&& other)
-{
-    *(D2DInterface*)this = move(other);
-    return *this;
-}
-
-D2DStroke::D2DStroke(float width) : D2DInterface(), width(width)
+D2DStroke::D2DStroke(float width) : width(width)
 {
 }
 
-D2DStroke::D2DStroke(D2DStroke&& other) : D2DInterface(move(other))
+D2DStroke::D2DStroke(const D2DStroke& other)
 {
+    *this = other;
 }
 
 D2DStroke::D2DStroke(float width, ID2D1StrokeStyle* style) : D2DInterface(style), width(width)
 {
 }
 
-D2DStroke& D2DStroke::operator=(D2DStroke&& other)
+D2DStroke& D2DStroke::operator=(const D2DStroke& other)
 {
-    *(D2DInterface*)this = move(other);
+    *(D2DInterface*)this = other;
     this->width = other.width;
     return *this;
 }
@@ -701,15 +682,11 @@ D2DFormat D2DFormat::Create(const wchar_t* family, float size, DWRITE_FONT_WEIGH
     return D2DFormat(format);
 }
 
-D2DFormat::D2DFormat() : D2DInterface()
-{
-}
-
-D2DFormat::D2DFormat(D2DFormat&& other) : D2DInterface(move(other))
-{
-}
-
 D2DFormat::D2DFormat(IDWriteTextFormat* format) : D2DInterface(format)
+{
+}
+
+D2DFormat::D2DFormat(const D2DFormat& other) : D2DInterface(other)
 {
 }
 
@@ -727,10 +704,4 @@ void D2DFormat::ParaAlign(DWRITE_PARAGRAPH_ALIGNMENT alignment)
     {
         this->itf->SetParagraphAlignment(alignment);
     }
-}
-
-D2DFormat& D2DFormat::operator=(D2DFormat&& other)
-{
-    *(D2DInterface*)this = move(other);
-    return *this;
 }

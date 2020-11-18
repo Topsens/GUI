@@ -143,12 +143,13 @@ template<typename T>
 class D2DInterface
 {
 public:
-    D2DInterface() : itf(nullptr) {}
-    D2DInterface(D2DInterface&& other)
+    D2DInterface() : itf(nullptr)
     {
-        *this = move(other);
     }
-    D2DInterface(const D2DInterface&) = delete;
+    D2DInterface(const D2DInterface& other) : D2DInterface()
+    {
+        *this = other;
+    }
     D2DInterface(T* itf) : itf(itf)
     {
         if (itf)
@@ -173,7 +174,7 @@ public:
         return this->itf;
     }
 
-    D2DInterface& operator=(D2DInterface&& other)
+    D2DInterface& operator=(const D2DInterface& other)
     {
         if (this->itf)
         {
@@ -181,10 +182,14 @@ public:
         }
 
         this->itf = other.itf;
-        other.itf = nullptr;
+
+        if (this->itf)
+        {
+            this->itf->AddRef();
+        }
+
         return *this;
     }
-    D2DInterface& operator=(const D2DInterface&) = delete;
 
 protected:
     T* itf;
@@ -193,40 +198,36 @@ protected:
 class D2DBitmap : public D2DInterface<ID2D1Bitmap>
 {
 public:
-    D2DBitmap();
-    D2DBitmap(D2DBitmap&&);
+    D2DBitmap() = default;
     D2DBitmap(ID2D1Bitmap*);
+    D2DBitmap(const D2DBitmap&);
 
     int Width() const;
     int Height() const;
     bool Pixels(const uint32_t* pixels, bool premultiply = false);
-
-    D2DBitmap& operator=(D2DBitmap&&);
 };
 
 class D2DBrush : public D2DInterface<ID2D1Brush>
 {
 public:
-    D2DBrush();
-    D2DBrush(D2DBrush&&);
+    D2DBrush() = default;
     D2DBrush(ID2D1Brush*);
+    D2DBrush(const D2DBrush&);
 
     void Opacity(float);
     void Transform(const D2D1_MATRIX_3X2_F&);
-
-    D2DBrush& operator=(D2DBrush&&);
 };
 
 class D2DStroke : public D2DInterface<ID2D1StrokeStyle>
 {
 public:
     D2DStroke(float width = 1.f);
-    D2DStroke(D2DStroke&&);
     D2DStroke(float width, ID2D1StrokeStyle*);
+    D2DStroke(const D2DStroke&);
 
     float Width() const;
 
-    D2DStroke& operator=(D2DStroke&& other);
+    D2DStroke& operator=(const D2DStroke&);
 
 private:
     float width;
@@ -237,14 +238,12 @@ class D2DFormat : public D2DInterface<IDWriteTextFormat>
 public:
     static D2DFormat Create(const wchar_t* family, float size, DWRITE_FONT_WEIGHT weight = DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE style = DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH stretch = DWRITE_FONT_STRETCH_NORMAL);
 
-    D2DFormat();
-    D2DFormat(D2DFormat&&);
+    D2DFormat() = default;
     D2DFormat(IDWriteTextFormat*);
+    D2DFormat(const D2DFormat&);
 
     void TextAlign(DWRITE_TEXT_ALIGNMENT);
     void ParaAlign(DWRITE_PARAGRAPH_ALIGNMENT);
-
-    D2DFormat& operator=(D2DFormat&&);
 };
 
 class D2DRenderer
