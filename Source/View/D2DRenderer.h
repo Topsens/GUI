@@ -221,11 +221,11 @@ public:
 class D2DStroke : public D2DInterface<ID2D1StrokeStyle>
 {
 public:
-    D2DStroke(float width = 1.f);
-    D2DStroke(float width, ID2D1StrokeStyle*);
     D2DStroke(const D2DStroke&);
+    D2DStroke(float width = 1.f, ID2D1StrokeStyle* style = nullptr);
 
     float Width() const;
+    void Width(float);
 
     D2DStroke& operator=(const D2DStroke&);
 
@@ -246,7 +246,7 @@ public:
     void ParaAlign(DWRITE_PARAGRAPH_ALIGNMENT);
 };
 
-class D2DRenderer
+class D2DRenderer : public D2DInterface<ID2D1RenderTarget>
 {
     friend class D2DFormat;
 
@@ -254,19 +254,15 @@ public:
     static D2DRenderer Create(HWND hWnd);
 
     D2DRenderer();
-    D2DRenderer(D2DRenderer&& other);
-    D2DRenderer(const D2DRenderer&) = delete;
-    D2DRenderer(ID2D1RenderTarget* target);
+    D2DRenderer(const D2DRenderer&);
+    D2DRenderer(ID2D1RenderTarget*);
    ~D2DRenderer();
 
-    operator bool() const;
-    D2DRenderer& operator=(D2DRenderer&& other);
-    D2DRenderer& operator=(const D2DRenderer&) = delete;
+    D2DRenderer& operator=(const D2DRenderer&);
 
     bool ResizeTarget(int width, int height);
     bool BeginPaint();
     void EndPaint();
-    void Release();
 
     bool Skew(float angleX, float angleY, float centerX, float centerY);
     bool Scale(float scaleX, float scaleY, float centerX, float centerY);
@@ -274,7 +270,7 @@ public:
     bool Translate(float translateX, float translateY);
     bool Identity();
 
-    bool Brush(const D2DBrush& brush);
+    void Brush(const D2DBrush& brush);
 
     void From(float x, float y);
     void From(const D2DPoint&);
@@ -289,7 +285,7 @@ public:
     bool Fill(const D2DRectangle& rectangle) const;
     bool Fill(const D2D1_ELLIPSE& ellipse) const;
 
-    bool Format(const D2DFormat& format);
+    void Format(const D2DFormat& format);
     bool Text(const std::wstring& text, const D2D_RECT_F& rectangle) const;
     bool Text(const std::wstring& text, float x, float y, float w, float h) const;
     bool Text(const wchar_t* text, const D2D1_RECT_F& rectangle) const;
@@ -309,12 +305,10 @@ protected:
 
 protected:
     float x, y;
-    float width;
 
-    ID2D1RenderTarget* target;
-    IDWriteTextFormat* format;
-    ID2D1StrokeStyle*  style;
-    ID2D1Brush*        brush;
+    D2DFormat format;
+    D2DStroke stroke;
+    D2DBrush  brush;
 
     D2D1_MATRIX_3X2_F transform;
 

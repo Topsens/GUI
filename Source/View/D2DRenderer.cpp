@@ -55,195 +55,147 @@ D2DRenderer D2DRenderer::Create(HWND hWnd)
     return D2DRenderer(target);
 }
 
-D2DRenderer::D2DRenderer() : target(nullptr), format(nullptr), brush(nullptr), style(nullptr), width(1.f), transform(D2D1::Matrix3x2F::Identity())
+D2DRenderer::D2DRenderer() : transform(D2D1::Matrix3x2F::Identity())
 {
     AddRefFactories();
 }
 
-D2DRenderer::D2DRenderer(D2DRenderer&& other) : D2DRenderer()
+D2DRenderer::D2DRenderer(const D2DRenderer& other)
 {
-    *this = move(other);
+    *this = other;
 }
 
-D2DRenderer::D2DRenderer(ID2D1RenderTarget* target) : D2DRenderer()
+D2DRenderer::D2DRenderer(ID2D1RenderTarget* target) : D2DInterface(target), transform(D2D1::Matrix3x2F::Identity())
 {
-    if (target)
-    {
-        this->target = target;
-        this->target->AddRef();
-    }
+    AddRefFactories();
 }
 
 D2DRenderer::~D2DRenderer()
 {
-    this->Release();
     ReleaseFactories();
 }
 
-D2DRenderer::operator bool() const
+D2DRenderer& D2DRenderer::operator=(const D2DRenderer& other)
 {
-    return this->target ? true : false;
-}
-
-D2DRenderer& D2DRenderer::operator=(D2DRenderer&& other)
-{
-    this->Release();
+    *(D2DInterface*)this = other;
 
     this->x      = other.x;
     this->y      = other.y;
-    this->width  = other.width;
     this->brush  = other.brush;
-    this->style  = other.style;
+    this->stroke = other.stroke;
     this->format = other.format;
-    this->target = other.target;
     this->transform = other.transform;
-
-    other.brush  = nullptr;
-    other.style  = nullptr;
-    other.format = nullptr;
-    other.target = nullptr;
 
     return *this;
 }
 
 bool D2DRenderer::ResizeTarget(int width, int height)
 {
-    if (!this->target)
+    if (!this->itf)
     {
         return false;
     }
+
+    ID2D1HwndRenderTarget* target;
+    if (FAILED(this->itf->QueryInterface(IID_PPV_ARGS(&target))))
+    {
+        return false;
+    }
+    ONCLEANUP(target, [target]{ target->Release(); });
 
     width  = max(0, width);
     height = max(0, height);
 
-    return SUCCEEDED(((ID2D1HwndRenderTarget*)this->target)->Resize(D2D1::SizeU(width, height))) ? true : false;
+    return SUCCEEDED(target->Resize(D2D1::SizeU(width, height))) ? true : false;
 }
 
 bool D2DRenderer::BeginPaint()
 {
-    if (!this->target)
+    if (!this->itf)
     {
         return false;
     }
 
-    this->target->BeginDraw();
+    this->itf->BeginDraw();
     return true;
 }
 
 void D2DRenderer::EndPaint()
 {
-    if (this->target)
+    if (this->itf)
     {
-        this->target->EndDraw();
-    }
-}
-
-void D2DRenderer::Release()
-{
-    if (this->style)
-    {
-        this->style->Release();
-        this->style = nullptr;
-    }
-
-    if (this->brush)
-    {
-        this->brush->Release();
-        this->brush = nullptr;
-    }
-
-    if (this->format)
-    {
-        this->format->Release();
-        this->format = nullptr;
-    }
-
-    if (this->target)
-    {
-        this->target->Release();
-        this->target = nullptr;
+        this->itf->EndDraw();
     }
 }
 
 bool D2DRenderer::Skew(float angleX, float angleY, float centerX, float centerY)
 {
-    if (!this->target)
+    if (!this->itf)
     {
         return false;
     }
 
     this->transform = D2D1::Matrix3x2F::Skew(angleX, angleY, D2D1::Point2F(centerX, centerY)) * this->transform;
-    this->target->SetTransform(this->transform);
+    this->itf->SetTransform(this->transform);
 
     return true;
 }
 
 bool D2DRenderer::Scale(float scaleX, float scaleY, float centerX, float centerY)
 {
-    if (!this->target)
+    if (!this->itf)
     {
         return false;
     }
 
     this->transform = D2D1::Matrix3x2F::Scale(D2D1::SizeF(scaleX, scaleY), D2D1::Point2F(centerX, centerY)) * this->transform;
-    this->target->SetTransform(this->transform);
+    this->itf->SetTransform(this->transform);
 
     return true;
 }
 
 bool D2DRenderer::Rotate(float angle, float centerX, float centerY)
 {
-    if (!this->target)
+    if (!this->itf)
     {
         return false;
     }
 
     this->transform = D2D1::Matrix3x2F::Rotation(angle, D2D1::Point2F(centerX, centerY)) * this->transform;
-    this->target->SetTransform(this->transform);
+    this->itf->SetTransform(this->transform);
 
     return true;
 }
 
 bool D2DRenderer::Translate(float translateX, float translateY)
 {
-    if (!this->target)
+    if (!this->itf)
     {
         return false;
     }
 
     this->transform = D2D1::Matrix3x2F::Translation(D2D1::SizeF(translateX, translateY)) * this->transform;
-    this->target->SetTransform(this->transform);
+    this->itf->SetTransform(this->transform);
 
     return true;
 }
 
 bool D2DRenderer::Identity()
 {
-    if (!this->target)
+    if (!this->itf)
     {
         return false;
     }
 
     this->transform = D2D1::Matrix3x2F::Identity();
-    this->target->SetTransform(this->transform);
+    this->itf->SetTransform(this->transform);
 
     return true;
 }
 
-bool D2DRenderer::Brush(const D2DBrush& brush)
+void D2DRenderer::Brush(const D2DBrush& brush)
 {
-    if (this->brush)
-    {
-        this->brush->Release();
-    }
-
     this->brush = brush;
-    if (this->brush)
-    {
-        this->brush->AddRef();
-    }
-
-    return this->brush ? true : false;
 }
 
 void D2DRenderer::From(float x, float y)
@@ -260,12 +212,12 @@ void D2DRenderer::From(const D2DPoint& point)
 
 bool D2DRenderer::LineTo(float x, float y)
 {
-    if (!this->target || !this->brush)
+    if (!this->itf || !this->brush)
     {
         return false;
     }
 
-    this->target->DrawLine(D2D1::Point2F(this->x, this->y), D2D1::Point2F(x, y), this->brush, this->width, this->style);
+    this->itf->DrawLine(D2D1::Point2F(this->x, this->y), D2D1::Point2F(x, y), this->brush, this->stroke.Width(), this->stroke);
 
     this->x = x;
     this->y = y;
@@ -280,35 +232,23 @@ bool D2DRenderer::LineTo(const D2DPoint& point)
 
 void D2DRenderer::Stroke(const D2DStroke& stroke)
 {
-    this->width = stroke.Width();
-
-    if (this->style)
-    {
-        this->style->Release();
-    }
-
-    this->style = stroke;
-
-    if (this->style)
-    {
-        this->style->AddRef();
-    }
+    this->stroke = stroke;
 }
 
 bool D2DRenderer::Draw(const D2DRectangle& rectangle) const
 {
-    if (!this->target || !this->brush)
+    if (!this->itf || !this->brush)
     {
         return false;
     }
 
     if (((D2D1_ROUNDED_RECT&)rectangle).radiusX || ((D2D1_ROUNDED_RECT&)rectangle).radiusY)
     {
-        this->target->DrawRoundedRectangle(rectangle, this->brush, this->width, this->style);
+        this->itf->DrawRoundedRectangle(rectangle, this->brush, this->stroke.Width(), this->stroke);
     }
     else
     {
-        this->target->DrawRectangle(rectangle, this->brush, this->width, this->style);
+        this->itf->DrawRectangle(rectangle, this->brush, this->stroke.Width(), this->stroke);
     }
 
     return true;
@@ -316,24 +256,24 @@ bool D2DRenderer::Draw(const D2DRectangle& rectangle) const
 
 bool D2DRenderer::Draw(const D2D1_ELLIPSE& ellipse) const
 {
-    if (!this->target || !this->brush)
+    if (!this->itf || !this->brush)
     {
         return false;
     }
 
-    this->target->DrawEllipse(ellipse, this->brush, this->width, this->style);
+    this->itf->DrawEllipse(ellipse, this->brush, this->stroke.Width(), this->stroke);
 
     return true;
 }
 
 bool D2DRenderer::Draw(const D2DBitmap& bitmap, const D2D1_RECT_F& rectangle, float opacity) const
 {
-    if (!this->target || !bitmap)
+    if (!this->itf || !bitmap)
     {
         return false;
     }
 
-    this->target->DrawBitmap(bitmap, rectangle, opacity);
+    this->itf->DrawBitmap(bitmap, rectangle, opacity);
 
     return true;
 }
@@ -345,18 +285,18 @@ bool D2DRenderer::Draw(const D2DBitmap& bitmap, float x, float y, float cx, floa
 
 bool D2DRenderer::Fill(const D2DRectangle& rectangle) const
 {
-    if (!this->target || !this->brush)
+    if (!this->itf || !this->brush)
     {
         return false;
     }
 
     if (((D2D1_ROUNDED_RECT&)rectangle).radiusX || ((D2D1_ROUNDED_RECT&)rectangle).radiusY)
     {
-        this->target->FillRoundedRectangle(rectangle, this->brush);
+        this->itf->FillRoundedRectangle(rectangle, this->brush);
     }
     else
     {
-        this->target->FillRectangle(rectangle, this->brush);
+        this->itf->FillRectangle(rectangle, this->brush);
     }
 
     return true;
@@ -364,30 +304,19 @@ bool D2DRenderer::Fill(const D2DRectangle& rectangle) const
 
 bool D2DRenderer::Fill(const D2D1_ELLIPSE& ellipse) const
 {
-    if (!this->target || !this->brush)
+    if (!this->itf || !this->brush)
     {
         return false;
     }
 
-    this->target->FillEllipse(ellipse, this->brush);
+    this->itf->FillEllipse(ellipse, this->brush);
 
     return true;
 }
 
-bool D2DRenderer::Format(const D2DFormat& format)
+void D2DRenderer::Format(const D2DFormat& format)
 {
-    if (this->format)
-    {
-        this->format->Release();
-    }
-
     this->format = format;
-    if (this->format)
-    {
-        this->format->AddRef();
-    }
-
-    return this->format ? true : false;
 }
 
 bool D2DRenderer::Text(const wstring& text, const D2D1_RECT_F& rectangle) const
@@ -402,12 +331,12 @@ bool D2DRenderer::Text(const wstring& text, float x, float y, float w, float h) 
 
 bool D2DRenderer::Text(const wchar_t* text, const D2D1_RECT_F& rectangle) const
 {
-    if (!this->target || !this->brush || !this->format)
+    if (!this->itf || !this->brush || !this->format)
     {
         return false;
     }
 
-    this->target->DrawText(text, (UINT32)wcslen(text), this->format, rectangle, this->brush);
+    this->itf->DrawText(text, (UINT32)wcslen(text), this->format, rectangle, this->brush);
     return true;
 }
 
@@ -423,19 +352,19 @@ bool D2DRenderer::Clear(COLORREF rgb, float opacity)
 
 bool D2DRenderer::Clear(UCHAR r, UCHAR g, UCHAR b, float opacity)
 {
-    if (!this->target)
+    if (!this->itf)
     {
         return false;
     }
 
-    this->target->Clear(D2D1::ColorF(RGB(b, g, r), opacity));
+    this->itf->Clear(D2D1::ColorF(RGB(b, g, r), opacity));
 
     return true;
 }
 
 D2DBitmap D2DRenderer::CreateBitmap(int width, int height)
 {
-    if (!this->target)
+    if (!this->itf)
     {
         return D2DBitmap();
     }
@@ -444,7 +373,7 @@ D2DBitmap D2DRenderer::CreateBitmap(int width, int height)
     height = max(0, height);
 
     ID2D1Bitmap* bitmap;
-    if (FAILED(this->target->CreateBitmap(D2D1::SizeU(width, height), D2D1::BitmapProperties(this->target->GetPixelFormat()), &bitmap)))
+    if (FAILED(this->itf->CreateBitmap(D2D1::SizeU(width, height), D2D1::BitmapProperties(this->itf->GetPixelFormat()), &bitmap)))
     {
         return D2DBitmap();
     }
@@ -460,13 +389,13 @@ D2DBrush D2DRenderer::CreateSolidBrush(COLORREF rgb, float opacity)
 
 D2DBrush D2DRenderer::CreateSolidBrush(UCHAR r, UCHAR g, UCHAR b, float opacity)
 {
-    if (!this->target)
+    if (!this->itf)
     {
         return D2DBrush();
     }
 
     ID2D1SolidColorBrush* brush;
-    if (FAILED(this->target->CreateSolidColorBrush(D2D1::ColorF(RGB(b, g, r), opacity), &brush)))
+    if (FAILED(this->itf->CreateSolidColorBrush(D2D1::ColorF(RGB(b, g, r), opacity), &brush)))
     {
         return D2DBrush();
     }
@@ -477,7 +406,7 @@ D2DBrush D2DRenderer::CreateSolidBrush(UCHAR r, UCHAR g, UCHAR b, float opacity)
 
 D2DBrush D2DRenderer::CreateBitmapBrush(const D2DBitmap& bitmap, float opacity, D2D1_BITMAP_INTERPOLATION_MODE interpolation, D2D1_EXTEND_MODE xMode, D2D1_EXTEND_MODE yMode)
 {
-    if (!this->target)
+    if (!this->itf)
     {
         return D2DBrush();
     }
@@ -492,7 +421,7 @@ D2DBrush D2DRenderer::CreateBitmapBrush(const D2DBitmap& bitmap, float opacity, 
     brushProperties.transform = D2D1::Matrix3x2F::Identity();
 
     ID2D1BitmapBrush* brush;
-    if (FAILED(this->target->CreateBitmapBrush(bitmap, &bitmapProperties, &brushProperties, &brush)))
+    if (FAILED(this->itf->CreateBitmapBrush(bitmap, &bitmapProperties, &brushProperties, &brush)))
     {
         return D2DBrush();
     }
@@ -639,10 +568,6 @@ void D2DBrush::Transform(const D2D1_MATRIX_3X2_F& transform)
     }
 }
 
-D2DStroke::D2DStroke(float width) : width(width)
-{
-}
-
 D2DStroke::D2DStroke(const D2DStroke& other)
 {
     *this = other;
@@ -662,6 +587,11 @@ D2DStroke& D2DStroke::operator=(const D2DStroke& other)
 float D2DStroke::Width() const
 {
     return this->width;
+}
+
+void D2DStroke::Width(float width)
+{
+    this->width = width;
 }
 
 D2DFormat D2DFormat::Create(const wchar_t* family, float size, DWRITE_FONT_WEIGHT weight, DWRITE_FONT_STYLE style, DWRITE_FONT_STRETCH stretch)

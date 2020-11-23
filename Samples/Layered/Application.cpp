@@ -22,6 +22,12 @@ bool Application::OnCreated()
         return false;
     }
 
+    this->renderer = DDCRenderer::Create();
+    if (!this->renderer)
+    {
+        return false;
+    }
+
     this->Resize(400, 400);
 
     this->RegisterMessage(WM_MOUSEMOVE, [this]
@@ -63,17 +69,7 @@ void Application::Update()
 {
     auto w = this->ClientWidth();
     auto h = this->ClientHeight();
-
-    if (w <= 0 || h <= 0)
-    {
-        return;
-    }
-
-    if (this->dc.Width() != w || this->dc.Height() != h)
-    {
-        this->dc = D2DDc(w, h);
-        this->renderer = DDCRenderer::Create(this->dc);
-    }
+    this->renderer.ResizeTarget(w, h);
 
     if (this->renderer.BeginPaint())
     {
@@ -99,7 +95,7 @@ void Application::Update()
         UPDATELAYEREDWINDOWINFO ulwi = {};
         ulwi.cbSize  = sizeof(ulwi);
         ulwi.psize   = &size;
-        ulwi.hdcSrc  = this->dc;
+        ulwi.hdcSrc  = this->renderer.GetDC();
         ulwi.pptSrc  = &sp;
         ulwi.pptDst  = &dp;
         ulwi.pblend  = &blend;

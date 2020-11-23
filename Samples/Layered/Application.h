@@ -15,7 +15,5 @@ private:
 
 private:
     POINT pos;
-
-    D2DDc dc;
     DDCRenderer renderer;
 };

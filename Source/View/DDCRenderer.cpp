@@ -1,21 +1,8 @@
 #include "DDCRenderer.h"
 #include "Cleanup.h"
 
-DDCRenderer DDCRenderer::Create(HDC hdc)
+DDCRenderer DDCRenderer::Create()
 {
-    if (!hdc)
-    {
-        return DDCRenderer();
-    }
-
-    BITMAP bmp = {0};
-    GetObjectA(GetCurrentObject(hdc, OBJ_BITMAP), sizeof(bmp), &bmp);
-
-    if (bmp.bmWidth <= 0 || bmp.bmHeight <= 0)
-    {
-        return DDCRenderer();
-    }
-
     if (!AddRefFactories())
     {
         return DDCRenderer();
@@ -35,31 +22,54 @@ DDCRenderer DDCRenderer::Create(HDC hdc)
     }
     ONCLEANUP(target, [target]{ target->Release(); });
 
-    RECT rect{ 0, 0, bmp.bmWidth, bmp.bmHeight };
-    if (FAILED(target->BindDC(hdc, &rect)))
-    {
-        return DDCRenderer();
-    }
-
     return DDCRenderer(target);
 }
 
-DDCRenderer::DDCRenderer() : D2DRenderer()
+DDCRenderer::DDCRenderer(const DDCRenderer& other) : D2DRenderer(other)
 {
 }
 
-DDCRenderer::DDCRenderer(DDCRenderer&& other)
-{
-    *this = std::move(other);
-}
-
-DDCRenderer::DDCRenderer(ID2D1RenderTarget* target) : D2DRenderer(target)
+DDCRenderer::DDCRenderer(ID2D1DCRenderTarget* target) : D2DRenderer(target)
 {
 }
 
-DDCRenderer& DDCRenderer::operator=(DDCRenderer&& other)
+bool DDCRenderer::ResizeTarget(int width, int height)
 {
-    *(D2DRenderer*)this = (D2DRenderer&&)other;
+    if (!this->itf)
+    {
+        return false;
+    }
+
+    if (this->dc.Width() != width || this->dc.Height() != height)
+    {
+        ID2D1DCRenderTarget* target;
+        if (FAILED(this->itf->QueryInterface(IID_PPV_ARGS(&target))))
+        {
+            return false;
+        }
+        ONCLEANUP(target, [target]{ target->Release(); });
+
+        this->dc = D2DDc(width, height);
+        RECT r = { 0, 0, width, height };
+
+        if (FAILED(target->BindDC(this->dc, &r)))
+        {
+            this->dc = D2DDc();
+            return false;
+        }
+    }
+
+    return true;
+}
+
+HDC DDCRenderer::GetDC() const
+{
+    return (::HDC)this->dc;
+}
+
+DDCRenderer& DDCRenderer::operator=(const DDCRenderer& other)
+{
+    *(D2DRenderer*)this = other;
     return *this;
 }
 

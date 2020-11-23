@@ -31,13 +31,18 @@ private:
 class DDCRenderer : public D2DRenderer
 {
 public:
-    static DDCRenderer Create(HDC hdc);
+    static DDCRenderer Create();
 
-    DDCRenderer();
-    DDCRenderer(DDCRenderer&& other);
-    DDCRenderer(ID2D1RenderTarget* target);
-    DDCRenderer(const DDCRenderer&) = delete;
+    DDCRenderer() = default;
+    DDCRenderer(const DDCRenderer&);
+    DDCRenderer(ID2D1DCRenderTarget*);
 
-    DDCRenderer& operator=(DDCRenderer&& other);
-    DDCRenderer& operator=(const DDCRenderer&) = delete;
+    bool ResizeTarget(int width, int height);
+
+    HDC GetDC() const;
+
+    DDCRenderer& operator=(const DDCRenderer&);
+
+private:
+    D2DDc dc;
 };
