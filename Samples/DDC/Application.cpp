@@ -1,8 +1,4 @@
 #include "Application.h"
-#include "D2DRenderer.h"
-#include <vector>
-
-using namespace std;
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR, int nCmdShow)
 {
@@ -20,7 +16,7 @@ bool Application::OnCreated()
         return false;
     }
 
-    this->renderer = D2DRenderer::Create(this->Handle());
+    this->renderer = DDCRenderer::Create();
     if (!this->renderer)
     {
         return false;
@@ -39,7 +35,7 @@ bool Application::OnCreated()
     this->bkgrd = this->renderer.CreateBitmapBrush(bitmap, 1.0f, D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR);
     this->bkgrd.Transform(D2D1::Matrix3x2F::Scale(D2D1::SizeF(16, 16)));
 
-    this->Caption(L"D2D");
+    this->Caption(L"DDC");
     this->ResizeClient(400, 400);
 
     return true;
@@ -47,6 +43,9 @@ bool Application::OnCreated()
 
 void Application::OnPaint()
 {
+    PAINTSTRUCT ps = {0};
+    auto hdc = BeginPaint(this->Handle(), &ps);
+
     if (this->renderer.BeginPaint())
     {
         int w = this->ClientWidth();
@@ -79,12 +78,14 @@ void Application::OnPaint()
         
         this->renderer.Brush(this->green);
         this->renderer.Format(this->format);
-        this->renderer.Text(L"D2D", 0.f, 0.f, (float)w, 40.f);
+        this->renderer.Text(L"DDC", 0.f, 0.f, (float)w, 40.f);
 
         this->renderer.EndPaint();
+
+        BitBlt(hdc, 0, 0, this->ClientWidth(), this->ClientHeight(), this->renderer.GetDC(), 0, 0, SRCCOPY);
     }
-    
-    MainWindow::OnPaint();
+
+    EndPaint(this->Handle(), &ps);
 }
 
 void Application::OnSize()
