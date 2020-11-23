@@ -1,6 +1,7 @@
 #pragma once
 
 #include "MainWindow.h"
+#include "DDCRenderer.h"
 
 class Application : public MainWindow
 {
@@ -23,4 +24,6 @@ private:
     int  length;
     bool sizing;
     bool vertical;
+
+    DDCRenderer renderer;
 };

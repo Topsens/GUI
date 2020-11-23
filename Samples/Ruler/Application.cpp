@@ -1,5 +1,4 @@
 #include "Application.h"
-#include "DDCRenderer.h"
 
 #define EDGE (10)
 
@@ -17,6 +16,12 @@ Application::Application(HINSTANCE instance) : MainWindow(instance), color(0)
 bool Application::OnCreated()
 {
     if (!MainWindow::OnCreated())
+    {
+        return false;
+    }
+
+    this->renderer = DDCRenderer::Create();
+    if (!this->renderer)
     {
         return false;
     }
@@ -225,35 +230,33 @@ void Application::Update()
 {
     int w = this->ClientWidth();
     int h = this->ClientHeight();
+    this->renderer.ResizeTarget(w, h);
 
-    auto dc = D2DDc(w, h);
-    auto renderer = DDCRenderer::Create(dc);
-
-    if (renderer.BeginPaint())
+    if (this->renderer.BeginPaint())
     {
-        renderer.Clear(RGB(0, 0, 0), 0.1f);
+        this->renderer.Clear(RGB(0, 0, 0), 0.1f);
 
-        renderer.Brush(renderer.CreateSolidBrush(Colors[this->color]));
+        this->renderer.Brush(this->renderer.CreateSolidBrush(Colors[this->color]));
 
         if (this->vertical)
         {
             this->length = h - 2 * EDGE;
 
-            renderer.From(EDGE, EDGE - .5f);
-            renderer.LineTo((float)w - EDGE, EDGE - .5f);
+            this->renderer.From(EDGE, EDGE - .5f);
+            this->renderer.LineTo((float)w - EDGE, EDGE - .5f);
 
-            renderer.From(EDGE, EDGE + this->length + .5f);
-            renderer.LineTo((float)w - EDGE, EDGE + this->length + .5f);
+            this->renderer.From(EDGE, EDGE + this->length + .5f);
+            this->renderer.LineTo((float)w - EDGE, EDGE + this->length + .5f);
         }
         else
         {
             this->length = w - 2 * EDGE;
 
-            renderer.From(EDGE - .5f, EDGE);
-            renderer.LineTo(EDGE - .5f, (float)h - EDGE);
+            this->renderer.From(EDGE - .5f, EDGE);
+            this->renderer.LineTo(EDGE - .5f, (float)h - EDGE);
 
-            renderer.From(EDGE + this->length + .5f, EDGE);
-            renderer.LineTo(EDGE + this->length + .5f, (float)h - EDGE);
+            this->renderer.From(EDGE + this->length + .5f, EDGE);
+            this->renderer.LineTo(EDGE + this->length + .5f, (float)h - EDGE);
         }
 
         auto format = D2DFormat::Create(L"Segoe UI", 10);
@@ -261,11 +264,11 @@ void Application::Update()
         {
             format.TextAlign(DWRITE_TEXT_ALIGNMENT_CENTER);
             format.ParaAlign(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
-            renderer.Format(format);
-            renderer.Text(std::to_wstring(this->length), 0, 0, (float)w, (float)h);
+            this->renderer.Format(format);
+            this->renderer.Text(std::to_wstring(this->length), 0, 0, (float)w, (float)h);
         }
         
-        renderer.EndPaint();
+        this->renderer.EndPaint();
 
         auto sp = POINT{ 0, 0 };
         auto dp = POINT{ this->X(), this->Y() };
@@ -278,7 +281,7 @@ void Application::Update()
         UPDATELAYEREDWINDOWINFO ulwi = {};
         ulwi.cbSize  = sizeof(ulwi);
         ulwi.psize   = &size;
-        ulwi.hdcSrc  = dc;
+        ulwi.hdcSrc  = this->renderer.GetDC();
         ulwi.pptSrc  = &sp;
         ulwi.pptDst  = &dp;
         ulwi.pblend  = &blend;
