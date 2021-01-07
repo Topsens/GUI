@@ -314,6 +314,7 @@ protected:
 
     static std::mutex mutex;
 
+    static int             factoryRef;
     static ID2D1Factory*   d2d1Factory;
     static IDWriteFactory* dwriteFactory;
 };

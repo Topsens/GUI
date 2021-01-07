@@ -8,6 +8,7 @@
 using namespace std;
 
 std::mutex D2DRenderer::mutex;
+int D2DRenderer::factoryRef = 0;
 ID2D1Factory*   D2DRenderer::d2d1Factory   = nullptr;
 IDWriteFactory* D2DRenderer::dwriteFactory = nullptr;
 
@@ -453,6 +454,8 @@ bool D2DRenderer::AddRefFactories()
         }
     }
 
+    D2DRenderer::factoryRef++;
+
     return true;
 }
 
@@ -462,13 +465,12 @@ void D2DRenderer::ReleaseFactories()
 
     if (D2DRenderer::d2d1Factory)
     {
-        if (!D2DRenderer::d2d1Factory->Release())
-        {
-            D2DRenderer::d2d1Factory = nullptr;
-        }
+        D2DRenderer::d2d1Factory->Release();
+        D2DRenderer::dwriteFactory->Release();
 
-        if (!D2DRenderer::dwriteFactory->Release())
+        if (!(--factoryRef))
         {
+            D2DRenderer::d2d1Factory   = nullptr;
             D2DRenderer::dwriteFactory = nullptr;
         }
     }
