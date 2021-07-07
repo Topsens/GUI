@@ -134,6 +134,19 @@ inline Vector<Scalar, Dimensions> operator/(const Vector<Scalar, Dimensions>& ve
 }
 
 template<typename Scalar, int Dimensions>
+inline Vector<Scalar, Dimensions> operator-(const Vector<Scalar, Dimensions>& vector)
+{
+    Vector<Scalar, Dimensions> result;
+
+    for (auto i = 0; i < Dimensions; i++)
+    {
+        result.v[i] = -vector.v[i];
+    }
+
+    return result;
+}
+
+template<typename Scalar, int Dimensions>
 inline Vector<Scalar, Dimensions>& operator+=(Vector<Scalar, Dimensions>& first, const Vector<Scalar, Dimensions>& second)
 {
     for (auto i = 0; i < Dimensions; i++)
