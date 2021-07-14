@@ -432,7 +432,7 @@ struct Quaternion : public Vector<Scalar, 4>
 
     inline Quaternion<Scalar> Inverse() const
     {
-        return Quaternion<Scalar>{ -this->v[0], -this->v[1], -this->v[2], this->v[3] };
+        return Quaternion<Scalar>{ this->v[0], this->v[1], this->v[2], -this->v[3] };
     }
 
     inline Quaternion<Scalar> operator*(const Quaternion& other) const
