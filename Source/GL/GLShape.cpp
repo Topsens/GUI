@@ -4,7 +4,7 @@
 
 using namespace std;
 
-GLShape::GLShape() : ibo(GL_ELEMENT_ARRAY_BUFFER), vbo(GL_ARRAY_BUFFER), nbo(GL_ARRAY_BUFFER), cbo(GL_ARRAY_BUFFER), mode(GL_TRIANGLES), parent(nullptr)
+GLShape::GLShape() : ebo(GL_ELEMENT_ARRAY_BUFFER), vbo(GL_ARRAY_BUFFER), nbo(GL_ARRAY_BUFFER), cbo(GL_ARRAY_BUFFER), mode(GL_TRIANGLES), parent(nullptr)
 {
     this->Position = { 0.f, 0.f, 0.f };
     this->Rotation = { 0.f, 0.f, 0.f, 0.f };
@@ -23,7 +23,7 @@ bool GLShape::Indices(const GLuint* indices, int count)
         return false;
     }
 
-    return this->ibo.Data(indices, count * sizeof(*indices), GL_STATIC_DRAW);
+    return this->ebo.Data(indices, count * sizeof(*indices), GL_STATIC_DRAW);
 }
 
 bool GLShape::Vertices(const Vertex* vertices, int count)
@@ -101,10 +101,10 @@ void GLShape::Render()
 
         this->material.Apply();
 
-        auto ic = this->ApplyIndices();
-        if (ic)
+        auto ec = this->ebo.Size() / sizeof(GLuint);
+        if (ec)
         {
-            glDrawElements(this->mode, ic, GL_UNSIGNED_INT, 0);
+            glDrawElements(this->mode, (GLsizei)ec, GL_UNSIGNED_INT, 0);
         }
         else
         {
@@ -113,7 +113,6 @@ void GLShape::Render()
 
         this->material.Revoke();
     
-        this->RevokeIndices();
         this->RevokeTexture();
         this->RevokeTexCoords();
         this->RevokeNormals();
@@ -139,7 +138,7 @@ void GLShape::Release()
     this->nbo.Release();
     this->cbo.Release();
     this->vbo.Release();
-    this->ibo.Release();
+    this->ebo.Release();
 }
 
 bool GLShape::HasChild() const
@@ -174,23 +173,13 @@ void GLShape::RemoveChild(const GLShape* child)
     this->children.erase(std::find(this->children.begin(), this->children.end(), child));
 }
 
-GLint GLShape::ApplyIndices()
-{
-    if (this->ibo)
-    {
-        return this->ibo.Size() / sizeof(GLuint);
-    }
-
-    return 0;
-}
-
 GLint GLShape::ApplyVertices()
 {
     if (this->vbo)
     {
         this->vbo.Bind();
-        glVertexPointer(3, GL_FLOAT, 0, 0);
-        glEnableClientState(GL_VERTEX_ARRAY);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+        glEnableVertexAttribArray(0);
         return this->vbo.Size() / sizeof(Vertex);
     }
 
@@ -235,16 +224,12 @@ void GLShape::ApplyTexture()
     }
 }
 
-void GLShape::RevokeIndices()
-{
-}
-
 void GLShape::RevokeVertices()
 {
     if (this->vbo)
     {
         this->vbo.Bind();
-        glDisableClientState(GL_VERTEX_ARRAY);
+        glDisableVertexAttribArray(0);
     }
 }
 

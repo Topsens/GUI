@@ -31,20 +31,18 @@ public:
     void RemoveChild(const GLShape* child);
 
 protected:
-    GLint ApplyIndices();
-    GLint ApplyVertices();
-    GLint ApplyNormals();
-    GLint ApplyTexCoords();
-    void  ApplyTexture();
+    virtual GLint ApplyVertices();
+    virtual GLint ApplyNormals();
+    virtual GLint ApplyTexCoords();
+    virtual void  ApplyTexture();
 
-    void RevokeIndices();
-    void RevokeVertices();
-    void RevokeNormals();
-    void RevokeTexCoords();
-    void RevokeTexture();
+    virtual void RevokeVertices();
+    virtual void RevokeNormals();
+    virtual void RevokeTexCoords();
+    virtual void RevokeTexture();
 
     GLenum mode;
-    GLBuffer ibo, vbo, nbo, cbo;
+    GLBuffer ebo, vbo, nbo, cbo;
     GLTexture  texture;
     GLMaterial material;
 

@@ -42,9 +42,13 @@ bool GLBuffer::Data(const void* data, GLsizeiptr size, GLenum usage)
 
 GLint GLBuffer::Size() const
 {
-    this->Bind();
+    GLint size = 0;
 
-    GLint size;
-    glGetBufferParameteriv(this->target, GL_BUFFER_SIZE, &size);
+    if (this->buffer)
+    {
+        this->Bind();
+        glGetBufferParameteriv(this->target, GL_BUFFER_SIZE, &size);
+    }
+    
     return size;
 }
