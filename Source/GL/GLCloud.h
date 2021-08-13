@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GLObject.h"
+#include "GLBuffer.h"
 #include "GLTexture.h"
 #include <vector>
 
@@ -8,7 +9,6 @@ class GLCloud : public GLObject
 {
 public:
     GLCloud();
-    virtual ~GLCloud();
 
     bool Vertices(const Vertex* vertices, int count);
     bool TexCoords(const Coordinate* coordinates, int count);
@@ -24,13 +24,13 @@ public:
     virtual void Render();
 
 protected:
-    GLint ApplyVertices();
-    void  RevokeVertices();
-    GLint ApplyCoordinates();
-    void  RevokeCoordinates();
+    virtual GLint ApplyVertices();
+    virtual void  RevokeVertices();
+    virtual GLint ApplyTexCoords();
+    virtual void  RevokeTexCoords();
 
 protected:
     float pointSize;
-    GLuint vbo, cbo;
+    GLBuffer vbo, cbo;
     GLTexture texture;
 };

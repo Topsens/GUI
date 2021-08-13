@@ -1,15 +1,10 @@
 #include "GLCloud.h"
 
-GLCloud::GLCloud() : vbo(0), cbo(0), pointSize(1.f)
+GLCloud::GLCloud() : vbo(GL_ARRAY_BUFFER), cbo(GL_ARRAY_BUFFER), pointSize(1.f)
 {
     this->Position = { 0.f, 0.f, 0.f };
     this->Rotation = { 0.f, 0.f, 0.f, 0.f };
     this->Scaling  = { 1.f, 1.f, 1.f };
-}
-
-GLCloud::~GLCloud()
-{
-    this->Release();
 }
 
 bool GLCloud::Vertices(const Vertex* vertices, int count)
@@ -19,20 +14,7 @@ bool GLCloud::Vertices(const Vertex* vertices, int count)
         return false;
     }
 
-    if (this->vbo)
-    {
-        glDeleteBuffers(1, &this->vbo);
-    }
-
-    glGenBuffers(1, &this->vbo);
-    if (!this->vbo)
-    {
-        return false;
-    }
-
-    glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
-    glBufferData(GL_ARRAY_BUFFER, count * sizeof(*vertices), vertices, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    this->vbo.Data(vertices, count * sizeof(*vertices), GL_STATIC_DRAW);
 
     return true;
 }
@@ -44,41 +26,19 @@ bool GLCloud::TexCoords(const Coordinate* coordinates, int count)
         return false;
     }
 
-    if (this->cbo)
-    {
-        glDeleteBuffers(1, &this->cbo);
-    }
-
-    glGenBuffers(1, &this->cbo);
-
-    if (!this->cbo)
-    {
-        return false;
-    }
-
-    glBindBuffer(GL_ARRAY_BUFFER, this->cbo);
-    glBufferData(GL_ARRAY_BUFFER, count * sizeof(*coordinates), coordinates, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    this->cbo.Data(coordinates, count * sizeof(*coordinates), GL_STATIC_DRAW);
 
     return true;
 }
 
 void GLCloud::ClearVertices()
 {
-    if (this->vbo)
-    {
-        glDeleteBuffers(1, &this->vbo);
-        this->vbo = 0;
-    }
+    this->vbo.Release();
 }
 
 void GLCloud::ClearTexCoords()
 {
-    if (this->cbo)
-    {
-        glDeleteBuffers(1, &this->cbo);
-        this->cbo = 0;
-    }
+    this->cbo.Release();
 }
 
 void GLCloud::Release()
@@ -106,79 +66,68 @@ void GLCloud::PointSize(float size)
 void GLCloud::Render()
 {
     auto count = this->ApplyVertices();
-    this->ApplyCoordinates();
-    this->texture.Apply();
+    if (count)
+    {
+        this->ApplyTexCoords();
+        this->texture.Apply();
 
-    glPushMatrix();
+        glPushMatrix();
 
-    glTranslatef(this->Position[0], this->Position[1], this->Position[2]);
-    glRotatef(this->Rotation[3], this->Rotation[0], this->Rotation[1], this->Rotation[2]);
-    glScalef(this->Scaling[0], this->Scaling[1], this->Scaling[2]);
+        glTranslatef(this->Position[0], this->Position[1], this->Position[2]);
+        glRotatef(this->Rotation[3], this->Rotation[0], this->Rotation[1], this->Rotation[2]);
+        glScalef(this->Scaling[0], this->Scaling[1], this->Scaling[2]);
 
-    glPointSize(this->pointSize);
-    glDrawArrays(GL_POINTS, 0, count);
+        glPointSize(this->pointSize);
+        glDrawArrays(GL_POINTS, 0, count);
 
-    glPopMatrix();
+        glPopMatrix();
 
-    this->texture.Revoke();
-    this->RevokeCoordinates();
-    this->RevokeVertices();
+        this->texture.Revoke();
+        this->RevokeTexCoords();
+        this->RevokeVertices();
+    }
 }
 
 GLint GLCloud::ApplyVertices()
 {
     if (this->vbo)
     {
-        GLint count;
-        glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
-        glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &count);
-        glVertexPointer(3, GL_FLOAT, 0, 0);
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-        return count;
+        this->vbo.Bind();
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+        glEnableVertexAttribArray(0);
+        return this->vbo.Size() / sizeof(Vertex);
     }
-    else
-    {
-        return 0;
-    }
+    
+    return 0;
 }
 
 void GLCloud::RevokeVertices()
 {
     if (this->vbo)
     {
-        glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
-        glDisableClientState(GL_VERTEX_ARRAY);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        this->vbo.Bind();
+        glDisableVertexAttribArray(0);
     }
 }
 
-GLint GLCloud::ApplyCoordinates()
+GLint GLCloud::ApplyTexCoords()
 {
     if (this->cbo)
     {
-        GLint count;
-        glBindBuffer(GL_ARRAY_BUFFER, this->cbo);
-        glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &count);
+        this->cbo.Bind();
         glTexCoordPointer(2, GL_FLOAT, 0, 0);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        return this->cbo.Size() / sizeof(Coordinate);
+    }
 
-        return count;
-    }
-    else
-    {
-        return 0;
-    }
+    return 0;
 }
 
-void GLCloud::RevokeCoordinates()
+void GLCloud::RevokeTexCoords()
 {
     if (this->cbo)
     {
-        glBindBuffer(GL_ARRAY_BUFFER, this->cbo);
+        this->cbo.Bind();
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 }

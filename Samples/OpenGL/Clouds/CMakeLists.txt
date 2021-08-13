@@ -24,6 +24,7 @@ add_executable(${PROJECT_NAME}
                ${View}/View.cpp
                ${View}/Window.cpp
 
+               ${GL}/GLBuffer.cpp
                ${GL}/GLCamera.cpp
                ${GL}/GLCloud.cpp
                ${GL}/GLLight.cpp
@@ -32,4 +33,6 @@ add_executable(${PROJECT_NAME}
                ${GL}/GLTexture.cpp
                ${GL}/GLWindow.cpp)
 
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/${glew}/bin/${CMAKE_VS_PLATFORM_NAME}/glew32.dll" "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/")
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/${glew}/bin/${CMAKE_VS_PLATFORM_NAME}/glew32.dll" "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/"
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/cloud.txt" "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/")
