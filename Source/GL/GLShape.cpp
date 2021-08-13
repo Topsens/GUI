@@ -4,7 +4,7 @@
 
 using namespace std;
 
-GLShape::GLShape() : ibo(0), vbo(0), nbo(0), cbo(0), mode(GL_TRIANGLES), parent(nullptr)
+GLShape::GLShape() : ibo(GL_ELEMENT_ARRAY_BUFFER), vbo(GL_ARRAY_BUFFER), nbo(GL_ARRAY_BUFFER), cbo(GL_ARRAY_BUFFER), mode(GL_TRIANGLES), parent(nullptr)
 {
     this->Position = { 0.f, 0.f, 0.f };
     this->Rotation = { 0.f, 0.f, 0.f, 0.f };
@@ -23,22 +23,7 @@ bool GLShape::Indices(const GLuint* indices, int count)
         return false;
     }
 
-    if (this->ibo)
-    {
-        glDeleteBuffers(1, &this->ibo);
-    }
-
-    glGenBuffers(1, &this->ibo);
-    if (!this->ibo)
-    {
-        return false;
-    }
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ibo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(*indices), indices, GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    return true;
+    return this->ibo.Data(indices, count * sizeof(*indices), GL_STATIC_DRAW);
 }
 
 bool GLShape::Vertices(const Vertex* vertices, int count)
@@ -48,22 +33,7 @@ bool GLShape::Vertices(const Vertex* vertices, int count)
         return false;
     }
 
-    if (this->vbo)
-    {
-        glDeleteBuffers(1, &this->vbo);
-    }
-
-    glGenBuffers(1, &this->vbo);
-    if (!this->vbo)
-    {
-        return false;
-    }
-
-    glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
-    glBufferData(GL_ARRAY_BUFFER, count * sizeof(*vertices), vertices, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    return true;
+    return this->vbo.Data(vertices, count * sizeof(*vertices), GL_STATIC_DRAW);
 }
 
 bool GLShape::Normals(const Normal* normals, int count)
@@ -73,22 +43,7 @@ bool GLShape::Normals(const Normal* normals, int count)
         return false;
     }
 
-    if (this->nbo)
-    {
-        glDeleteBuffers(1, &this->nbo);
-    }
-
-    glGenBuffers(1, &this->nbo);
-    if (!this->nbo)
-    {
-        return false;
-    }
-
-    glBindBuffer(GL_ARRAY_BUFFER, this->nbo);
-    glBufferData(GL_ARRAY_BUFFER, count * sizeof(*normals), normals, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    return true;
+    return this->nbo.Data(normals, count * sizeof(*normals), GL_STATIC_DRAW);
 }
 
 bool GLShape::TexCoords(const Coordinate* coords, int count)
@@ -98,22 +53,7 @@ bool GLShape::TexCoords(const Coordinate* coords, int count)
         return false;
     }
 
-    if (this->cbo)
-    {
-        glDeleteBuffers(1, &this->cbo);
-    }
-
-    glGenBuffers(1, &this->cbo);
-    if (!this->cbo)
-    {
-        return false;
-    }
-
-    glBindBuffer(GL_ARRAY_BUFFER, this->cbo);
-    glBufferData(GL_ARRAY_BUFFER, count * sizeof(*coords), coords, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    return true;
+    return this->cbo.Data(coords, count * sizeof(*coords), GL_STATIC_DRAW);
 }
 
 GLenum GLShape::Mode()
@@ -196,29 +136,10 @@ void GLShape::Release()
     }
     this->children.clear();
 
-    if (this->nbo)
-    {
-        glDeleteBuffers(1, &this->nbo);
-        this->nbo = 0;
-    }
-
-    if (this->cbo)
-    {
-        glDeleteBuffers(1, &this->cbo);
-        this->cbo = 0;
-    }
-
-    if (this->vbo)
-    {
-        glDeleteBuffers(1, &this->vbo);
-        this->vbo = 0;
-    }
-
-    if (this->ibo)
-    {
-        glDeleteBuffers(1, &this->ibo);
-        this->ibo = 0;
-    }
+    this->nbo.Release();
+    this->cbo.Release();
+    this->vbo.Release();
+    this->ibo.Release();
 }
 
 bool GLShape::HasChild() const
@@ -257,10 +178,7 @@ GLint GLShape::ApplyIndices()
 {
     if (this->ibo)
     {
-        GLint size;
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ibo);
-        glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
-        return size / sizeof(GLuint);
+        return this->ibo.Size() / sizeof(GLuint);
     }
 
     return 0;
@@ -270,13 +188,10 @@ GLint GLShape::ApplyVertices()
 {
     if (this->vbo)
     {
-        GLint size;
-        glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
-        glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+        this->vbo.Bind();
         glVertexPointer(3, GL_FLOAT, 0, 0);
         glEnableClientState(GL_VERTEX_ARRAY);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        return size / sizeof(Vertex);
+        return this->vbo.Size() / sizeof(Vertex);
     }
 
     return 0;
@@ -286,13 +201,10 @@ GLint GLShape::ApplyNormals()
 {
     if (this->nbo)
     {
-        GLint size;
-        glBindBuffer(GL_ARRAY_BUFFER, this->nbo);
-        glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+        this->nbo.Bind();
         glNormalPointer(GL_FLOAT, 0, 0);
         glEnableClientState(GL_NORMAL_ARRAY);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        return size / sizeof(Normal);
+        return this->nbo.Size() / sizeof(Normal);
     }
 
     return 0;
@@ -302,13 +214,10 @@ GLint GLShape::ApplyTexCoords()
 {
     if (this->cbo)
     {
-        GLint size;
-        glBindBuffer(GL_ARRAY_BUFFER, this->cbo);
-        glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+        this->cbo.Bind();
         glTexCoordPointer(2, GL_FLOAT, 0, 0);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        return size / sizeof(Coordinate);
+        return this->cbo.Size() / sizeof(Coordinate);
     }
 
     return 0;
@@ -328,19 +237,14 @@ void GLShape::ApplyTexture()
 
 void GLShape::RevokeIndices()
 {
-    if (this->ibo)
-    {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    }
 }
 
 void GLShape::RevokeVertices()
 {
     if (this->vbo)
     {
-        glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
+        this->vbo.Bind();
         glDisableClientState(GL_VERTEX_ARRAY);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 }
 
@@ -348,9 +252,8 @@ void GLShape::RevokeNormals()
 {
     if (this->nbo)
     {
-        glBindBuffer(GL_ARRAY_BUFFER, this->nbo);
+        this->nbo.Bind();
         glDisableClientState(GL_NORMAL_ARRAY);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 }
 
@@ -358,9 +261,8 @@ void GLShape::RevokeTexCoords()
 {
     if (this->cbo)
     {
-        glBindBuffer(GL_ARRAY_BUFFER, this->cbo);
+        this->cbo.Bind();
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 }
 

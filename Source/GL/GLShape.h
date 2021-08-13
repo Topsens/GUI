@@ -1,5 +1,6 @@
 #pragma once
 #include "GLObject.h"
+#include "GLBuffer.h"
 #include "GLTexture.h"
 #include "GLMaterial.h"
 #include <vector>
@@ -43,7 +44,7 @@ protected:
     void RevokeTexture();
 
     GLenum mode;
-    GLuint ibo, vbo, nbo, cbo;
+    GLBuffer ibo, vbo, nbo, cbo;
     GLTexture  texture;
     GLMaterial material;
 

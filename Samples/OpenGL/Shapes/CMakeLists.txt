@@ -34,6 +34,7 @@ add_executable(${PROJECT_NAME}
                ${View}/View.cpp
                ${View}/Window.cpp
 
+               ${GL}/GLBuffer.cpp
                ${GL}/GLCamera.cpp
                ${GL}/GLCloud.cpp
                ${GL}/GLLight.cpp
