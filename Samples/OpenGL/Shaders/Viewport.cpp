@@ -3,6 +3,10 @@
 
 using namespace std;
 
+Viewport::Viewport() : triangle(this->program)
+{
+}
+
 bool Viewport::OnCreated()
 {
     if (!GLWindow::OnCreated())
@@ -24,6 +28,7 @@ bool Viewport::OnCreated()
 
 void Viewport::OnDestroy()
 {
+    this->triangle.Release();
     this->program.Release();
     GLWindow::OnDestroy();
 }
@@ -55,7 +60,7 @@ bool Viewport::OnContextCreated()
         return false;
     }
 
-    this->triangle.Create(&this->program);
+    this->triangle.Create();
 
     return true;
 }

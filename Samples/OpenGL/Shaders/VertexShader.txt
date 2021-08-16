@@ -4,8 +4,12 @@ uniform mat4 ModelView;
 uniform mat4 Projection;
 
 layout (location = 0) in vec3 vtx;
+layout (location = 1) in vec3 clr;
+
+out vec4 color;
 
 void main()
 {
     gl_Position = Projection * ModelView * vec4(vtx, 1.f);
+    color = vec4(clr, 1.f);
 }

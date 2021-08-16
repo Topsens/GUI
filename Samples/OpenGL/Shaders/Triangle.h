@@ -1,15 +1,23 @@
 #pragma once
 
 #include "GLShape.h"
-#include "GLProgram.h"
+#include "Program.h"
 
 class Triangle : public GLShape
 {
 public:
-    void Create(GLProgram* program);
+    Triangle(Program& program);
+
+    void Create();
+    void Release() override;
+    
+    bool Colors(const Vector<float, 3>* colors, int count);
 
 protected:
+    int  ApplyVertices() override;
+    void RevokeVertices() override;
     void ApplyProgram() override;
 
-    GLProgram* program;
+    Program& program;
+    GLBuffer cbo;
 };

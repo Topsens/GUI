@@ -7,6 +7,9 @@
 
 class Viewport : public GLWindow
 {
+public:
+    Viewport();
+    
 protected:
     bool OnCreated() override;
     void OnDestroy() override;
