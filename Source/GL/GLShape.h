@@ -35,6 +35,7 @@ protected:
     virtual GLint ApplyNormals();
     virtual GLint ApplyTexCoords();
     virtual void  ApplyTexture();
+    virtual void  ApplyProgram();
 
     virtual void RevokeVertices();
     virtual void RevokeNormals();

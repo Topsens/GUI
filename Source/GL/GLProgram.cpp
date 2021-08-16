@@ -22,6 +22,11 @@ void GLProgram::Release()
     }
 }
 
+void GLProgram::Use()
+{
+    glUseProgram(this->program);
+}
+
 void GLProgram::Attach(const GLShader& shader)
 {
     glAttachShader(this->program, shader);
@@ -62,11 +67,6 @@ bool GLProgram::Link()
     return !!status;
 }
 
-void GLProgram::Use()
-{
-    glUseProgram(this->program);
-}
-
 void GLProgram::BindAttribLocation(GLuint index, const string& name)
 {
     glBindAttribLocation(this->program, index, name.c_str());
@@ -85,4 +85,54 @@ void GLProgram::BindFragDataLocation(GLuint index, const string& name)
 GLint GLProgram::GetFragDataLocation(const string& name)
 {
     return glGetFragDataLocation(this->program, name.c_str());
+}
+
+bool GLProgram::UniformV4f(const string& name, const Vector<float, 4>& value)
+{
+    if (!this->program)
+    {
+        return false;
+    }
+
+    GLint program;
+    glGetIntegerv(GL_CURRENT_PROGRAM, &program);
+
+    if (program != this->program)
+    {
+        return false;
+    }
+
+    auto loc = glGetUniformLocation(this->program, name.c_str());
+    if (loc < 0)
+    {
+        return false;
+    }
+
+    glUniform4f(loc, value[0], value[1], value[2], value[3]);
+    return true;
+}
+
+bool GLProgram::UniformM4f(const string& name, const Matrix<float, 4>& value)
+{
+    if (!this->program)
+    {
+        return false;
+    }
+
+    GLint program;
+    glGetIntegerv(GL_CURRENT_PROGRAM, &program);
+
+    if (program != this->program)
+    {
+        return false;
+    }
+
+    auto loc = glGetUniformLocation(this->program, name.c_str());
+    if (loc < 0)
+    {
+        return false;
+    }
+
+    glUniformMatrix4fv(loc, 1, GL_FALSE, value);
+    return true;
 }

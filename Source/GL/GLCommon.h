@@ -41,6 +41,13 @@ struct Vector
     Scalar v[Dimensions];
 
     Vector() = default;
+    Vector(Scalar v)
+    {
+        for (auto i = 0; i < Dimensions; i++)
+        {
+            this->v[i] = v;
+        }
+    }
     Vector(const Scalar* v)
     {
         for (auto i = 0; i < Dimensions; i++)
@@ -508,6 +515,46 @@ Quaternion<Scalar> Quaternion<Scalar>::Identity = { 0, 0, 0, 1 };
 typedef Vector<float, 3> Vertex;
 typedef Vector<float, 3> Normal;
 typedef Vector<float, 2> Coordinate;
+
+template<typename Scalar, int Dimensions>
+struct Matrix
+{
+    Vector<Scalar, Dimensions> v[Dimensions];
+
+    Matrix() = default;
+    Matrix(const Scalar* v)
+    {
+        for (int i = 0; i < Dimensions; i++)
+        {
+            this->v[i] = v + i * Dimensions;
+        }
+    }
+    Matrix(const std::initializer_list<Vector<Scalar, Dimensions>>& list)
+    {
+        auto l = list.begin();
+        for (int i = 0; i < Dimensions; i++)
+        {
+            this->v[i] = (list.end() == l) ? Vector<float, Dimensions>((Scalar)0) : *l++;
+        }
+    }
+
+    inline Vector<Scalar, Dimensions>& operator[](int index)
+    {
+        return this->v[index];
+    }
+    inline const Vector<Scalar, Dimensions>& operator[](int index) const
+    {
+        return this->v[index];
+    }
+    inline operator Scalar*()
+    {
+        return this->v[0];
+    }
+    inline operator const Scalar*() const
+    {
+        return this->v[0];
+    }
+};
 
 template<typename T, size_t N>
 char(&_ArraySizeHelper(T(&array)[N]))[N];

@@ -98,6 +98,7 @@ void GLShape::Render()
         this->ApplyNormals();
         this->ApplyTexCoords();
         this->ApplyTexture();
+        this->ApplyProgram();
 
         this->material.Apply();
 
@@ -222,6 +223,10 @@ void GLShape::ApplyTexture()
     {
         this->parent->ApplyTexture();
     }
+}
+
+void GLShape::ApplyProgram()
+{
 }
 
 void GLShape::RevokeVertices()

@@ -1,0 +1,11 @@
+#version 400 core
+
+uniform mat4 ModelView;
+uniform mat4 Projection;
+
+layout (location = 0) in vec3 vtx;
+
+void main()
+{
+    gl_Position = Projection * ModelView * vec4(vtx, 1.f);
+}

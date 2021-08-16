@@ -5,14 +5,20 @@ GLTexture::GLTexture()
 {
 }
 
-GLTexture::~GLTexture()
+bool GLTexture::Create()
 {
     this->Release();
+    glGenTextures(1, &this->tex);
+    return !!this->tex;
 }
 
-GLTexture::operator bool() const
+void GLTexture::Release()
 {
-    return this->tex ? true : false;
+    if (this->tex)
+    {
+        glDeleteTextures(1, &this->tex);
+        this->tex = 0;
+    }
 }
 
 void GLTexture::Mode(GLuint envMode)
@@ -32,22 +38,16 @@ void GLTexture::Wrap(GLuint wrapS, GLuint wrapT)
     this->wrapT = wrapT;
 }
 
-
-bool GLTexture::Set(const unsigned char* pixels, int width, int height, int size, GLenum format)
+bool GLTexture::Data(const unsigned char* pixels, int width, int height, int size, GLenum format)
 {
     if (!pixels || width <= 0 || height <= 0 || size <= 0)
     {
         return false;
     }
 
-    if (!this->tex)
+    if (!this->tex && !this->Create())
     {
-        glGenTextures(1, &this->tex);
-
-        if (!this->tex)
-        {
-            return false;
-        }
+        return false;
     }
 
     GLint internalFormat;
@@ -55,40 +55,27 @@ bool GLTexture::Set(const unsigned char* pixels, int width, int height, int size
     {
         case GL_RGB:
         case GL_BGR:
+        {
             internalFormat = GL_RGB;
             break;
+        }
 
         case GL_RGBA:
         case GL_BGRA:
+        {
             internalFormat = GL_RGBA;
             break;
-
-        // case ...:
+        }
 
         default:
             return false;
     }
 
     glBindTexture(GL_TEXTURE_2D, this->tex);
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, this->envMode);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, this->wrapS);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, this->wrapT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, this->minFilter);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, this->magFilter);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, pixels);
-    glBindTexture(GL_TEXTURE_2D, 0);
 
     return true;
-}
-
-void GLTexture::Clear()
-{
-    if (this->tex)
-    {
-        glDeleteTextures(1, &this->tex);
-        this->tex = 0;
-    }
 }
 
 void GLTexture::Apply()
@@ -96,6 +83,11 @@ void GLTexture::Apply()
     if (this->tex)
     {
         glBindTexture(GL_TEXTURE_2D, this->tex);
+        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, this->envMode);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, this->wrapS);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, this->wrapT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, this->minFilter);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, this->magFilter);
         glEnable(GL_TEXTURE_2D);
     }
 }
@@ -107,9 +99,4 @@ void GLTexture::Revoke()
         glDisable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
-}
-
-void GLTexture::Release()
-{
-    this->Clear();
 }

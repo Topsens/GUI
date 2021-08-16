@@ -7,18 +7,25 @@ class GLTexture
 {
 public:
     GLTexture();
-   ~GLTexture();
 
-    operator bool() const;
+    bool Create();
 
     void Mode(GLuint envMode);
     void Filter(GLuint minFilter, GLuint magFilter);
     void Wrap(GLuint wrapS, GLuint wrapT);
-    bool Set(const unsigned char* pixels, int width, int height, int size, GLenum format);
-    void Clear();
+    bool Data(const unsigned char* pixels, int width, int height, int size, GLenum format);
     void Apply();
     void Revoke();
     void Release();
+
+    operator bool() const
+    {
+        return !!this->tex;
+    }
+    operator GLuint() const
+    {
+        return this->tex;
+    }
 
 private:
     GLuint envMode;
