@@ -16,9 +16,9 @@ GLShape::~GLShape()
     this->Release();
 }
 
-bool GLShape::Indices(const Index* indices, int count)
+bool GLShape::Indices(const Index* indices, size_t count)
 {
-    if (!indices || count <= 0)
+    if (!indices || !count)
     {
         return false;
     }
@@ -26,9 +26,9 @@ bool GLShape::Indices(const Index* indices, int count)
     return this->ebo.Data(indices, count * sizeof(*indices), GL_STATIC_DRAW);
 }
 
-bool GLShape::Vertices(const Vertex* vertices, int count)
+bool GLShape::Vertices(const Vertex* vertices, size_t count)
 {
-    if (!vertices || count <= 0)
+    if (!vertices || !count)
     {
         return false;
     }
@@ -43,9 +43,9 @@ bool GLShape::Vertices(const Vertex* vertices, int count)
     return true;
 }
 
-bool GLShape::Normals(const Normal* normals, int count)
+bool GLShape::Normals(const Normal* normals, size_t count)
 {
-    if (!normals || count <= 0)
+    if (!normals || !count)
     {
         return false;
     }
@@ -61,9 +61,9 @@ bool GLShape::Normals(const Normal* normals, int count)
     return true;
 }
 
-bool GLShape::TexCoords(const Coordinate* coords, int count)
+bool GLShape::TexCoords(const Coordinate* coords, size_t count)
 {
-    if (!coords || count <= 0)
+    if (!coords || !count)
     {
         return false;
     }
@@ -131,7 +131,7 @@ void GLShape::Render()
         }
         else
         {
-            glDrawArrays(this->mode, 0, vc);
+            glDrawArrays(this->mode, 0, (GLsizei)vc);
         }
 
         this->material.Revoke();
@@ -196,7 +196,7 @@ void GLShape::RemoveChild(const GLShape* child)
     this->children.erase(std::find(this->children.begin(), this->children.end(), child));
 }
 
-GLint GLShape::ApplyVertices()
+size_t GLShape::ApplyVertices()
 {
     if (this->vbo)
     {
@@ -208,7 +208,7 @@ GLint GLShape::ApplyVertices()
     return 0;
 }
 
-GLint GLShape::ApplyNormals()
+size_t GLShape::ApplyNormals()
 {
     if (this->nbo)
     {
@@ -220,7 +220,7 @@ GLint GLShape::ApplyNormals()
     return 0;
 }
 
-GLint GLShape::ApplyTexCoords()
+size_t GLShape::ApplyTexCoords()
 {
     if (this->cbo)
     {

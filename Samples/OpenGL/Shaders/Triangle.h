@@ -14,9 +14,9 @@ public:
     bool Colors(const Vector<float, 3>* colors, int count);
 
 protected:
-    int  ApplyVertices() override;
-    void RevokeVertices() override;
-    void ApplyProgram() override;
+    size_t ApplyVertices() override;
+    void   RevokeVertices() override;
+    void   ApplyProgram() override;
 
     Program& program;
     GLBuffer cbo;

@@ -42,7 +42,7 @@ bool Triangle::Colors(const Vector<float, 3>* colors, int count)
     return true;
 }
 
-int Triangle::ApplyVertices()
+size_t Triangle::ApplyVertices()
 {
     auto c = GLShape::ApplyVertices();
     if (c)

@@ -11,10 +11,10 @@ public:
     GLShape();
     virtual ~GLShape();
 
-    bool Indices(const Index* indices, int count);
-    bool Vertices(const Vertex* vertices, int count);
-    bool Normals(const Normal* normals, int count);
-    bool TexCoords(const Coordinate* coords, int count);
+    bool Indices(const Index* indices, size_t count);
+    bool Vertices(const Vertex* vertices, size_t count);
+    bool Normals(const Normal* normals, size_t count);
+    bool TexCoords(const Coordinate* coords, size_t count);
 
     GLenum Mode();
     void Mode(GLenum);
@@ -31,11 +31,11 @@ public:
     void RemoveChild(const GLShape* child);
 
 protected:
-    virtual GLint ApplyVertices();
-    virtual GLint ApplyNormals();
-    virtual GLint ApplyTexCoords();
-    virtual void  ApplyTexture();
-    virtual void  ApplyProgram();
+    virtual size_t ApplyVertices();
+    virtual size_t ApplyNormals();
+    virtual size_t ApplyTexCoords();
+    virtual void   ApplyTexture();
+    virtual void   ApplyProgram();
 
     virtual void RevokeVertices();
     virtual void RevokeNormals();
