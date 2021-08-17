@@ -16,7 +16,7 @@ GLShape::~GLShape()
     this->Release();
 }
 
-bool GLShape::Indices(const GLuint* indices, int count)
+bool GLShape::Indices(const Index* indices, int count)
 {
     if (!indices || count <= 0)
     {

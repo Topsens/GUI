@@ -4,6 +4,7 @@
 #include <initializer_list>
 #include <cfloat>
 #include <cmath>
+#include <cstdint>
 
 template<typename Scalar>
 inline Scalar sqrtx(Scalar s)
@@ -512,6 +513,7 @@ struct Quaternion : public Vector<Scalar, 4>
 template<typename Scalar>
 Quaternion<Scalar> Quaternion<Scalar>::Identity = { 0, 0, 0, 1 };
 
+typedef Vector<uint32_t, 3> Index;
 typedef Vector<float, 3> Vertex;
 typedef Vector<float, 3> Normal;
 typedef Vector<float, 2> Coordinate;
