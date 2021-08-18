@@ -2,7 +2,7 @@
 #include <gl/glew.h>
 
 GLCamera::GLCamera()
-  : perspective(true), rotate(0.f), hfov(90.f), orthWidth(1.f)
+  : perspective(true), rotate(0.f), vfov(45.f), orthHeight(1.f)
 {
     this->clip = { 0.f, 0.f };
     this->lookAt = { 0.f, 0.f, 0.f };
@@ -19,14 +19,14 @@ void GLCamera::IsPerspective(bool isPerspective)
     this->perspective = isPerspective;
 }
 
-void GLCamera::HorizontalFov(float hfov)
+void GLCamera::OrthogonalHeight(float height)
 {
-    this->hfov = hfov;
+    this->orthHeight = height;
 }
 
-void GLCamera::OrthogonalWidth(float width)
+void GLCamera::VerticalFov(float vfov)
 {
-    this->orthWidth = width;
+    this->vfov = vfov;
 }
 
 void GLCamera::Position(float x, float y, float z)
@@ -90,16 +90,13 @@ void GLCamera::SetProject(int width, int height)
 
     if (this->perspective)
     {
-        auto focal = ((float)width / 2.f) / tanf(ToRadian(this->hfov / 2.f));
-        auto vfov  = ToDegree(atanf((float)height / focal / 2.f)) * 2.f;
-
         gluPerspective(vfov, (double)width / (double)height, this->clip[0], this->clip[1]);
     }
     else
     {
         auto l = Length(this->position - this->lookAt);
-        auto orthHeight = orthWidth / width * height;
-        glOrtho(-.5f * orthWidth, .5f * orthWidth, -.5f * orthHeight, .5f * orthHeight, this->clip[0] - l, this->clip[1] - l);
+        auto orthWidth = width * orthHeight / height;
+        glOrtho(-.5f * orthHeight, .5f * orthHeight, -.5f * orthHeight, .5f * orthHeight, this->clip[0] - l, this->clip[1] - l);
     }
 }
 
