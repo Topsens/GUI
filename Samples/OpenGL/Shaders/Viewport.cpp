@@ -3,7 +3,7 @@
 
 using namespace std;
 
-Viewport::Viewport() : triangle(this->program)
+Viewport::Viewport() : triangle0(this->program0), triangle1(this->program1)
 {
 }
 
@@ -28,8 +28,10 @@ bool Viewport::OnCreated()
 
 void Viewport::OnDestroy()
 {
-    this->triangle.Release();
-    this->program.Release();
+    this->triangle0.Release();
+    this->triangle1.Release();
+    this->program0.Release();
+    this->program1.Release();
     GLWindow::OnDestroy();
 }
 
@@ -38,7 +40,10 @@ void Viewport::OnPaint()
     if (this->AttachContext())
     {
         this->scene.Begin(this->ClientWidth(), this->ClientHeight());
-        this->triangle.Render();
+        this->triangle0.Position = Vertex{ -1, 0, 0 };
+        this->triangle1.Position = Vertex{  1, 0, 0 };
+        this->triangle0.Render();
+        this->triangle1.Render();
         this->scene.End();
         this->DetachContext();
     }
@@ -54,13 +59,14 @@ bool Viewport::OnContextCreated()
     }
 
     string log;
-    if (!this->program.Create() ||
-        !this->program.Link(log))
+    if (!this->program0.Create(L"VertexShader.txt", L"FragmentShader0.txt") || !this->program0.Link(log) ||
+        !this->program1.Create(L"VertexShader.txt", L"FragmentShader1.txt") || !this->program1.Link(log))
     {
         return false;
     }
 
-    this->triangle.Create();
+    this->triangle0.Create();
+    this->triangle1.Create();
 
     return true;
 }

@@ -19,6 +19,8 @@ protected:
 
 private:
     GLScene scene;
-    Program program;
-    Triangle triangle;
+    Program program0;
+    Program program1;
+    Triangle triangle0;
+    Triangle triangle1;
 };

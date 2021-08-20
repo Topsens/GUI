@@ -5,7 +5,7 @@
 class Program : public GLProgram
 {
 public:
-    bool Create() override;
+    bool Create(const std::wstring& vshader, const std::wstring& fshader);
     void Release() override;
 
 private:
