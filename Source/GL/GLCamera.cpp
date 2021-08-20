@@ -2,7 +2,7 @@
 #include <gl/glew.h>
 
 GLCamera::GLCamera()
-  : perspective(true), rotate(0.f), vfov(45.f), orthHeight(1.f)
+  : perspective(true), rotate(0.f), vfov(45.f), focal(0.f), orthHeight(1.f)
 {
     this->clip = { 0.f, 0.f };
     this->lookAt = { 0.f, 0.f, 0.f };
@@ -19,14 +19,39 @@ void GLCamera::IsPerspective(bool isPerspective)
     this->perspective = isPerspective;
 }
 
-void GLCamera::OrthogonalHeight(float height)
+bool GLCamera::OrthogonalHeight(float height)
 {
+    if (height <= 0.f)
+    {
+        return false;
+    }
+
     this->orthHeight = height;
+    return true;
 }
 
-void GLCamera::VerticalFov(float vfov)
+bool GLCamera::VerticalFov(float vfov)
 {
+    if (vfov <= 0.f)
+    {
+        return false;
+    }
+
     this->vfov = vfov;
+    this->focal = 0.f;
+    return true;
+}
+
+bool GLCamera::Focal(float focal)
+{
+    if (focal <= 0.f)
+    {
+        return false;
+    }
+
+    this->focal = focal;
+    this->vfov = 0.f;
+    return true;
 }
 
 void GLCamera::Position(float x, float y, float z)
@@ -90,6 +115,17 @@ void GLCamera::SetProject(int width, int height)
 
     if (this->perspective)
     {
+        float vfov;
+
+        if (this->focal > 0.f)
+        {
+            vfov = ToDegree(atanf(height * .5f / this->focal)) * 2.f;
+        }
+        else
+        {
+            vfov = this->vfov;
+        }
+
         gluPerspective(vfov, (double)width / (double)height, this->clip[0], this->clip[1]);
     }
     else

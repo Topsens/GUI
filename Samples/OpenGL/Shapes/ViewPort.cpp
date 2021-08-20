@@ -173,6 +173,7 @@ bool ViewPort::OnCreated()
     l1.Position(0.f, 0.f, 5.f, 1.f);
 
     this->scene.Camera().Clip(0.01f, 100.f);
+    this->scene.Camera().Focal(616.f);
 
     return true;
 }

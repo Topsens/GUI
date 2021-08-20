@@ -11,8 +11,9 @@ public:
 
     bool IsPerspective() const;
     void IsPerspective(bool isPerspective);
-    void OrthogonalHeight(float height);
-    void VerticalFov(float vfov);
+    bool OrthogonalHeight(float height);
+    bool VerticalFov(float vfov);
+    bool Focal(float focal);
     void Position(float x, float y, float z);
     void Position(const Vector<float, 3>& position);
     void LookAt(float x, float y, float z);
@@ -38,6 +39,7 @@ private:
 
     float rotate;
     float vfov;
+    float focal;
     float orthHeight;
     bool  perspective;
 };
