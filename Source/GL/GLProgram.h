@@ -22,6 +22,7 @@ public:
     void  BindFragDataLocation(GLuint index, const std::string& name);
     GLint GetFragDataLocation(const std::string& name);
 
+    bool UniformV3f(const std::string& name, const Vector<float, 3>& value);
     bool UniformV4f(const std::string& name, const Vector<float, 4>& value);
     bool UniformM4f(const std::string& name, const Matrix<float, 4>& value);
 

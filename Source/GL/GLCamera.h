@@ -4,8 +4,6 @@
 
 class GLCamera
 {
-    friend class GLScene;
-
 public:
     GLCamera();
 
@@ -28,7 +26,6 @@ public:
 
     float Rotate() const;
 
-private:
     void SetProject(int width, int height);
     void SetLookAt();
 

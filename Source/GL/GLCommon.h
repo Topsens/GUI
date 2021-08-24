@@ -334,8 +334,10 @@ struct Vector<Scalar, 2>
         return ::Normalize(*this);
     }
 
-    static Vector<Scalar, 2> XAxis, YAxis;
+    static Vector<Scalar, 2> Zero, XAxis, YAxis;
 };
+template<typename Scalar>
+Vector<Scalar, 2> Vector<Scalar, 2>::Zero  = { 0, 0 };
 template<typename Scalar>
 Vector<Scalar, 2> Vector<Scalar, 2>::XAxis = { 1, 0 };
 template<typename Scalar>
@@ -411,8 +413,10 @@ struct Vector<Scalar, 3>
         return ::Normalize(*this);
     }
 
-    static Vector<Scalar, 3> XAxis, YAxis, ZAxis;
+    static Vector<Scalar, 3> Zero, XAxis, YAxis, ZAxis;
 };
+template<typename Scalar>
+Vector<Scalar, 3> Vector<Scalar, 3>::Zero  = { 0, 0, 0 };
 template<typename Scalar>
 Vector<Scalar, 3> Vector<Scalar, 3>::XAxis = { 1, 0, 0 };
 template<typename Scalar>

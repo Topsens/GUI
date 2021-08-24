@@ -33,14 +33,7 @@ bool GLShape::Vertices(const Vertex* vertices, size_t count)
         return false;
     }
 
-    if (!this->vbo.Data(vertices, count * sizeof(*vertices), GL_STATIC_DRAW))
-    {
-        return false;
-    }
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
-
-    return true;
+    return this->vbo.Data(vertices, count * sizeof(*vertices), GL_STATIC_DRAW);
 }
 
 bool GLShape::Normals(const Normal* normals, size_t count)
@@ -50,15 +43,7 @@ bool GLShape::Normals(const Normal* normals, size_t count)
         return false;
     }
 
-
-    if (!this->nbo.Data(normals, count * sizeof(*normals), GL_STATIC_DRAW))
-    {
-        return false;
-    }
-
-    glNormalPointer(GL_FLOAT, 0, 0);
-
-    return true;
+    return this->nbo.Data(normals, count * sizeof(*normals), GL_STATIC_DRAW);
 }
 
 bool GLShape::TexCoords(const Coordinate* coords, size_t count)
@@ -68,14 +53,7 @@ bool GLShape::TexCoords(const Coordinate* coords, size_t count)
         return false;
     }
 
-    if (!this->cbo.Data(coords, count * sizeof(*coords), GL_STATIC_DRAW))
-    {
-        return false;
-    }
-    
-    glTexCoordPointer(2, GL_FLOAT, 0, 0);
-
-    return true;
+    return this->cbo.Data(coords, count * sizeof(*coords), GL_STATIC_DRAW);
 }
 
 GLenum GLShape::Mode()
@@ -201,6 +179,7 @@ size_t GLShape::ApplyVertices()
     if (this->vbo)
     {
         this->vbo.Bind();
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
         glEnableVertexAttribArray(0);
         return this->vbo.Size() / sizeof(Vertex);
     }
@@ -213,6 +192,7 @@ size_t GLShape::ApplyNormals()
     if (this->nbo)
     {
         this->nbo.Bind();
+        glNormalPointer(GL_FLOAT, 0, 0);
         glEnableClientState(GL_NORMAL_ARRAY);
         return this->nbo.Size() / sizeof(Normal);
     }
@@ -225,6 +205,7 @@ size_t GLShape::ApplyTexCoords()
     if (this->cbo)
     {
         this->cbo.Bind();
+        glTexCoordPointer(2, GL_FLOAT, 0, 0);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
         return this->cbo.Size() / sizeof(Coordinate);
     }

@@ -87,6 +87,31 @@ GLint GLProgram::GetFragDataLocation(const string& name)
     return glGetFragDataLocation(this->program, name.c_str());
 }
 
+bool GLProgram::UniformV3f(const string& name, const Vector<float, 3>& value)
+{
+    if (!this->program)
+    {
+        return false;
+    }
+
+    GLint program;
+    glGetIntegerv(GL_CURRENT_PROGRAM, &program);
+
+    if (program != this->program)
+    {
+        return false;
+    }
+
+    auto loc = glGetUniformLocation(this->program, name.c_str());
+    if (loc < 0)
+    {
+        return false;
+    }
+
+    glUniform3f(loc, value[0], value[1], value[2]);
+    return true;
+}
+
 bool GLProgram::UniformV4f(const string& name, const Vector<float, 4>& value)
 {
     if (!this->program)
