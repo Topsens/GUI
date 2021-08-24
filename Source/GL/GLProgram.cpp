@@ -87,22 +87,21 @@ GLint GLProgram::GetFragDataLocation(const string& name)
     return glGetFragDataLocation(this->program, name.c_str());
 }
 
+bool GLProgram::Uniform1i(const string& name, int value)
+{
+    auto loc = this->UniformLocInUse(name);
+    if (loc < 0)
+    {
+        return false;
+    }
+
+    glUniform1i(loc, value);
+    return true;
+}
+
 bool GLProgram::UniformV3f(const string& name, const Vector<float, 3>& value)
 {
-    if (!this->program)
-    {
-        return false;
-    }
-
-    GLint program;
-    glGetIntegerv(GL_CURRENT_PROGRAM, &program);
-
-    if (program != this->program)
-    {
-        return false;
-    }
-
-    auto loc = glGetUniformLocation(this->program, name.c_str());
+    auto loc = this->UniformLocInUse(name);
     if (loc < 0)
     {
         return false;
@@ -114,20 +113,7 @@ bool GLProgram::UniformV3f(const string& name, const Vector<float, 3>& value)
 
 bool GLProgram::UniformV4f(const string& name, const Vector<float, 4>& value)
 {
-    if (!this->program)
-    {
-        return false;
-    }
-
-    GLint program;
-    glGetIntegerv(GL_CURRENT_PROGRAM, &program);
-
-    if (program != this->program)
-    {
-        return false;
-    }
-
-    auto loc = glGetUniformLocation(this->program, name.c_str());
+    auto loc = this->UniformLocInUse(name);
     if (loc < 0)
     {
         return false;
@@ -139,20 +125,7 @@ bool GLProgram::UniformV4f(const string& name, const Vector<float, 4>& value)
 
 bool GLProgram::UniformM4f(const string& name, const Matrix<float, 4>& value)
 {
-    if (!this->program)
-    {
-        return false;
-    }
-
-    GLint program;
-    glGetIntegerv(GL_CURRENT_PROGRAM, &program);
-
-    if (program != this->program)
-    {
-        return false;
-    }
-
-    auto loc = glGetUniformLocation(this->program, name.c_str());
+    auto loc = this->UniformLocInUse(name);
     if (loc < 0)
     {
         return false;
@@ -160,4 +133,21 @@ bool GLProgram::UniformM4f(const string& name, const Matrix<float, 4>& value)
 
     glUniformMatrix4fv(loc, 1, GL_FALSE, value);
     return true;
+}
+
+GLint GLProgram::UniformLocInUse(const string& name)
+{
+    if (!this->program)
+    {
+        return -1;
+    }
+
+    GLint program;
+    glGetIntegerv(GL_CURRENT_PROGRAM, &program);
+    if (program != this->program)
+    {
+        return -1;
+    }
+
+    return glGetUniformLocation(this->program, name.c_str());
 }
