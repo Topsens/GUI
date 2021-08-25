@@ -11,7 +11,7 @@ public:
     GLShape();
     virtual ~GLShape();
 
-    bool Indices(const Index* indices, size_t count);
+    bool Elements(const Element* elements, size_t count);
     bool Vertices(const Vertex* vertices, size_t count);
     bool Normals(const Normal* normals, size_t count);
     bool TexCoords(const Coordinate* coords, size_t count);

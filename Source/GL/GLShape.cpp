@@ -16,14 +16,14 @@ GLShape::~GLShape()
     this->Release();
 }
 
-bool GLShape::Indices(const Index* indices, size_t count)
+bool GLShape::Elements(const Element* elements, size_t count)
 {
-    if (!indices || !count)
+    if (!elements || !count)
     {
         return false;
     }
 
-    return this->ebo.Data(indices, count * sizeof(*indices), GL_STATIC_DRAW);
+    return this->ebo.Data(elements, count * sizeof(*elements), GL_STATIC_DRAW);
 }
 
 bool GLShape::Vertices(const Vertex* vertices, size_t count)
@@ -179,8 +179,8 @@ size_t GLShape::ApplyVertices()
     if (this->vbo)
     {
         this->vbo.Bind();
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
-        glEnableVertexAttribArray(0);
+        glVertexPointer(3, GL_FLOAT, 0, 0);
+        glEnableClientState(GL_VERTEX_ARRAY);
         return this->vbo.Size() / sizeof(Vertex);
     }
 
@@ -234,7 +234,7 @@ void GLShape::RevokeVertices()
     if (this->vbo)
     {
         this->vbo.Bind();
-        glDisableVertexAttribArray(0);
+        glDisableClientState(GL_VERTEX_ARRAY);
     }
 }
 

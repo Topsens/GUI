@@ -517,7 +517,7 @@ struct Quaternion : public Vector<Scalar, 4>
 template<typename Scalar>
 Quaternion<Scalar> Quaternion<Scalar>::Identity = { 0, 0, 0, 1 };
 
-typedef Vector<uint32_t, 3> Index;
+typedef Vector<uint32_t, 3> Element;
 typedef Vector<float, 3> Vertex;
 typedef Vector<float, 3> Normal;
 typedef Vector<float, 2> Coordinate;

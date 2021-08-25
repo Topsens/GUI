@@ -53,7 +53,7 @@ Donut::Donut()
     this->Normals(normals.data(), (int)normals.size());
     this->TexCoords(texCoords.data(), (int)texCoords.size());
 
-    vector<Index> indices;
+    vector<Element> elements;
     for (int i = 0; i < Pieces; i++)
     {
         int off0 = i * COUNTOF(baseVertices);
@@ -61,9 +61,9 @@ Donut::Donut()
 
         for (uint32_t j = 0; j < COUNTOF(baseVertices); j++)
         {
-            indices.push_back(Index{ off0 + j, off1 + j, off0 + j + 1});
-            indices.push_back(Index{ off1 + j, off1 + j + 1, off0 + j + 1 });
+            elements.push_back(Element{ off0 + j, off1 + j, off0 + j + 1});
+            elements.push_back(Element{ off1 + j, off1 + j + 1, off0 + j + 1 });
         }
     }
-    this->Indices(indices.data(), (int)indices.size());
+    this->Elements(elements.data(), (int)elements.size());
 }
