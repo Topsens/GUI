@@ -37,26 +37,26 @@ bool Triangle::Colors(const Vector<float, 3>* colors, int count)
         return false;
     }
 
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(colors[0]), 0);
-
     return true;
 }
 
 size_t Triangle::ApplyVertices()
 {
-    auto c = GLShape::ApplyVertices();
-    if (c)
-    {
-        this->cbo.Bind();
-        glEnableVertexAttribArray(1);
-    }
+    this->vbo.Bind();
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+    glEnableVertexAttribArray(0);
 
-    return c;
+    this->cbo.Bind();
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+    glEnableVertexAttribArray(1);
+
+    return this->vbo.Size() / sizeof(Vertex);
 }
 
 void Triangle::RevokeVertices()
 {
-    GLShape::RevokeVertices();
+    this->vbo.Bind();
+    glDisableVertexAttribArray(0);
 
     this->cbo.Bind();
     glDisableVertexAttribArray(1);
