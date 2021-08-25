@@ -16,76 +16,77 @@ ViewPort::ViewPort() : shape(nullptr)
 
 void ViewPort::CreateShape(int shape)
 {
-    this->AttachContext();
-
-    GLShape* s = nullptr;
-
-    switch (shape)
+    if (this->AttachContext())
     {
-        case IDC_TRIANGLE:
+        GLShape* s = nullptr;
+
+        switch (shape)
         {
-            s = new Triangle();
-            break;
+            case IDC_TRIANGLE:
+            {
+                s = new Triangle();
+                break;
+            }
+
+            case IDC_SQUARE:
+            {
+                s = new Square();
+                break;
+            }
+
+            case IDC_CIRCLE:
+            {
+                s = new Circle();
+                break;
+            }
+
+            case IDC_CUBE:
+            {
+                s = new Cube();
+                break;
+            }
+
+            case IDC_CYLINDER:
+            {
+                s = new Cylinder();
+                break;
+            }
+
+            case IDC_SPHERE:
+            {
+                s = new Sphere();
+                break;
+            }
+
+            case IDC_DONUT:
+            {
+                s = new Donut();
+                break;
+            }
+
+            default:
+                break;
         }
 
-        case IDC_SQUARE:
+        if (s)
         {
-            s = new Square();
-            break;
+            Texture tex(L"Portrait.png");
+            s->Texture().Data(tex.Pixels(), tex.Width(), tex.Height(), tex.Width() * tex.Height() * 4, GL_BGRA);
+
+            if (this->shape)
+            {
+                this->shape->Release();
+                delete this->shape;
+            }
+            this->shape = s;
+            this->scene.Camera().Position(0.f, 0.f, 5.f);
+            this->scene.Camera().LookAt(this->shape->Position);
+
+            this->Invalidate();
         }
 
-        case IDC_CIRCLE:
-        {
-            s = new Circle();
-            break;
-        }
-
-        case IDC_CUBE:
-        {
-            s = new Cube();
-            break;
-        }
-
-        case IDC_CYLINDER:
-        {
-            s = new Cylinder();
-            break;
-        }
-
-        case IDC_SPHERE:
-        {
-            s = new Sphere();
-            break;
-        }
-
-        case IDC_DONUT:
-        {
-            s = new Donut();
-            break;
-        }
-
-        default:
-            break;
+        this->DetachContext();
     }
-
-    if (s)
-    {
-        Texture tex(L"Portrait.png");
-        s->Texture().Data(tex.Pixels(), tex.Width(), tex.Height(), tex.Width() * tex.Height() * 4, GL_BGRA);
-
-        if (this->shape)
-        {
-            this->shape->Release();
-            delete this->shape;
-        }
-        this->shape = s;
-        this->scene.Camera().Position(0.f, 0.f, 5.f);
-        this->scene.Camera().LookAt(this->shape->Position);
-
-        this->Render();
-    }
-
-    this->DetachContext();
 }
 
 LRESULT ViewPort::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -180,13 +181,15 @@ bool ViewPort::OnCreated()
 
 void ViewPort::OnDestroy()
 {
-    this->AttachContext();
-    if (this->shape)
+    if (this->AttachContext())
     {
-        this->shape->Release();
-        delete this->shape;
+        if (this->shape)
+        {
+            this->shape->Release();
+            delete this->shape;
+        }
+        this->DetachContext();
     }
-    this->DetachContext();
 
     GLWindow::OnDestroy();
 }
@@ -199,12 +202,14 @@ void ViewPort::OnPaint()
 
 void ViewPort::Render()
 {
-    this->AttachContext();
-    this->scene.Begin(this->ClientWidth(), this->ClientHeight());
-    if (this->shape)
+    if (this->AttachContext())
     {
-        this->shape->Render();
+        this->scene.Begin(this->ClientWidth(), this->ClientHeight());
+        if (this->shape)
+        {
+            this->shape->Render();
+        }
+        this->scene.End();
+        this->DetachContext();
     }
-    this->scene.End();
-    this->DetachContext();
 }
