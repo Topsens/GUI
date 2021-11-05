@@ -1,6 +1,5 @@
 #pragma once
 
-#include <gl/glew.h>
 #include <initializer_list>
 #include <cfloat>
 #include <cmath>
@@ -264,6 +263,25 @@ inline Vector<Scalar, 3> Cross(const Vector<Scalar, 3>& v0, const Vector<Scalar,
 }
 
 template<typename Scalar>
+inline Vector<Scalar, 3> Project(const Vector<Scalar, 3>& vector, const Vector<Scalar, 4>& plane)
+{
+    auto a = plane.X;
+    auto b = plane.Y;
+    auto c = plane.Z;
+    auto d = plane.W;
+
+    auto a2 = a * a;
+    auto b2 = b * b;
+    auto c2 = c * c;
+
+    auto x = ((b2 + c2) * vector.X - a * (b * vector.Y + c * vector.Z + d)) / (a2 + b2 + c2);
+    auto y = ((a2 + c2) * vector.Y - b * (a * vector.X + c * vector.Z + d)) / (a2 + b2 + c2);
+    auto z = ((a2 + b2) * vector.Z - c * (a * vector.X + b * vector.Y + d)) / (a2 + b2 + c2);
+
+    return Vector<Scalar, 3>{ x, y, z };
+}
+
+template<typename Scalar>
 inline Scalar CosOfVectors(const Vector<Scalar, 3>& v0, const Vector<Scalar, 3>& v1)
 {
     return Dot(Normalize(v0), Normalize(v1));
@@ -458,6 +476,16 @@ struct Quaternion : public Vector<Scalar, 4>
         return Quaternion<Scalar>{ p.v[0], p.v[1], p.v[2], w };
     }
 
+    inline Vector<Scalar, 3> ToEuler() const
+    {
+        auto x = std::atan2(2 * (this->v[0] * this->v[3] + this->v[1] * this->v[2]), 1 - 2 * (this->v[0] * this->v[0] + this->v[1] * this->v[1]));
+        auto s = 2 * (this->v[1] * this->v[3] - this->v[0] * this->v[2]);
+        auto y = std::abs(s) < 1 ? std::asin(s) : std::copysign((Scalar)3.14159265358979323846264338327950288419716939937510l / 2, s);
+        auto z = std::atan2(2 * (this->v[2] * this->v[3] + this->v[0] * this->v[1]), 1 - 2 * (this->v[1] * this->v[1] + this->v[2] * this->v[2]));
+
+        return Vector<Scalar, 3>{ x, y, z };
+    }
+
     inline Vector<Scalar, 4> ToRotation() const
     {
         auto a = acos(this->v[3]);
@@ -469,6 +497,21 @@ struct Quaternion : public Vector<Scalar, 4>
         }
 
         return Vector<Scalar, 4>{ this->v[0] / s, this->v[1] / s, this->v[2] / s, ToDegree(a * 2) };
+    }
+
+    inline static Quaternion<Scalar> FromEuler(const Vector<Scalar, 3>& e)
+    {
+        auto cx = std::cos(e[0] / 2);
+        auto sx = std::sin(e[0] / 2);
+        auto cy = std::cos(e[1] / 2);
+        auto sy = std::sin(e[1] / 2);
+        auto cz = std::cos(e[2] / 2);
+        auto sz = std::sin(e[2] / 2);
+
+        return Quaternion<Scalar>{ cz * cy * sx - sz * sy * cx,
+                                   sz * cy * sx + cz * sy * cx,
+                                   sz * cy * cx - cz * sy * sx,
+                                   cz * cy * cx + sz * sy * sx };
     }
 
     inline static Quaternion<Scalar> FromRotation(const Vector<Scalar, 4>& rotation)
