@@ -1,6 +1,6 @@
 #include "GLCloud.h"
 
-GLCloud::GLCloud() : vbo(GL_ARRAY_BUFFER), cbo(GL_ARRAY_BUFFER), pointSize(1.f)
+GLCloud::GLCloud() : vbo(GL_ARRAY_BUFFER), nbo(GL_ARRAY_BUFFER), cbo(GL_ARRAY_BUFFER), pointSize(1.f)
 {
     this->Position = { 0.f, 0.f, 0.f };
     this->Rotation = { 0.f, 0.f, 0.f, 0.f };
@@ -19,6 +19,18 @@ bool GLCloud::Vertices(const Vertex* vertices, int count)
     return true;
 }
 
+bool GLCloud::Normals(const Normal* normals, int count)
+{
+    if (!normals || count <= 0)
+    {
+        return false;
+    }
+
+    this->nbo.Data(normals, count * sizeof(*normals), GL_STATIC_DRAW);
+
+    return true;
+}
+
 bool GLCloud::TexCoords(const Coordinate* coordinates, int count)
 {
     if (!coordinates || count <= 0)
@@ -31,20 +43,10 @@ bool GLCloud::TexCoords(const Coordinate* coordinates, int count)
     return true;
 }
 
-void GLCloud::ClearVertices()
-{
-    this->vbo.Release();
-}
-
-void GLCloud::ClearTexCoords()
-{
-    this->cbo.Release();
-}
-
 void GLCloud::Release()
 {
-    this->ClearVertices();
-    this->ClearTexCoords();
+    this->vbo.Release();
+    this->nbo.Release();
     this->texture.Release();
 }
 
@@ -68,6 +70,7 @@ void GLCloud::Render()
     auto count = this->ApplyVertices();
     if (count)
     {
+        this->ApplyNormals();
         this->ApplyTexCoords();
         this->texture.Apply();
 
@@ -84,6 +87,7 @@ void GLCloud::Render()
 
         this->texture.Revoke();
         this->RevokeTexCoords();
+        this->RevokeNormals();
         this->RevokeVertices();
     }
 }
@@ -101,13 +105,17 @@ GLint GLCloud::ApplyVertices()
     return 0;
 }
 
-void GLCloud::RevokeVertices()
+GLint GLCloud::ApplyNormals()
 {
-    if (this->vbo)
+    if (this->nbo)
     {
-        this->vbo.Bind();
-        glDisableVertexAttribArray(0);
+        this->nbo.Bind();
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+        glEnableVertexAttribArray(1);
+        return this->nbo.Size() / sizeof(Normal);
     }
+
+    return 0;
 }
 
 GLint GLCloud::ApplyTexCoords()
@@ -121,6 +129,24 @@ GLint GLCloud::ApplyTexCoords()
     }
 
     return 0;
+}
+
+void GLCloud::RevokeVertices()
+{
+    if (this->vbo)
+    {
+        this->vbo.Bind();
+        glDisableVertexAttribArray(0);
+    }
+}
+
+void GLCloud::RevokeNormals()
+{
+    if (this->nbo)
+    {
+        this->nbo.Bind();
+        glDisableVertexAttribArray(1);
+    }
 }
 
 void GLCloud::RevokeTexCoords()

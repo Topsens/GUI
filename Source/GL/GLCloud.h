@@ -11,9 +11,8 @@ public:
     GLCloud();
 
     bool Vertices(const Vertex* vertices, int count);
+    bool Normals(const Normal* normals, int count);
     bool TexCoords(const Coordinate* coordinates, int count);
-    void ClearVertices();
-    void ClearTexCoords();
     void Release();
 
     GLTexture& Texture();
@@ -25,12 +24,14 @@ public:
 
 protected:
     virtual GLint ApplyVertices();
-    virtual void  RevokeVertices();
+    virtual GLint ApplyNormals();
     virtual GLint ApplyTexCoords();
+    virtual void  RevokeVertices();
+    virtual void  RevokeNormals();
     virtual void  RevokeTexCoords();
 
 protected:
     float pointSize;
-    GLBuffer vbo, cbo;
+    GLBuffer vbo, nbo, cbo;
     GLTexture texture;
 };
