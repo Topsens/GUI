@@ -65,19 +65,32 @@ struct Vector
         }
     }
 
-    inline Scalar& operator[](int index)
+    bool IsNaN() const
+    {
+        for (Scalar v : this->v)
+        {
+            if (isnan(v))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    Scalar& operator[](int index)
     {
         return this->v[index];
     }
-    inline const Scalar& operator[](int index) const
+    const Scalar& operator[](int index) const
     {
         return this->v[index];
     }
-    inline operator Scalar*()
+    operator Scalar*()
     {
         return this->v;
     }
-    inline operator const Scalar*() const
+    operator const Scalar*() const
     {
         return this->v;
     }
@@ -319,36 +332,49 @@ struct Vector<Scalar, 2>
         }
     }
 
-    inline Scalar& operator[](int index)
+    bool IsNaN() const
+    {
+        for (Scalar v : this->v)
+        {
+            if (isnan(v))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    Scalar& operator[](int index)
     {
         return this->v[index];
     }
-    inline const Scalar& operator[](int index) const
+    const Scalar& operator[](int index) const
     {
         return this->v[index];
     }
-    inline operator Scalar*()
+    operator Scalar*()
     {
         return this->v;
     }
-    inline operator const Scalar*() const
+    operator const Scalar*() const
     {
         return this->v;
     }
 
-    inline Scalar Dot() const
+    Scalar Dot() const
     {
         return ::Dot(*this, *this);
     }
-    inline Scalar Dot(const Vector<Scalar, 3>& other) const
+    Scalar Dot(const Vector<Scalar, 3>& other) const
     {
         return ::Dot(*this, other);
     }
-    inline Scalar Length() const
+    Scalar Length() const
     {
         return ::Length(*this);
     }
-    inline Vector<Scalar, 2> Normalize() const
+    Vector<Scalar, 2> Normalize() const
     {
         return ::Normalize(*this);
     }
@@ -394,40 +420,53 @@ struct Vector<Scalar, 3>
         }
     }
 
-    inline Scalar& operator[](int index)
+    bool IsNaN() const
+    {
+        for (Scalar v : this->v)
+        {
+            if (isnan(v))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    Scalar& operator[](int index)
     {
         return this->v[index];
     }
-    inline const Scalar& operator[](int index) const
+    const Scalar& operator[](int index) const
     {
         return this->v[index];
     }
-    inline operator Scalar*()
+    operator Scalar*()
     {
         return this->v;
     }
-    inline operator const Scalar*() const
+    operator const Scalar*() const
     {
         return this->v;
     }
 
-    inline Scalar Dot() const
+    Scalar Dot() const
     {
         return ::Dot(*this, *this);
     }
-    inline Scalar Dot(const Vector<Scalar, 3>& other) const
+    Scalar Dot(const Vector<Scalar, 3>& other) const
     {
         return ::Dot(*this, other);
     }
-    inline Scalar Length() const
+    Scalar Length() const
     {
         return ::Length(*this);
     }
-    inline Vector<Scalar, 3> Cross(const Vector<Scalar, 3>& other) const
+    Vector<Scalar, 3> Cross(const Vector<Scalar, 3>& other) const
     {
         return ::Cross(*this, other);
     }
-    inline Vector<Scalar, 3> Normalize() const
+    Vector<Scalar, 3> Normalize() const
     {
         return ::Normalize(*this);
     }
@@ -444,6 +483,70 @@ template<typename Scalar>
 Vector<Scalar, 3> Vector<Scalar, 3>::ZAxis = { 0, 0, 1 };
 
 template<typename Scalar>
+struct Vector<Scalar, 4>
+{
+    union
+    {
+        Scalar v[4];
+        struct
+        {
+            Scalar X;
+            Scalar Y;
+            Scalar Z;
+            Scalar W;
+        };
+    };
+
+    Vector() = default;
+    Vector(const Scalar* v)
+    {
+        for (auto i = 0; i < 4; i++)
+        {
+            this->v[i] = v[i];
+        }
+    }
+    Vector(const std::initializer_list<Scalar>& list)
+    {
+        auto l = list.begin();
+
+        for (int i = 0; i < 4; i++)
+        {
+            this->v[i] = (list.end() == l) ? 0 : *l++;
+        }
+    }
+
+    bool IsNaN() const
+    {
+        for (Scalar v : this->v)
+        {
+            if (isnan(v))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    Scalar& operator[](int index)
+    {
+        return this->v[index];
+    }
+    const Scalar& operator[](int index) const
+    {
+        return this->v[index];
+    }
+    operator Scalar*()
+    {
+        return this->v;
+    }
+    operator const Scalar*() const
+    {
+        return this->v;
+    }
+};
+
+template<typename Scalar>
 struct Quaternion : public Vector<Scalar, 4>
 {
     Quaternion() = default;
@@ -454,19 +557,19 @@ struct Quaternion : public Vector<Scalar, 4>
     {
     }
 
-    inline Vector<Scalar, 3> Rotate(const Vector<Scalar, 3>& v) const
+    Vector<Scalar, 3> Rotate(const Vector<Scalar, 3>& v) const
     {
         auto uv = ((Vector<Scalar, 3>*)this)->Cross(v);
         uv += uv;
         return uv * this->v[3] + ((Vector<Scalar, 3>*)this)->Cross(uv) + v;
     }
 
-    inline Quaternion<Scalar> Inverse() const
+    Quaternion<Scalar> Inverse() const
     {
         return Quaternion<Scalar>{ this->v[0], this->v[1], this->v[2], -this->v[3] };
     }
 
-    inline Quaternion<Scalar> operator*(const Quaternion& other) const
+    Quaternion<Scalar> operator*(const Quaternion& other) const
     {
         auto& t = (Vector<Scalar, 3>&)*this;
         auto& o = (Vector<Scalar, 3>&)other;
@@ -477,7 +580,7 @@ struct Quaternion : public Vector<Scalar, 4>
         return Quaternion<Scalar>{ p.v[0], p.v[1], p.v[2], w };
     }
 
-    inline Vector<Scalar, 3> ToEuler() const
+    Vector<Scalar, 3> ToEuler() const
     {
         auto x = std::atan2(2 * (this->v[0] * this->v[3] + this->v[1] * this->v[2]), 1 - 2 * (this->v[0] * this->v[0] + this->v[1] * this->v[1]));
         auto s = 2 * (this->v[1] * this->v[3] - this->v[0] * this->v[2]);
@@ -487,7 +590,7 @@ struct Quaternion : public Vector<Scalar, 4>
         return Vector<Scalar, 3>{ x, y, z };
     }
 
-    inline Vector<Scalar, 4> ToRotation() const
+    Vector<Scalar, 4> ToRotation() const
     {
         auto a = acos(this->v[3]);
         auto s = sin(a);
@@ -500,7 +603,7 @@ struct Quaternion : public Vector<Scalar, 4>
         return Vector<Scalar, 4>{ this->v[0] / s, this->v[1] / s, this->v[2] / s, ToDegree(a * 2) };
     }
 
-    inline static Quaternion<Scalar> FromEuler(const Vector<Scalar, 3>& e)
+    static Quaternion<Scalar> FromEuler(const Vector<Scalar, 3>& e)
     {
         auto cx = std::cos(e[0] / 2);
         auto sx = std::sin(e[0] / 2);
@@ -515,7 +618,7 @@ struct Quaternion : public Vector<Scalar, 4>
                                    cz * cy * cx + sz * sy * sx };
     }
 
-    inline static Quaternion<Scalar> FromRotation(const Vector<Scalar, 4>& rotation)
+    static Quaternion<Scalar> FromRotation(const Vector<Scalar, 4>& rotation)
     {
         auto& axis = (Vector<Scalar, 3>&)rotation;
         auto angle = rotation.v[3];
@@ -528,7 +631,7 @@ struct Quaternion : public Vector<Scalar, 4>
         return FromAxisAngle(axis, ToRadian(angle));
     }
 
-    inline static Quaternion<Scalar> From2Vectors(const Vector<Scalar, 3>& v0, const Vector<Scalar, 3>& v1)
+    static Quaternion<Scalar> From2Vectors(const Vector<Scalar, 3>& v0, const Vector<Scalar, 3>& v1)
     {
         auto n0 = v0.Normalize();
         auto n1 = v1.Normalize();
@@ -546,7 +649,7 @@ struct Quaternion : public Vector<Scalar, 4>
         return Quaternion<Scalar>{ q[0], q[1], q[2], n0.Dot(h) };
     }
 
-    inline static Quaternion<Scalar> FromAxisAngle(const Vector<Scalar, 3>& axis, float radian)
+    static Quaternion<Scalar> FromAxisAngle(const Vector<Scalar, 3>& axis, float radian)
     {
         auto a = radian / 2;
         auto c = cos(a);
@@ -588,19 +691,19 @@ struct Matrix
         }
     }
 
-    inline Vector<Scalar, Dimensions>& operator[](int index)
+    Vector<Scalar, Dimensions>& operator[](int index)
     {
         return this->v[index];
     }
-    inline const Vector<Scalar, Dimensions>& operator[](int index) const
+    const Vector<Scalar, Dimensions>& operator[](int index) const
     {
         return this->v[index];
     }
-    inline operator Scalar*()
+    operator Scalar*()
     {
         return this->v[0];
     }
-    inline operator const Scalar*() const
+    operator const Scalar*() const
     {
         return this->v[0];
     }
