@@ -23,12 +23,12 @@ public:
     virtual void Render();
 
 protected:
-    virtual GLint ApplyVertices();
-    virtual GLint ApplyNormals();
-    virtual GLint ApplyTexCoords();
-    virtual void  RevokeVertices();
-    virtual void  RevokeNormals();
-    virtual void  RevokeTexCoords();
+    virtual size_t ApplyVertices();
+    virtual size_t ApplyNormals();
+    virtual size_t ApplyTexCoords();
+    virtual void   RevokeVertices();
+    virtual void   RevokeNormals();
+    virtual void   RevokeTexCoords();
 
 protected:
     float pointSize;

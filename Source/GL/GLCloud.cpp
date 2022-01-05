@@ -47,6 +47,7 @@ void GLCloud::Release()
 {
     this->vbo.Release();
     this->nbo.Release();
+    this->cbo.Release();
     this->texture.Release();
 }
 
@@ -81,7 +82,7 @@ void GLCloud::Render()
         glScalef(this->Scaling[0], this->Scaling[1], this->Scaling[2]);
 
         glPointSize(this->pointSize);
-        glDrawArrays(GL_POINTS, 0, count);
+        glDrawArrays(GL_POINTS, 0, (GLsizei)count);
 
         glPopMatrix();
 
@@ -92,33 +93,33 @@ void GLCloud::Render()
     }
 }
 
-GLint GLCloud::ApplyVertices()
+size_t GLCloud::ApplyVertices()
 {
     if (this->vbo)
     {
         this->vbo.Bind();
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
-        glEnableVertexAttribArray(0);
+        glVertexPointer(3, GL_FLOAT, 0, 0);
+        glEnableClientState(GL_VERTEX_ARRAY);
         return this->vbo.Size() / sizeof(Vertex);
     }
     
     return 0;
 }
 
-GLint GLCloud::ApplyNormals()
+size_t GLCloud::ApplyNormals()
 {
     if (this->nbo)
     {
         this->nbo.Bind();
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
-        glEnableVertexAttribArray(1);
+        glNormalPointer(GL_FLOAT, 0, 0);
+        glEnableClientState(GL_NORMAL_ARRAY);
         return this->nbo.Size() / sizeof(Normal);
     }
 
     return 0;
 }
 
-GLint GLCloud::ApplyTexCoords()
+size_t GLCloud::ApplyTexCoords()
 {
     if (this->cbo)
     {
@@ -136,7 +137,7 @@ void GLCloud::RevokeVertices()
     if (this->vbo)
     {
         this->vbo.Bind();
-        glDisableVertexAttribArray(0);
+        glDisableClientState(GL_VERTEX_ARRAY);
     }
 }
 
@@ -145,7 +146,7 @@ void GLCloud::RevokeNormals()
     if (this->nbo)
     {
         this->nbo.Bind();
-        glDisableVertexAttribArray(1);
+        glDisableClientState(GL_NORMAL_ARRAY);
     }
 }
 
