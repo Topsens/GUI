@@ -1,4 +1,5 @@
 #include "GLMaterial.h"
+#include <gl/glew.h>
 
 const Vector<float, 4> DefaultAmbient  = { .2f, .2f, .2f, 1.f };
 const Vector<float, 4> DefaultDiffuse  = { .8f, .8f, .8f, 1.f };

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GLCommon.h"
+#include <gl/glew.h>
 
 class GLBuffer
 {
