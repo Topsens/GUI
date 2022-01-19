@@ -475,7 +475,7 @@ struct Vector<Scalar, 3>
     static Vector<Scalar, 3> NaN, Zero, XAxis, YAxis, ZAxis;
 };
 template<typename Scalar>
-Vector<Scalar, 3> Vector<Scalar, 3>::NaN   = { std::numeric_limits<Scalar>::quiet_NaN(), std::numeric_limits<Scalar>::quiet_NaN(), std::numeric_limits<Scalar>::quiet_NaN()};
+Vector<Scalar, 3> Vector<Scalar, 3>::NaN   = { std::numeric_limits<Scalar>::quiet_NaN(), std::numeric_limits<Scalar>::quiet_NaN(), std::numeric_limits<Scalar>::quiet_NaN() };
 template<typename Scalar>
 Vector<Scalar, 3> Vector<Scalar, 3>::Zero  = { 0, 0, 0 };
 template<typename Scalar>
@@ -547,7 +547,13 @@ struct Vector<Scalar, 4>
     {
         return this->v;
     }
+
+    static Vector<Scalar, 4> NaN, Zero;
 };
+template<typename Scalar>
+Vector<Scalar, 4> Vector<Scalar, 4>::NaN   = { std::numeric_limits<Scalar>::quiet_NaN(), std::numeric_limits<Scalar>::quiet_NaN(), std::numeric_limits<Scalar>::quiet_NaN(), std::numeric_limits<Scalar>::quiet_NaN() };
+template<typename Scalar>
+Vector<Scalar, 4> Vector<Scalar, 4>::Zero  = { 0, 0, 0, 0 };
 
 template<typename Scalar>
 struct Quaternion : public Vector<Scalar, 4>
