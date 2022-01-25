@@ -7,9 +7,9 @@ GLCloud::GLCloud() : vbo(GL_ARRAY_BUFFER), nbo(GL_ARRAY_BUFFER), cbo(GL_ARRAY_BU
     this->Scaling  = { 1.f, 1.f, 1.f };
 }
 
-bool GLCloud::Vertices(const Vertex* vertices, int count)
+bool GLCloud::Vertices(const Vertex* vertices, size_t count)
 {
-    if (!vertices || count <= 0)
+    if (!vertices && count)
     {
         return false;
     }
@@ -19,9 +19,9 @@ bool GLCloud::Vertices(const Vertex* vertices, int count)
     return true;
 }
 
-bool GLCloud::Normals(const Normal* normals, int count)
+bool GLCloud::Normals(const Normal* normals, size_t count)
 {
-    if (!normals || count <= 0)
+    if (!normals && count)
     {
         return false;
     }
@@ -31,9 +31,9 @@ bool GLCloud::Normals(const Normal* normals, int count)
     return true;
 }
 
-bool GLCloud::TexCoords(const Coordinate* coordinates, int count)
+bool GLCloud::TexCoords(const Coordinate* coordinates, size_t count)
 {
-    if (!coordinates || count <= 0)
+    if (!coordinates && count)
     {
         return false;
     }

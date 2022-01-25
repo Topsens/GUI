@@ -10,9 +10,9 @@ class GLCloud : public GLObject
 public:
     GLCloud();
 
-    bool Vertices(const Vertex* vertices, int count);
-    bool Normals(const Normal* normals, int count);
-    bool TexCoords(const Coordinate* coordinates, int count);
+    bool Vertices(const Vertex* vertices, size_t count);
+    bool Normals(const Normal* normals, size_t count);
+    bool TexCoords(const Coordinate* coordinates, size_t count);
     void Release();
 
     GLTexture& Texture();

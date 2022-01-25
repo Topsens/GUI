@@ -18,7 +18,7 @@ GLShape::~GLShape()
 
 bool GLShape::Elements(const Element* elements, size_t count)
 {
-    if (!elements || !count)
+    if (!elements && count)
     {
         return false;
     }
@@ -28,7 +28,7 @@ bool GLShape::Elements(const Element* elements, size_t count)
 
 bool GLShape::Vertices(const Vertex* vertices, size_t count)
 {
-    if (!vertices || !count)
+    if (!vertices && count)
     {
         return false;
     }
@@ -38,7 +38,7 @@ bool GLShape::Vertices(const Vertex* vertices, size_t count)
 
 bool GLShape::Normals(const Normal* normals, size_t count)
 {
-    if (!normals || !count)
+    if (!normals && count)
     {
         return false;
     }
@@ -48,7 +48,7 @@ bool GLShape::Normals(const Normal* normals, size_t count)
 
 bool GLShape::TexCoords(const Coordinate* coords, size_t count)
 {
-    if (!coords || !count)
+    if (!coords && count)
     {
         return false;
     }
