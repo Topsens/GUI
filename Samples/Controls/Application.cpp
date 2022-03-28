@@ -97,13 +97,13 @@ bool Application::OnCreated()
         this->Item(IDC_ECHO).Text(L"Button clicked");
         this->status.Text(L"Button clicked");
     });
-    
+
     return true;
 }
 
 void Application::OnSize()
 {
-    this->status.AutoResize();
+    this->status.Adjust();
 
     vector<int> positions;
     this->status.GetParts(positions);
