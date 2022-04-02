@@ -13,8 +13,7 @@ public:
 
 public:
     virtual bool Create(View* parent) = 0;
-
-    void Destroy();
+    virtual void Destroy();
 
     DWORD Style() const;
     DWORD StyleEx() const;
