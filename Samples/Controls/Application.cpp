@@ -101,6 +101,12 @@ bool Application::OnCreated()
     return true;
 }
 
+void Application::OnClose()
+{
+    Dialog::OnClose();
+    this->Destroy();
+}
+
 void Application::OnSize()
 {
     this->status.Adjust();

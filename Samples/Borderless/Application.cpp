@@ -38,7 +38,7 @@ bool Application::OnCreated()
     {
         if (VK_ESCAPE == this->wparam)
         {
-            this->Destroy();
+            this->Close();
             return (LRESULT)0;
         }
 
