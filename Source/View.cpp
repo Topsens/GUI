@@ -744,6 +744,7 @@ void View::OnPaint()
 void View::OnClose()
 {
     this->SendToChildren(WM_CLOSE);
+    this->Destroy();
 }
 
 void View::OnTimer()

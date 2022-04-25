@@ -11,7 +11,6 @@ public:
 
 protected:
     bool OnCreated() override;
-    void OnClose() override;
     void OnSize() override;
 
 private:

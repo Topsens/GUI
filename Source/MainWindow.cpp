@@ -28,9 +28,3 @@ void MainWindow::OnDestroy()
     PostQuitMessage(0);
     Window::OnDestroy();
 }
-
-void MainWindow::OnClose()
-{
-    Window::OnClose();
-    this->Destroy();
-}

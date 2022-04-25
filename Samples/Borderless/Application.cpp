@@ -67,6 +67,6 @@ void Application::OnPaint()
         this->renderer.Text(L"A borderless window", 0, 0, (float)this->ClientWidth(), (float)this->ClientHeight());
         this->renderer.EndPaint();
     }
-    
+
     MainWindow::OnPaint();
 }

@@ -10,7 +10,6 @@ public:
     int Run(int nCmdShow);
 
 protected:
-    virtual void OnClose() override;
     virtual void OnDestroy() override;
 
     UINT accelID;
