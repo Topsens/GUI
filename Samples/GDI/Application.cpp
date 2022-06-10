@@ -49,7 +49,7 @@ LRESULT Application::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
     default:
         break;
     }
-    
+
     return MainWindow::WindowProc(hWnd, uMsg, wParam, lParam);
 }
 
@@ -63,13 +63,13 @@ bool Application::OnCreated()
 void Application::OnPaint()
 {
     cout << "OnPaint()" << endl;
-    
+
     GDIRenderer renderer;
     if (renderer.BeginPaint(this->Handle()))
     {
         int w = this->ClientWidth();
         int h = this->ClientHeight();
-        
+
         vector<int> pixels(w * h);
 
         int idx = 0;

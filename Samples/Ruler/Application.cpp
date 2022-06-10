@@ -88,7 +88,7 @@ void Application::OnKeyDown()
             {
                 this->MoveTo(this->X() - 1, this->Y());
             }
-            
+
             break;
         }
 
@@ -150,7 +150,7 @@ void Application::OnKeyDown()
                     this->MoveTo(this->X(), this->Y() + 1);
                 }
             }
-            
+
             break;
         }
 
@@ -182,7 +182,7 @@ void Application::OnMouseMove()
         SetCapture(this->Handle());
         auto x = pos.x - this->pos.x;
         auto y = pos.y - this->pos.y;
-        
+
         if (this->sizing)
         {
             if (this->vertical)
@@ -267,7 +267,7 @@ void Application::Update()
             this->renderer.Format(format);
             this->renderer.Text(std::to_wstring(this->length), 0, 0, (float)w, (float)h);
         }
-        
+
         this->renderer.EndPaint();
 
         auto sp = POINT{ 0, 0 };

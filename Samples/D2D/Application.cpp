@@ -51,13 +51,13 @@ void Application::OnPaint()
     {
         int w = this->ClientWidth();
         int h = this->ClientHeight();
-        
+
         auto x = w * .5f;
         auto y = h * .5f;
 
         this->renderer.Brush(this->bkgrd);
         this->renderer.Fill(D2DRectangle(0, 0, (float)w, (float)h));
-        
+
         this->renderer.Brush(this->red);
         this->renderer.Translate(x + 100.f, y);
         this->renderer.Fill(D2DEllipse(25.f, 25.f));
@@ -76,14 +76,14 @@ void Application::OnPaint()
         this->renderer.Stroke(D2DStroke(20.f));
         this->renderer.Draw(D2DRectangle(50.f + 20.f, 50.f + 20.f));
         this->renderer.Identity();
-        
+
         this->renderer.Brush(this->green);
         this->renderer.Format(this->format);
         this->renderer.Text(L"D2D", 0.f, 0.f, (float)w, 40.f);
 
         this->renderer.EndPaint();
     }
-    
+
     MainWindow::OnPaint();
 }
 
