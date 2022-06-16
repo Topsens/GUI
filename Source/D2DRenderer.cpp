@@ -1,5 +1,6 @@
 #include "D2DRenderer.h"
 #include "Cleanup.h"
+#include <algorithm>
 #include <vector>
 
 #pragma comment(lib, "d2d1.lib")

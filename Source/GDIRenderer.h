@@ -1,6 +1,7 @@
 #pragma once
 #pragma comment(lib, "Msimg32.lib")
 
+#define NOMINMAX
 #include <Windows.h>
 
 class GDIRenderer

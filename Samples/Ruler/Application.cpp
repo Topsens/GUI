@@ -1,4 +1,5 @@
 #include "Application.h"
+#include <algorithm>
 
 #define EDGE (10)
 
@@ -187,11 +188,11 @@ void Application::OnMouseMove()
         {
             if (this->vertical)
             {
-                this->Resize(this->Width(), max(2 * EDGE, this->Height() + y));
+                this->Resize(this->Width(), std::max(2 * EDGE, this->Height() + (int)y));
             }
             else
             {
-                this->Resize(max(2 * EDGE, this->Width() + x), this->Height());
+                this->Resize(std::max(2 * EDGE, this->Width() + (int)x), this->Height());
             }
         }
         else
