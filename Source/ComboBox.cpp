@@ -96,7 +96,7 @@ void ComboBox::ItemData(int index, void* data)
 
 void* ComboBox::ItemData(int index) const
 {
-    return (void*)this->Send(CB_GETITEMDATA, index);
+    return index < 0 ? nullptr : (void*)this->Send(CB_GETITEMDATA, index);
 }
 
 int ComboBox::FindExact(const wchar_t* item, int first) const
