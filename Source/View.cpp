@@ -743,7 +743,7 @@ void View::OnPaint()
 
 void View::OnClose()
 {
-    this->SendToChildren(WM_CLOSE);
+    // this->SendToChildren(WM_CLOSE);
     this->Destroy();
 }
 
