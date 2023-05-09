@@ -20,7 +20,7 @@ public:
     void Clear();
 
     void  ItemData(int index, void* data);
-    void* ItemData(int index);
+    void* ItemData(int index) const;
 
     int  FindExact(const wchar_t* item, int first = 0) const;
     int  FindExact(const std::wstring& item, int first = 0) const;
@@ -31,10 +31,11 @@ public:
     bool GetText(int index, std::wstring& text) const;
 
     int  Selection() const;
-    bool Select(int index) const;
-    void ClearSelection() const;
+    bool Select(int index);
+    void ClearSelection();
 
     std::wstring Text() const;
+    void*        Data() const;
 
     static const DWORD Simple = CBS_SIMPLE;
     static const DWORD Dropdown = CBS_DROPDOWN;

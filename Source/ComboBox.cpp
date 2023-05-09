@@ -94,7 +94,7 @@ void ComboBox::ItemData(int index, void* data)
     this->Send(CB_SETITEMDATA, index, (LPARAM)data);
 }
 
-void* ComboBox::ItemData(int index)
+void* ComboBox::ItemData(int index) const
 {
     return (void*)this->Send(CB_GETITEMDATA, index);
 }
@@ -150,7 +150,7 @@ int ComboBox::Selection() const
     return (int)this->Send(CB_GETCURSEL);
 }
 
-bool ComboBox::Select(int index) const
+bool ComboBox::Select(int index)
 {
     if (index < 0 && index >= this->Count())
     {
@@ -160,7 +160,7 @@ bool ComboBox::Select(int index) const
     return CB_ERR != this->Send(CB_SETCURSEL, (WPARAM)index);
 }
 
-void ComboBox::ClearSelection() const
+void ComboBox::ClearSelection()
 {
     this->Send(CB_SETCURSEL, (WPARAM)-1);
 }
@@ -176,4 +176,15 @@ wstring ComboBox::Text() const
     }
 
     return text;
+}
+
+void* ComboBox::Data() const
+{
+    auto index = this->Selection();
+    if (index < 0)
+    {
+        return nullptr;
+    }
+
+    return this->ItemData(index);
 }
