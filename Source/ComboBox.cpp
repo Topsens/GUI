@@ -36,14 +36,42 @@ int ComboBox::Add(const wstring& item)
     return this->Add(item.c_str());
 }
 
-int ComboBox::Insert(const wchar_t* item, int index)
+int ComboBox::Add(const wchar_t* item, void* data)
+{
+    auto index = this->Add(item);
+    this->ItemData(index, data);
+    return index;
+}
+
+int ComboBox::Add(const wstring& item, void* data)
+{
+    auto index = this->Add(item);
+    this->ItemData(index, data);
+    return index;
+}
+
+int ComboBox::Insert(int index, const wchar_t* item)
 {
     return (int)this->Send(CB_INSERTSTRING, (WPARAM)index, (LPARAM)item);
 }
 
-int ComboBox::Insert(const wstring& item, int index)
+int ComboBox::Insert(int index, const wstring& item)
 {
-    return this->Insert(item.c_str(), index);
+    return this->Insert(index, item.c_str());
+}
+
+int ComboBox::Insert(int index, const wchar_t* item, void* data)
+{
+    index = this->Insert(index, item);
+    this->ItemData(index, data);
+    return index;
+}
+
+int ComboBox::Insert(int index, const wstring& item, void* data)
+{
+    index = this->Insert(index, item);
+    this->ItemData(index, data);
+    return index;
 }
 
 int ComboBox::Remove(int index)
@@ -59,6 +87,16 @@ int ComboBox::Count() const
 void ComboBox::Clear()
 {
     this->Send(CB_RESETCONTENT);
+}
+
+void ComboBox::ItemData(int index, void* data)
+{
+    this->Send(CB_SETITEMDATA, index, (LPARAM)data);
+}
+
+void* ComboBox::ItemData(int index)
+{
+    return (void*)this->Send(CB_GETITEMDATA, index);
 }
 
 int ComboBox::FindExact(const wchar_t* item, int first) const

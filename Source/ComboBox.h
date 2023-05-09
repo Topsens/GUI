@@ -9,11 +9,24 @@ public:
 
     int  Add(const wchar_t* item);
     int  Add(const std::wstring& item);
-    int  Insert(const wchar_t* item, int index);
-    int  Insert(const std::wstring& item, int index);
+    int  Add(const wchar_t* item, void* data);
+    int  Add(const std::wstring& item, void* data);
+    int  Insert(int index, const wchar_t* item);
+    int  Insert(int index, const std::wstring& item);
+    int  Insert(int index, const wchar_t* item, void* data);
+    int  Insert(int index, const std::wstring& item, void* data);
     int  Remove(int index);
     int  Count() const;
     void Clear();
+
+    void  ItemData(int index, void* data);
+    void* ItemData(int index);
+
+    template<typename T>
+    T& ItemData(int index)
+    {
+        return *(T*)this->ItemData(index);
+    }
 
     int  FindExact(const wchar_t* item, int first = 0) const;
     int  FindExact(const std::wstring& item, int first = 0) const;
