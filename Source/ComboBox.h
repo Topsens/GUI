@@ -22,12 +22,6 @@ public:
     void  ItemData(int index, void* data);
     void* ItemData(int index);
 
-    template<typename T>
-    T& ItemData(int index)
-    {
-        return *(T*)this->ItemData(index);
-    }
-
     int  FindExact(const wchar_t* item, int first = 0) const;
     int  FindExact(const std::wstring& item, int first = 0) const;
     int  FindBeginWith(const wchar_t* item, int first = 0) const;
