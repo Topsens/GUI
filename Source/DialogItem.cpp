@@ -144,6 +144,21 @@ bool DialogItem::Post(UINT uMsg, WPARAM wParam, LPARAM lParam) const
     return FALSE != PostMessageW(this->hwnd, uMsg, wParam, lParam);
 }
 
+bool DialogItem::SetProp(const wchar_t* name, HANDLE data)
+{
+    return ::SetPropW(this->hwnd, name, data) ? true : false;
+}
+
+HANDLE DialogItem::GetProp(const wchar_t* name)
+{
+    return ::GetPropW(this->hwnd, name);
+}
+
+HANDLE DialogItem::RemoveProp(const wchar_t* name)
+{
+    return ::RemovePropW(this->hwnd, name);
+}
+
 int DialogItem::X() const
 {
     POINT c2scr = {0};
@@ -247,6 +262,11 @@ HWND DialogItem::Handle() const
     return this->hwnd;
 }
 
+HWND DialogItem::Parent() const
+{
+    return GetParent(this->hwnd);
+}
+
 DialogItem::operator bool() const
 {
     return nullptr != this->hwnd;
@@ -263,4 +283,22 @@ void DialogItem::DestroyFont(HFONT font)
     {
         DeleteObject(font);
     }
+}
+
+WNDPROC DialogItem::Subclass(DialogItem& item, WNDPROC WndProc)
+{
+    if (!item.Handle() || !WndProc)
+    {
+        return nullptr;
+    }
+
+    auto defProc = SetWindowLongPtrW(item.Handle(), GWLP_WNDPROC, (LONG_PTR)WndProc);
+    SetWindowLongPtrW(item.Handle(), GWLP_USERDATA, defProc);
+
+    return (WNDPROC)defProc;
+}
+
+LRESULT DialogItem::DefWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    return ((WNDPROC)GetWindowLongPtrW(hWnd, GWLP_USERDATA))(hWnd, uMsg, wParam, lParam);
 }

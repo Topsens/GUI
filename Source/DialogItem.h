@@ -36,6 +36,10 @@ public:
     LRESULT Send(UINT msg, WPARAM wParam = 0, LPARAM lParam = 0) const;
     bool    Post(UINT msg, WPARAM wParam = 0, LPARAM lParam = 0) const;
 
+    bool   SetProp(const wchar_t* name, HANDLE data);
+    HANDLE GetProp(const wchar_t* name);
+    HANDLE RemoveProp(const wchar_t* name);
+
     int   X() const;
     int   Y() const;
     int   Width() const;
@@ -49,11 +53,15 @@ public:
 
     int  ID() const;
     HWND Handle() const;
+    HWND Parent() const;
 
     operator bool() const;
 
     static HFONT CreateFont(const wchar_t* family, int size, int weight = FW_DONTCARE, bool italic = false, bool underline = false, bool strikeOut = false, DWORD charSet = DEFAULT_CHARSET, DWORD outPrecision = OUT_DEFAULT_PRECIS, DWORD clipPrecision = CLIP_DEFAULT_PRECIS, DWORD quality = DEFAULT_QUALITY, DWORD pitchAndFamity = DEFAULT_PITCH | FF_DONTCARE, int escapement = 0, int orientation = 0);
     static void  DestroyFont(HFONT font);
+
+    static WNDPROC Subclass(DialogItem& item, WNDPROC WndProc);
+    static LRESULT DefWndProc(HWND, UINT, WPARAM, LPARAM); // Window procedure before subclass and saved in GWLP_USERDATA
 
 protected:
     HWND parent;

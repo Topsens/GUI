@@ -45,8 +45,6 @@ bool Application::OnCreated()
     combo.Add(L"Hello");
     combo.Add(L"World");
 
-    auto style = combo.Style();
-
     auto progress = (ProgressBar&)this->Item(IDC_PROGRESS);
     progress.Position(50);
 
