@@ -156,11 +156,11 @@ bool Application::CreateStatus()
 
     button.Show();
 
-    combo.Add(L"0");
-    combo.Add(L"25");
-    combo.Add(L"50");
-    combo.Add(L"75");
-    combo.Add(L"100");
+    combo.Add(L"0",   (void*)0);
+    combo.Add(L"25",  (void*)25);
+    combo.Add(L"50",  (void*)50);
+    combo.Add(L"75",  (void*)75);
+    combo.Add(L"100", (void*)100);
     combo.Select(2);
     combo.Show();
 
@@ -181,11 +181,11 @@ bool Application::CreateStatus()
     });
     this->RegisterCommand(IDC_STATUS_COMBO, [this]
     {
-        auto text = this->status.Item(IDC_STATUS_COMBO).Text();
-        this->Item(IDC_ECHO).Text(text);
-        this->status.Text(text);
-        ((ProgressBar&)this->Item(IDC_PROGRESS)).Position(_wtoi(text.c_str()));
-        ((ProgressBar&)this->status.Item(IDC_STATUS_PROGRESS)).Position(_wtoi(text.c_str()));
+        auto combo = (ComboBox&)this->status.Item(IDC_STATUS_COMBO);
+        this->Item(IDC_ECHO).Text(combo.Text());
+        this->status.Text(combo.Text());
+        ((ProgressBar&)this->Item(IDC_PROGRESS)).Position((int)combo.Data());
+        ((ProgressBar&)this->status.Item(IDC_STATUS_PROGRESS)).Position((int)combo.Data());
     });
     this->RegisterCommand(IDC_STATUS_CHECK, [this]
     {
