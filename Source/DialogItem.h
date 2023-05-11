@@ -9,8 +9,6 @@ class DialogItem
 public:
     DialogItem();
     DialogItem(HWND hWnd);
-    DialogItem(HWND parent, int id);
-    DialogItem(HWND parent, HWND hWnd, int id);
 
     void Destroy();
 
@@ -64,7 +62,5 @@ public:
     static LRESULT DefWndProc(HWND, UINT, WPARAM, LPARAM); // Window procedure before subclass and saved in GWLP_USERDATA
 
 protected:
-    HWND parent;
     HWND hwnd;
-    int  id;
 };

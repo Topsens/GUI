@@ -585,7 +585,7 @@ View* View::Parent() const
 
 DialogItem View::Item(int id) const
 {
-    return DialogItem(this->hwnd, id);
+    return DialogItem(GetDlgItem(this->hwnd, id));
 }
 
 void View::Cursor(LPWSTR name)

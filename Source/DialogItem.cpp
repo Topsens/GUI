@@ -4,19 +4,11 @@
 
 using namespace std;
 
-DialogItem::DialogItem() : parent(0), hwnd(0), id(0)
+DialogItem::DialogItem() : hwnd(0)
 {
 }
 
-DialogItem::DialogItem(HWND hWnd) : parent(GetParent(hWnd)), hwnd(hWnd), id(GetDlgCtrlID(hWnd))
-{
-}
-
-DialogItem::DialogItem(HWND parent, int id) : parent(parent), hwnd(GetDlgItem(parent, id)), id(id)
-{
-}
-
-DialogItem::DialogItem(HWND parent, HWND hWnd, int id) : parent(parent), hwnd(hWnd), id(id)
+DialogItem::DialogItem(HWND hWnd) : hwnd(hWnd)
 {
 }
 
@@ -25,9 +17,7 @@ void DialogItem::Destroy()
     if (this->hwnd)
     {
         DestroyWindow(this->hwnd);
-        this->parent = 0;
-        this->hwnd   = 0;
-        this->id     = 0;
+        this->hwnd = 0;
     }
 }
 
@@ -131,7 +121,7 @@ HWND DialogItem::SetFocus() const
 
 void DialogItem::NextTabStop() const
 {
-    PostMessageW(this->parent, WM_NEXTDLGCTL, 0, 0);
+    PostMessageW(this->Parent(), WM_NEXTDLGCTL, 0, 0);
 }
 
 LRESULT DialogItem::Send(UINT uMsg, WPARAM wParam, LPARAM lParam) const
@@ -164,7 +154,7 @@ int DialogItem::X() const
     POINT c2scr = {0};
     RECT  rect;
 
-    if (ClientToScreen(this->parent, &c2scr) &&
+    if (ClientToScreen(this->Parent(), &c2scr) &&
         GetWindowRect(this->hwnd, &rect))
     {
         return rect.left - c2scr.x;
@@ -178,7 +168,7 @@ int DialogItem::Y() const
     POINT c2scr = {0};
     RECT  rect;
 
-    if (ClientToScreen(this->parent, &c2scr) &&
+    if (ClientToScreen(this->Parent(), &c2scr) &&
         GetWindowRect(this->hwnd, &rect))
     {
         return rect.top - c2scr.y;
@@ -254,7 +244,7 @@ wstring DialogItem::Text() const
 
 int DialogItem::ID() const
 {
-    return this->id;
+    return GetDlgCtrlID(this->hwnd);
 }
 
 HWND DialogItem::Handle() const

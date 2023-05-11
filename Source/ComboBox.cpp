@@ -19,7 +19,7 @@ ComboBox ComboBox::Create(HWND parent, UINT id, DWORD type, HINSTANCE instance)
         auto hwnd = CreateWindowExW(0, WC_COMBOBOXW, nullptr, type | style, 0, 0, 0, 0, parent, (HMENU)(UINT_PTR)id, instance, nullptr);
         if (hwnd)
         {
-            di = DialogItem(parent, hwnd, id);
+            di = DialogItem(hwnd);
         }
     }
 

@@ -12,7 +12,7 @@ Button Button::Create(HWND parent, UINT id, const wstring& text, HINSTANCE insta
         auto hwnd = CreateWindowExW(0, WC_BUTTONW, text.c_str(), WS_CHILD | WS_TABSTOP, 0, 0, 0, 0, parent, (HMENU)(UINT_PTR)id, instance, nullptr);
         if (hwnd)
         {
-            di = DialogItem(parent, hwnd, id);
+            di = DialogItem(hwnd);
         }
     }
 
