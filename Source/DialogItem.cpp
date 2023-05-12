@@ -12,6 +12,14 @@ DialogItem::DialogItem(HWND hWnd) : hwnd(hWnd)
 {
 }
 
+DialogItem::~DialogItem()
+{
+    if (this->hwnd)
+    {
+        this->RemoveProp(L"~");
+    }
+}
+
 void DialogItem::Destroy()
 {
     if (this->hwnd)
@@ -257,9 +265,52 @@ HWND DialogItem::Parent() const
     return GetParent(this->hwnd);
 }
 
+void DialogItem::Subclass()
+{
+    if (!this->hwnd)
+    {
+        return;
+    }
+
+    auto WndProc = (WNDPROC)[](HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)->LRESULT
+    {
+        auto _this = ::GetPropW(hWnd, L"~");
+        if (_this)
+        {
+            return ((DialogItem*)_this)->WndProc(hWnd, uMsg, wParam, lParam);
+        }
+
+        return DialogItem::DefWndProc(hWnd, uMsg, wParam, lParam);
+    };
+
+    auto defProc = SetWindowLongPtrW(this->hwnd, GWLP_WNDPROC, (LONG_PTR)WndProc);
+
+    if (!GetWindowLongPtrW(this->hwnd, GWLP_USERDATA))
+    {
+        SetWindowLongPtrW(this->hwnd, GWLP_USERDATA, defProc);
+    }
+
+    this->SetProp(L"~", (HANDLE)this);
+}
+
+LRESULT DialogItem::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    if (WM_DESTROY == uMsg)
+    {
+        this->hwnd = 0;
+    }
+
+    return DialogItem::DefWndProc(hWnd, uMsg, wParam, lParam);
+}
+
 DialogItem::operator bool() const
 {
     return nullptr != this->hwnd;
+}
+
+DialogItem::operator HWND() const
+{
+    return this->hwnd;
 }
 
 HFONT DialogItem::CreateFont(const wchar_t* family, int size, int weight, bool italic, bool underline, bool strikeOut, DWORD charSet, DWORD outPrecision, DWORD clipPrecision, DWORD quality, DWORD pitchAndFamity, int escapement, int orientation)
@@ -283,7 +334,11 @@ WNDPROC DialogItem::Subclass(DialogItem& item, WNDPROC WndProc)
     }
 
     auto defProc = SetWindowLongPtrW(item.Handle(), GWLP_WNDPROC, (LONG_PTR)WndProc);
-    SetWindowLongPtrW(item.Handle(), GWLP_USERDATA, defProc);
+
+    if (!GetWindowLongPtrW(item.Handle(), GWLP_USERDATA))
+    {
+        SetWindowLongPtrW(item.Handle(), GWLP_USERDATA, defProc);
+    }
 
     return (WNDPROC)defProc;
 }

@@ -9,6 +9,7 @@ class DialogItem
 public:
     DialogItem();
     DialogItem(HWND hWnd);
+    virtual ~DialogItem();
 
     void Destroy();
 
@@ -53,7 +54,11 @@ public:
     HWND Handle() const;
     HWND Parent() const;
 
+    void Subclass();
+    virtual LRESULT WndProc(HWND, UINT, WPARAM, LPARAM);
+
     operator bool() const;
+    operator HWND() const;
 
     static HFONT CreateFont(const wchar_t* family, int size, int weight = FW_DONTCARE, bool italic = false, bool underline = false, bool strikeOut = false, DWORD charSet = DEFAULT_CHARSET, DWORD outPrecision = OUT_DEFAULT_PRECIS, DWORD clipPrecision = CLIP_DEFAULT_PRECIS, DWORD quality = DEFAULT_QUALITY, DWORD pitchAndFamity = DEFAULT_PITCH | FF_DONTCARE, int escapement = 0, int orientation = 0);
     static void  DestroyFont(HFONT font);
