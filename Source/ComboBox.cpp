@@ -3,27 +3,8 @@
 
 using namespace std;
 
-ComboBox ComboBox::Create(HWND parent, UINT id, DWORD type, HINSTANCE instance)
+ComboBox::ComboBox(HWND hWnd) : DialogItem(hWnd)
 {
-    DialogItem di;
-
-    if (parent)
-    {
-        DWORD style = WS_CHILD | WS_TABSTOP | WS_VSCROLL;
-
-        if (ComboBox::Simple != type)
-        {
-            style |= WS_OVERLAPPED;
-        }
-
-        auto hwnd = CreateWindowExW(0, WC_COMBOBOXW, nullptr, type | style, 0, 0, 0, 0, parent, (HMENU)(UINT_PTR)id, instance, nullptr);
-        if (hwnd)
-        {
-            di = DialogItem(hwnd);
-        }
-    }
-
-    return (ComboBox&)di;
 }
 
 int ComboBox::Add(const wchar_t* item)
@@ -187,4 +168,27 @@ void* ComboBox::Data() const
     }
 
     return this->ItemData(index);
+}
+
+ComboBox ComboBox::Create(HWND parent, UINT id, DWORD type, HINSTANCE instance)
+{
+    DialogItem di;
+
+    if (parent)
+    {
+        DWORD style = WS_CHILD | WS_TABSTOP | WS_VSCROLL;
+
+        if (ComboBox::Simple != type)
+        {
+            style |= WS_OVERLAPPED;
+        }
+
+        auto hwnd = CreateWindowExW(0, WC_COMBOBOXW, nullptr, type | style, 0, 0, 0, 0, parent, (HMENU)(UINT_PTR)id, instance, nullptr);
+        if (hwnd)
+        {
+            di = DialogItem(hwnd);
+        }
+    }
+
+    return (ComboBox&)di;
 }

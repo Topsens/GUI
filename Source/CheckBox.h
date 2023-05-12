@@ -5,7 +5,7 @@
 class CheckBox : public DialogItem
 {
 public:
-    static CheckBox Create(HWND parent, UINT id, const std::wstring& text, DWORD type = CheckBox::Auto, HINSTANCE instance = nullptr);
+    CheckBox(HWND hWnd);
 
     void Check() const;
     bool IsChecked() const;
@@ -14,6 +14,9 @@ public:
     void Indeterminate() const;
     bool IsIndeterminate() const;
 
+    static CheckBox Create(HWND parent, UINT id, const std::wstring& text, DWORD type = CheckBox::Auto, HINSTANCE instance = nullptr);
+
+public:
     static const DWORD Auto = BS_AUTOCHECKBOX;
     static const DWORD Auto3 = BS_AUTO3STATE;
     static const DWORD AutoRadio = BS_AUTORADIOBUTTON;

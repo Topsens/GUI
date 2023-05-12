@@ -3,6 +3,10 @@
 
 using namespace std;
 
+Button::Button(HWND hWnd) : DialogItem(hWnd)
+{
+}
+
 Button Button::Create(HWND parent, UINT id, const wstring& text, HINSTANCE instance)
 {
     DialogItem di;

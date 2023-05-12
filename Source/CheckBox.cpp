@@ -3,20 +3,8 @@
 
 using namespace std;
 
-CheckBox CheckBox::Create(HWND parent, UINT id, const wstring& text, DWORD type, HINSTANCE instance)
+CheckBox::CheckBox(HWND hWnd) : DialogItem(hWnd)
 {
-    DialogItem di;
-
-    if (parent)
-    {
-        auto hwnd = CreateWindowExW(0, WC_BUTTONW, text.c_str(), type | BS_CHECKBOX | WS_CHILD | WS_TABSTOP, 0, 0, 0, 0, parent, (HMENU)(UINT_PTR)id, instance, nullptr);
-        if (hwnd)
-        {
-            di = DialogItem(hwnd);
-        }
-    }
-
-    return (CheckBox&)di;
 }
 
 void CheckBox::Check() const
@@ -47,4 +35,20 @@ void CheckBox::Indeterminate() const
 bool CheckBox::IsIndeterminate() const
 {
     return BST_INDETERMINATE == this->Send(BM_GETCHECK);
+}
+
+CheckBox CheckBox::Create(HWND parent, UINT id, const wstring& text, DWORD type, HINSTANCE instance)
+{
+    DialogItem di;
+
+    if (parent)
+    {
+        auto hwnd = CreateWindowExW(0, WC_BUTTONW, text.c_str(), type | BS_CHECKBOX | WS_CHILD | WS_TABSTOP, 0, 0, 0, 0, parent, (HMENU)(UINT_PTR)id, instance, nullptr);
+        if (hwnd)
+        {
+            di = DialogItem(hwnd);
+        }
+    }
+
+    return (CheckBox&)di;
 }

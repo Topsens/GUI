@@ -5,6 +5,8 @@
 class Slider : public DialogItem
 {
 public:
+    Slider(HWND hWnd);
+
     int  Position() const;
     void Position(int pos, bool redraw = true);
 

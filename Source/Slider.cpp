@@ -1,6 +1,10 @@
 #include "Slider.h"
 #include <CommCtrl.h>
 
+Slider::Slider(HWND hWnd) : DialogItem(hWnd)
+{
+}
+
 int Slider::Position() const
 {
     return (int)this->Send(TBM_GETPOS);

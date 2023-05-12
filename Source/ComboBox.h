@@ -5,7 +5,7 @@
 class ComboBox : public DialogItem
 {
 public:
-    static ComboBox Create(HWND parent, UINT id, DWORD type = ComboBox::DropdownList, HINSTANCE instance = nullptr);
+    ComboBox(HWND hWnd);
 
     int  Add(const wchar_t* item);
     int  Add(const std::wstring& item);
@@ -37,6 +37,9 @@ public:
     std::wstring Text() const;
     void*        Data() const;
 
+    static ComboBox Create(HWND parent, UINT id, DWORD type = ComboBox::DropdownList, HINSTANCE instance = nullptr);
+
+public:
     static const DWORD Simple = CBS_SIMPLE;
     static const DWORD Dropdown = CBS_DROPDOWN;
     static const DWORD DropdownList = CBS_DROPDOWNLIST;

@@ -1,20 +1,8 @@
 #include "ProgressBar.h"
 #include <CommCtrl.h>
 
-ProgressBar ProgressBar::Create(HWND parent, UINT id, HINSTANCE instance)
+ProgressBar::ProgressBar(HWND hWnd) : DialogItem(hWnd)
 {
-    DialogItem di;
-
-    if (parent)
-    {
-        auto hWnd = CreateWindowExW(0, PROGRESS_CLASSW, nullptr, WS_CHILD, 0, 0, 0, 0, parent, (HMENU)(UINT_PTR)id, instance, nullptr);
-        if (hWnd)
-        {
-            di = DialogItem(hWnd);
-        }
-    }
-
-    return (ProgressBar&)di;
 }
 
 bool ProgressBar::SetRange(int min, int max)
@@ -50,4 +38,20 @@ int ProgressBar::Position()
 void ProgressBar::Position(int pos)
 {
     this->Send(PBM_SETPOS, (WPARAM)pos);
+}
+
+ProgressBar ProgressBar::Create(HWND parent, UINT id, HINSTANCE instance)
+{
+    DialogItem di;
+
+    if (parent)
+    {
+        auto hWnd = CreateWindowExW(0, PROGRESS_CLASSW, nullptr, WS_CHILD, 0, 0, 0, 0, parent, (HMENU)(UINT_PTR)id, instance, nullptr);
+        if (hWnd)
+        {
+            di = DialogItem(hWnd);
+        }
+    }
+
+    return (ProgressBar&)di;
 }
